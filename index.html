@@ -65,7 +65,7 @@ const B=(c,o={})=>new THREE.MeshBasicMaterial(Object.assign({color:c},o));
 function ctex(w,h,draw,rx=1,ry=1){const c=document.createElement('canvas');c.width=w;c.height=h;draw(c.getContext('2d'));const t=new THREE.CanvasTexture(c);t.magFilter=t.minFilter=THREE.NearestFilter;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(rx,ry);t.colorSpace=THREE.SRGBColorSpace;return t}
 function box(w,h,d,mat,x,y,z,parent=scene){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);m.position.set(x,y,z);parent.add(m);return m}
 const wallDraw=c=>{c.fillStyle='#8d8672';c.fillRect(0,0,32,32);c.fillStyle='#3f5f55';c.fillRect(0,17,32,15);c.fillStyle='#2a4038';for(let y=17;y<32;y+=5)c.fillRect(0,y,32,1);for(let x=0;x<32;x+=8)c.fillRect(x,17,1,15);c.fillStyle='#6b6553';c.fillRect(0,15,32,2)};
-function wall(w,h,x,y,z,ry){const m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),M(0xffffff,{map:ctex(32,32,wallDraw,w/2.4,h/3)}));m.position.set(x,y,z);m.rotation.y=ry;scene.add(m);return m}
+function wall(w,h,x,y,z,ry){const m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),M(0xffffff,{map:ctex(32,32,wallDraw,w/2.4,h/3),side:THREE.DoubleSide}));m.position.set(x,y,z);m.rotation.y=ry;scene.add(m);return m}
 
 /* ---------- room: x -5..5, z -4..4, height 3 ---------- */
 const floor=new THREE.Mesh(new THREE.PlaneGeometry(10,8),M(0xffffff,{map:ctex(16,16,c=>{c.fillStyle='#5b5b61';c.fillRect(0,0,16,16);c.fillStyle='#3b3b41';c.fillRect(0,0,8,8);c.fillRect(8,8,8,8)},10,8)}));
