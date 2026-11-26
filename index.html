@@ -175,6 +175,23 @@ function sign(txt,x,bg,fg){const m=new THREE.Mesh(new THREE.PlaneGeometry(3.4,.5
 [[-20,'KEDAI RUNCIT'],[-10,'FARMASI'],[10,'GUNTING RAMBUT'],[20,'KEDAI EMAS']].forEach(([cx,t])=>{
   wall(10,3,cx,1.5,4,0);const sh=new THREE.Mesh(new THREE.PlaneGeometry(4.2,2.4),shutTex());sh.position.set(cx,1.2,4.04);scene.add(sh);sign(t,cx,'#1d2a2a','#7a8a80');
   wall(10,.01,cx,.01,4.05,0).visible=false});
+/* A-frame chalkboard beside the door (fades day by day) */
+const boardCv=document.createElement('canvas');boardCv.width=256;boardCv.height=336;
+const boardTex=new THREE.CanvasTexture(boardCv);boardTex.magFilter=boardTex.minFilter=THREE.NearestFilter;boardTex.colorSpace=THREE.SRGBColorSpace;
+function drawBoard(day){const c=boardCv.getContext('2d'),w=256,h=336;c.clearRect(0,0,w,h);c.fillStyle='#6b5a3a';c.fillRect(0,0,w,h);c.fillStyle='#1f2a24';c.fillRect(10,10,w-20,h-20);
+  const al=[1,.9,.65,.4,.0][Math.max(0,Math.min(4,day-1))];c.globalAlpha=al;c.fillStyle='#f3ead0';c.textAlign='center';
+  c.strokeStyle='rgba(243,234,208,.45)';c.setLineDash([4,4]);c.strokeRect(20,20,w-40,h-40);c.setLineDash([]);
+  c.font='bold 44px "Noto Sans CJK SC","Noto Sans SC","PingFang SC","Microsoft YaHei","Heiti SC",sans-serif';c.fillText('\u963f\u516c\u8336\u9910\u9986',w/2,110);
+  c.font='bold 23px monospace';c.fillText('ATUK KOPITIAM',w/2,148);c.fillRect(48,168,160,2);
+  c.font='bold 18px monospace';c.fillText('Kopi  Teh  Roti Bakar',w/2,206);
+  if(day<3){c.font='bold 19px monospace';c.fillText('7am - 5pm',w/2,244)}
+  if(day<2){c.beginPath();c.arc(w/2-8,278,12,0,Math.PI);c.lineWidth=2;c.strokeStyle='#f3ead0';c.stroke();c.fillRect(w/2+4,268,8,2)}
+  c.globalAlpha=1;boardTex.needsUpdate=true}
+drawBoard(1);
+{const g=new THREE.Group();g.position.set(2.9,0,5.2);g.rotation.y=-.12;scene.add(g);const wood=M(0x6b5a3a);
+ const fr=box(.74,.95,.05,wood,0,.46,.14,g);fr.rotation.x=-.27;const bk=box(.74,.95,.05,wood,0,.46,-.14,g);bk.rotation.x=.27;
+ const face=new THREE.Mesh(new THREE.PlaneGeometry(.7,.92),new THREE.MeshBasicMaterial({map:boardTex,color:0xcfcfcf}));face.position.set(0,0,.03);fr.add(face);
+ AABB.push([2.5,3.3,4.9,5.5])}
 /* lamps (cheap glow, no extra lights) */
 for(const x of LAMPS){box(.12,3.6,.12,M(0x222428),x,1.8,13.6);box(.5,.1,.2,M(0x222428),x,3.6,13.4);box(.3,.08,.14,B(0xffd27a),x,3.52,13.3);
   const g=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,fog:false}));g.position.set(x,3.45,13.3);g.scale.set(4,4,1);scene.add(g)}
@@ -336,6 +353,6 @@ $('begin').addEventListener('click',begin);
 $('again').addEventListener('click',()=>location.reload());
 if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 requestAnimationFrame(t=>{last=t;frame(t)});
-window.__lo={crowd:showCrowd,land:isLand,st:()=>({state,busy,scareDone,x:P.x,z:P.z,yaw:P.yaw,lights:lightsOn,cur:cur&&cur.id}),goto:(x,z)=>{P.tx=x;P.tz=z},tp:(x,z,y)=>{P.x=x;P.z=z;P.yaw=y||0;P.tx=null},look:(y,p)=>{P.yaw=y;P.pitch=p||0},act:id=>{const o=ITS.find(i=>i.id===id);o.act()},begin};
+window.__lo={board:drawBoard,crowd:showCrowd,land:isLand,st:()=>({state,busy,scareDone,x:P.x,z:P.z,yaw:P.yaw,lights:lightsOn,cur:cur&&cur.id}),goto:(x,z)=>{P.tx=x;P.tz=z},tp:(x,z,y)=>{P.x=x;P.z=z;P.yaw=y||0;P.tx=null},look:(y,p)=>{P.yaw=y;P.pitch=p||0},act:id=>{const o=ITS.find(i=>i.id===id);o.act()},begin};
 </script>
 </body></html>

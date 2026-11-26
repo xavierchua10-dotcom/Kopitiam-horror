@@ -29,5 +29,6 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 - Landscape two-thumb controls, fullscreen, installable.
 - Shop floor, kitchen, hall, bathroom, Atuk's table. Customers and Atuk exist but are hidden until the Day 1 story.
 - Outside world: five-foot-way walkway, empty road, closed neighbour shoplots (KEDAI RUNCIT, FARMASI, GUNTING RAMBUT, KEDAI EMAS), dark empty city blocks, lamps, stars and moon. Shutter now starts open.
+- A-frame chalkboard beside the door: 阿公茶餐馆 / ATUK KOPITIAM / Kopi Teh Roti Bakar / 7am - 5pm. Chalk fades by day (function drawBoard(day); hours vanish on Day 3, blank by Day 5).
 - Your house across the road: living room with altar and photo, bedroom, kitchen. Ending now triggers at the house door.
 - The original 3:07 AM closing-night scene (radio, blackout, fuse box, pale figure, hatch, shutter ending).
