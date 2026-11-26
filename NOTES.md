@@ -14,6 +14,17 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 - Do not close the shutter first. Open the world instead: build the shoplots outside, an empty city street, and the player's house.
 - Mock up the player's house.
 
+## Story details (agreed direction, Nov 27)
+- Atuk: stern outside, caring inside. Reads his newspaper, says "Makan dulu" first, saves the best kopi for the player.
+- Player: Atuk's grandchild, raised in the kopitiam.
+- Backstory: every dawn Atuk came back from the market and knocked three times on the shutter. One morning there was no knock. The clock stopped at 3:07 AM. The player keeps living the same day in their head and keeps the rule.
+- The voice outside at night is family (aunt, neighbour) calling the player out; the player's mind turns it into Atuk's voice.
+- Day 5: three knocks in the aunt's real voice. Open = dawn, aunt hugs the player, end line "Atuk won't come through that door again. But you can." Stay = back to Day 1.
+- Build one day at a time, test, then next day.
+
+## Set-piece idea (Nov 27)
+- One short scripted chase on Day 4 night: something follows the player along the empty street, run for the house door. Fixed path, no enemy AI. No game over: if caught, lights cut and the player wakes at the start of that night. Do after Days 1 to 3.
+
 ## Built so far
 - Landscape two-thumb controls, fullscreen, installable.
 - Shop floor, kitchen, hall, bathroom, Atuk's table. Customers and Atuk exist but are hidden until the Day 1 story.
