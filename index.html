@@ -156,6 +156,7 @@ const ZONES=[[-4.65,4.65,-3.65,3.6],[-2.2,4.65,-6.65,-4.35],[3.45,4.15,-4.4,-3.6
 
 /* ---------- the street, the empty city, your house ---------- */
 const LAMPS=[-20,-8,8,20];
+const glowTex=ctex(32,32,c=>{const g=c.createRadialGradient(16,16,0,16,16,16);g.addColorStop(0,'rgba(255,214,130,.95)');g.addColorStop(1,'rgba(255,214,130,0)');c.fillStyle=g;c.fillRect(0,0,32,32)});glowTex.repeat.set(1,1);
 function fl(x0,x1,z0,z1,mat,y=0){const m=new THREE.Mesh(new THREE.PlaneGeometry(x1-x0,z1-z0),mat);m.rotation.x=-Math.PI/2;m.position.set((x0+x1)/2,y,(z0+z1)/2);scene.add(m);return m}
 function cl(x0,x1,z0,z1,mat,y=3){const m=new THREE.Mesh(new THREE.PlaneGeometry(x1-x0,z1-z0),mat);m.rotation.x=Math.PI/2;m.position.set((x0+x1)/2,y,(z0+z1)/2);scene.add(m)}
 const chk=(a,b,rx,ry)=>M(0xffffff,{map:ctex(16,16,c=>{c.fillStyle=a;c.fillRect(0,0,16,16);c.fillStyle=b;c.fillRect(0,0,8,8);c.fillRect(8,8,8,8)},rx,ry)});
@@ -168,12 +169,13 @@ fl(-60,60,13,14.6,chk('#4a4a52','#3e3e46',100,2));
 /* neighbour shoplots: closed shutters, dark signs */
 const shutTex=()=>M(0xffffff,{map:ctex(8,16,c=>{c.fillStyle='#5a5e64';c.fillRect(0,0,8,16);c.fillStyle='#43474d';for(let y=0;y<16;y+=3)c.fillRect(0,y,8,1)},1,6)});
 function sign(txt,x,bg,fg){const m=new THREE.Mesh(new THREE.PlaneGeometry(3.4,.55),M(0xffffff,{map:ctex(136,22,c=>{c.fillStyle=bg;c.fillRect(0,0,136,22);c.fillStyle=fg;c.font='bold 14px monospace';c.textAlign='center';c.fillText(txt,68,16)})}));m.position.set(x,2.78,4.06);scene.add(m)}
-sign('KOPITIAM','#4a1a1a','#e8d9a0');
+{const t=ctex(256,35,c=>{c.fillStyle='#5a1414';c.fillRect(0,0,256,35);c.strokeStyle='#e8c35a';c.lineWidth=2;c.strokeRect(3,3,250,29);c.fillStyle='#ffe9a8';c.font='bold 21px monospace';c.textAlign='center';c.fillText('ATUK KOPITIAM',128,25)});
+ const sg=new THREE.Mesh(new THREE.PlaneGeometry(4.4,.6),new THREE.MeshBasicMaterial({map:t}));sg.position.set(0,2.7,4.07);scene.add(sg);
+ const gl=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,fog:false,opacity:.35,color:0xff6a4a}));gl.position.set(0,2.7,4.3);gl.scale.set(7,2.2,1);scene.add(gl)}
 [[-20,'KEDAI RUNCIT'],[-10,'FARMASI'],[10,'GUNTING RAMBUT'],[20,'KEDAI EMAS']].forEach(([cx,t])=>{
   wall(10,3,cx,1.5,4,0);const sh=new THREE.Mesh(new THREE.PlaneGeometry(4.2,2.4),shutTex());sh.position.set(cx,1.2,4.04);scene.add(sh);sign(t,cx,'#1d2a2a','#7a8a80');
   wall(10,.01,cx,.01,4.05,0).visible=false});
 /* lamps (cheap glow, no extra lights) */
-const glowTex=ctex(32,32,c=>{const g=c.createRadialGradient(16,16,0,16,16,16);g.addColorStop(0,'rgba(255,214,130,.95)');g.addColorStop(1,'rgba(255,214,130,0)');c.fillStyle=g;c.fillRect(0,0,32,32)});glowTex.repeat.set(1,1);
 for(const x of LAMPS){box(.12,3.6,.12,M(0x222428),x,1.8,13.6);box(.5,.1,.2,M(0x222428),x,3.6,13.4);box(.3,.08,.14,B(0xffd27a),x,3.52,13.3);
   const g=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,fog:false}));g.position.set(x,3.45,13.3);g.scale.set(4,4,1);scene.add(g)}
 /* empty city blocks (dark windows) */
