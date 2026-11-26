@@ -17,4 +17,6 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 ## Built so far
 - Landscape two-thumb controls, fullscreen, installable.
 - Shop floor, kitchen, hall, bathroom, Atuk's table. Customers and Atuk exist but are hidden until the Day 1 story.
+- Outside world: five-foot-way walkway, empty road, closed neighbour shoplots (KEDAI RUNCIT, FARMASI, GUNTING RAMBUT, KEDAI EMAS), dark empty city blocks, lamps, stars and moon. Shutter now starts open.
+- Your house across the road: living room with altar and photo, bedroom, kitchen. Ending now triggers at the house door.
 - The original 3:07 AM closing-night scene (radio, blackout, fuse box, pale figure, hatch, shutter ending).

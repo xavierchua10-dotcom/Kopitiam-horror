@@ -52,11 +52,11 @@ const $=id=>document.getElementById(id),sleep=ms=>new Promise(r=>setTimeout(r,ms
 const cv=$('c');
 let renderer;
 try{renderer=new THREE.WebGLRenderer({canvas:cv,antialias:false,powerPreference:'low-power'})}catch(e){document.body.insertAdjacentHTML('beforeend','<div class="card"><p>This game needs WebGL, which your browser did not start.</p></div>');throw e}
-const RES=.55;
+let RES=.55;
 function resize(){renderer.setPixelRatio(1);renderer.setSize(Math.max(120,Math.round(innerWidth*RES)),Math.max(200,Math.round(innerHeight*RES)),false);camera.aspect=innerWidth/innerHeight;camera.fov=camera.aspect>1?68:88;camera.updateProjectionMatrix()}
 const isLand=()=>innerWidth>innerHeight*1.1;
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x05070a);scene.fog=new THREE.FogExp2(0x05070a,.075);
-const camera=new THREE.PerspectiveCamera(88,1,.08,30);camera.rotation.order='YXZ';scene.add(camera);
+const camera=new THREE.PerspectiveCamera(88,1,.08,160);camera.rotation.order='YXZ';scene.add(camera);
 addEventListener('resize',resize);
 
 /* ---------- helpers ---------- */
@@ -75,9 +75,8 @@ wall(6,3,-5,1.5,-1,Math.PI/2);wall(1,3,-5,1.5,3.5,Math.PI/2);wall(1,.6,-5,2.7,2.
 wall(3.8,3,-3.1,1.5,-4,0);wall(2.1,3,2.25,1.5,-4,0);wall(.7,3,4.65,1.5,-4,0);wall(1,.6,3.8,2.7,-4,0);wall(2.4,1,0,.5,-4,0);wall(2.4,1,0,2.5,-4,0);
 wall(3,3,-3.5,1.5,4,Math.PI);wall(3,3,3.5,1.5,4,Math.PI);wall(4,.6,0,2.7,4,Math.PI);
 const ledge=box(2.6,.06,.5,M(0x5a4a30),0,1.0,-3.8);
-const outside=new THREE.Mesh(new THREE.PlaneGeometry(14,7),B(0x04060c));outside.position.set(0,2,6);outside.rotation.y=Math.PI;scene.add(outside);
 const shutter=new THREE.Mesh(new THREE.PlaneGeometry(4,2.4),M(0xffffff,{map:ctex(8,16,c=>{c.fillStyle='#6a6e74';c.fillRect(0,0,8,16);c.fillStyle='#4b4f55';for(let y=0;y<16;y+=3)c.fillRect(0,y,8,1)},1,6)}));
-shutter.position.set(0,1.2,3.96);shutter.rotation.y=Math.PI;scene.add(shutter);
+shutter.position.set(0,3.6,3.96);shutter.rotation.y=Math.PI;scene.add(shutter);
 /* menu board + clock */
 const menu=new THREE.Mesh(new THREE.PlaneGeometry(.9,1.1),M(0xffffff,{map:ctex(64,80,c=>{c.fillStyle='#1a1a15';c.fillRect(0,0,64,80);c.fillStyle='#e8c35a';c.font='bold 9px monospace';c.fillText('KOPI  2.20',6,16);c.fillText('TEH   2.00',6,30);c.fillText('MILO  2.80',6,44);c.fillText('ROTI BAKAR',6,58);c.fillText('3.50',6,70)})}));menu.position.set(2.0,1.9,-3.97);scene.add(menu);
 const clock=new THREE.Mesh(new THREE.CircleGeometry(.24,12),B(0x9a9a98));clock.position.set(-3.2,2.3,-3.96);scene.add(clock);
@@ -130,9 +129,8 @@ box(1.4,.05,.14,tubeMat[0],0,2.94,1.4);box(1.4,.05,.14,tubeMat[1],0,2.94,-1.7);
 const L1=new THREE.PointLight(0xcfe8ff,0,16,2);L1.position.set(0,2.6,1.4);scene.add(L1);
 const L2=new THREE.PointLight(0xcfe8ff,0,16,2);L2.position.set(0,2.6,-1.7);scene.add(L2);
 box(1.4,.05,.14,(tubeMat[2]=B(0xdff3ff)),1.25,2.94,-5.5);box(.7,.05,.12,(tubeMat[3]=B(0xdff3ff)),-8.25,2.94,2.5);
-const L3=new THREE.PointLight(0xdfeee0,0,12,2);L3.position.set(1.25,2.5,-5.5);scene.add(L3);
-const L4=new THREE.PointLight(0xd8e8ff,0,10,2);L4.position.set(-8.25,2.5,2.5);scene.add(L4);
-let kitS=1,batS=1;
+const LZ=new THREE.PointLight(0xdfeee0,0,18,2);LZ.position.set(1.25,2.5,-5.5);scene.add(LZ);
+let ZK=0;
 const amb=new THREE.AmbientLight(0x6070a0,.02);scene.add(amb);
 const torch=new THREE.SpotLight(0xfff4d6,0,14,.45,.55,1.4);torch.position.set(.15,-.1,0);camera.add(torch);torch.target.position.set(0,0,-5);camera.add(torch.target);
 const dawn=new THREE.PointLight(0x7f9bff,0,10,2);dawn.position.set(0,1.6,4.6);scene.add(dawn);
@@ -154,6 +152,53 @@ function person(x,z,rot,shirt,hair=0x222222,skin=0xc9a27e){const g=new THREE.Gro
 const CROWD=[person(-3,-1.0,0,0x3b5a7a),person(-3,-2.6,Math.PI,0x7a3b3b,0x8a8a8a),person(-3,.4,Math.PI,0x4a6a3b),person(-1.7,-.5,Math.PI,0x6a5a3b,0x111111),person(-1.7,1.1,0,0x5a3b6a,0x3a2a1a)];
 const atuk=person(2.2,3.6,0,0x8a8f9a,0xd8d8d8,0xb89572);
 function showCrowd(v){CROWD.forEach(c=>c.visible=v);atuk.visible=v}
+const ZONES=[[-4.65,4.65,-3.65,3.6],[-2.2,4.65,-6.65,-4.35],[3.45,4.15,-4.4,-3.6],[-7.15,-4.35,2.15,2.85],[-9.15,-7.15,1.35,3.65]];
+
+/* ---------- the street, the empty city, your house ---------- */
+const LAMPS=[-20,-8,8,20];
+function fl(x0,x1,z0,z1,mat,y=0){const m=new THREE.Mesh(new THREE.PlaneGeometry(x1-x0,z1-z0),mat);m.rotation.x=-Math.PI/2;m.position.set((x0+x1)/2,y,(z0+z1)/2);scene.add(m);return m}
+function cl(x0,x1,z0,z1,mat,y=3){const m=new THREE.Mesh(new THREE.PlaneGeometry(x1-x0,z1-z0),mat);m.rotation.x=Math.PI/2;m.position.set((x0+x1)/2,y,(z0+z1)/2);scene.add(m)}
+const chk=(a,b,rx,ry)=>M(0xffffff,{map:ctex(16,16,c=>{c.fillStyle=a;c.fillRect(0,0,16,16);c.fillStyle=b;c.fillRect(0,0,8,8);c.fillRect(8,8,8,8)},rx,ry)});
+fl(-26,26,4,6.5,chk('#5a5a62','#4a4a52',52,5));            /* five-foot way */
+cl(-26,26,4,6.5,M(0x23252e));
+for(const x of[-25,-15,-5,5,15,25]){box(.35,3,.35,M(0x5d5a52),x,1.5,6.4);AABB.push([x-.4,x+.4,6,6.8])}
+fl(-60,60,6.5,13,M(0x2a2c32));
+fl(-60,60,9.6,9.9,M(0xffffff,{map:ctex(32,2,c=>{c.fillStyle='#1c1d21';c.fillRect(0,0,32,2);c.fillStyle='#b9b6a4';c.fillRect(0,0,16,2)},60,1),transparent:false}),.01);
+fl(-60,60,13,14.6,chk('#4a4a52','#3e3e46',100,2));
+/* neighbour shoplots: closed shutters, dark signs */
+const shutTex=()=>M(0xffffff,{map:ctex(8,16,c=>{c.fillStyle='#5a5e64';c.fillRect(0,0,8,16);c.fillStyle='#43474d';for(let y=0;y<16;y+=3)c.fillRect(0,y,8,1)},1,6)});
+function sign(txt,x,bg,fg){const m=new THREE.Mesh(new THREE.PlaneGeometry(3.4,.55),M(0xffffff,{map:ctex(136,22,c=>{c.fillStyle=bg;c.fillRect(0,0,136,22);c.fillStyle=fg;c.font='bold 14px monospace';c.textAlign='center';c.fillText(txt,68,16)})}));m.position.set(x,2.78,4.06);scene.add(m)}
+sign('KOPITIAM','#4a1a1a','#e8d9a0');
+[[-20,'KEDAI RUNCIT'],[-10,'FARMASI'],[10,'GUNTING RAMBUT'],[20,'KEDAI EMAS']].forEach(([cx,t])=>{
+  wall(10,3,cx,1.5,4,0);const sh=new THREE.Mesh(new THREE.PlaneGeometry(4.2,2.4),shutTex());sh.position.set(cx,1.2,4.04);scene.add(sh);sign(t,cx,'#1d2a2a','#7a8a80');
+  wall(10,.01,cx,.01,4.05,0).visible=false});
+/* lamps (cheap glow, no extra lights) */
+const glowTex=ctex(32,32,c=>{const g=c.createRadialGradient(16,16,0,16,16,16);g.addColorStop(0,'rgba(255,214,130,.95)');g.addColorStop(1,'rgba(255,214,130,0)');c.fillStyle=g;c.fillRect(0,0,32,32)});glowTex.repeat.set(1,1);
+for(const x of LAMPS){box(.12,3.6,.12,M(0x222428),x,1.8,13.6);box(.5,.1,.2,M(0x222428),x,3.6,13.4);box(.3,.08,.14,B(0xffd27a),x,3.52,13.3);
+  const g=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,fog:false}));g.position.set(x,3.45,13.3);g.scale.set(4,4,1);scene.add(g)}
+/* empty city blocks (dark windows) */
+const winTex=(rx,ry)=>M(0xffffff,{map:ctex(16,16,c=>{c.fillStyle='#15171d';c.fillRect(0,0,16,16);c.fillStyle='#0b0c10';c.fillRect(3,3,10,10);c.fillStyle='#1c1f27';c.fillRect(3,8,10,1)},rx,ry)});
+[[-44,-26,9],[-24,-8,6],[17,28,8],[30,46,6],[-12,2,5]].forEach(([a,b,h])=>{const m=new THREE.Mesh(new THREE.BoxGeometry(b-a,h,8),winTex((b-a)/2.5,h/2.5));m.position.set((a+b)/2,h/2,19);scene.add(m)});
+box(30,.2,10,M(0x15171d),-8,.1,32);
+/* sky */
+{const g=new THREE.BufferGeometry(),n=220,a=new Float32Array(n*3);for(let i=0;i<n;i++){const th=Math.random()*Math.PI*2,ph=Math.random()*1.2+.15,r=110;a[i*3]=Math.cos(th)*Math.cos(ph)*r;a[i*3+1]=Math.sin(ph)*r;a[i*3+2]=Math.sin(th)*Math.cos(ph)*r}
+ g.setAttribute('position',new THREE.BufferAttribute(a,3));scene.add(new THREE.Points(g,new THREE.PointsMaterial({color:0x9aa6c8,size:1.6,sizeAttenuation:false,fog:false})));
+ const mo=new THREE.Mesh(new THREE.SphereGeometry(4,8,6),new THREE.MeshBasicMaterial({color:0xcfd6e8,fog:false}));mo.position.set(-55,45,95);scene.add(mo)}
+/* your house: x 3..15, z 15..23 */
+const hwT=(w,h)=>M(0xffffff,{map:ctex(16,16,c=>{c.fillStyle='#b0a58c';c.fillRect(0,0,16,16);c.fillStyle='#8a8070';c.fillRect(0,10,16,6);c.fillStyle='#5a5446';c.fillRect(0,10,16,1)},w/2.4,1),side:THREE.DoubleSide});
+function hw(w,h,x,y,z,ry){const m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),hwT(w,h));m.position.set(x,y,z);m.rotation.y=ry;scene.add(m)}
+hw(2.5,3,4.25,1.5,15,0);hw(8.3,3,10.85,1.5,15,0);hw(1.2,.8,6.1,2.6,15,0);hw(12,3,9,1.5,23,0);hw(8,3,3,1.5,19,Math.PI/2);hw(8,3,15,1.5,19,Math.PI/2);
+hw(1,3,9,1.5,15.5,Math.PI/2);hw(3,3,9,1.5,18.5,Math.PI/2);hw(2,3,9,1.5,22,Math.PI/2);hw(1,.8,9,2.6,16.5,Math.PI/2);hw(1,.8,9,2.6,20.5,Math.PI/2);hw(6,3,12,1.5,19,0);
+fl(3,15,15,23,chk('#6b5a44','#5e4e3a',24,16));cl(3,15,15,23,M(0x2a2d3a));
+{const g=new THREE.Group();g.position.set(5.5,0,15);g.rotation.y=-1.25;scene.add(g);box(1.2,2.1,.06,M(0x5a3a28),.6,1.05,0,g);g.traverse(n=>{});window.__doorG=g}
+const doorMesh=window.__doorG.children[0];
+box(2,.45,.8,M(0x4a3b52),5.5,.22,21.5);box(2,.5,.2,M(0x4a3b52),5.5,.7,21.9);box(1,.4,.6,M(0x6b5a3a),5.5,.2,19.9);AABB.push([4.5,6.5,21.1,22.3],[5,6,19.6,20.2]);
+box(.5,.9,1.3,M(0x5a3a28),3.3,.45,18.5);box(.6,.05,1.4,M(0x6b4a30),3.3,.92,18.5);box(.04,.5,.4,M(0x222222),3.55,1.2,18.5);{const ph=new THREE.Mesh(new THREE.PlaneGeometry(.3,.4),B(0x9a9486));ph.position.set(3.58,1.2,18.5);ph.rotation.y=Math.PI/2;scene.add(ph)}
+for(const dz of[-.12,0,.12])box(.012,.2,.012,B(0xff5a3a),3.45,1.03,18.5+dz);
+AABB.push([3,3.7,17.8,19.2]);
+box(2.2,.4,1.2,M(0x6a6f8a),13.9,.2,17);box(.3,.1,.8,M(0xd8d8d8),14.8,.45,17);AABB.push([12.8,15,16.4,17.6]);
+box(1.2,.06,.8,M(0x6b5a3a),12,.75,21.2);for(const dx of[-.5,.5])for(const dz of[-.3,.3])box(.06,.75,.06,M(0x3a301f),12+dx,.37,21.2+dz);box(.7,1.8,.7,M(0xc8ccd0),14.5,.9,19.6);AABB.push([11.35,12.65,20.75,21.65],[14.1,15,19.2,20]);
+ZONES.push([-1.7,1.7,3.5,4.45],[-24.5,24.5,4.4,14.3],[5.65,6.55,14.2,15.4],[3.35,8.65,15.35,22.65],[8.5,9.5,16.15,16.85],[8.5,9.5,20.15,20.85],[9.35,14.65,15.35,18.65],[9.35,14.65,19.35,22.65]);
 
 /* ---------- audio ---------- */
 let ac=null,master,hum,humG,statG,droneG;
@@ -179,7 +224,7 @@ const A={
 
 /* ---------- lights ---------- */
 let lightF=0,lightsOn=false;
-function applyLights(f){lightF=f;L1.intensity=f*8;L2.intensity=f*8;L3.intensity=f*7*kitS;L4.intensity=f*6*batS;amb.intensity=.02+f*.4;tubeMat.forEach(m=>m.color.setRGB(.2+.8*f,.22+.8*f,.25+.8*f));scene.fog.color.setRGB(.02+.01*f,.027+.01*f,.04+.01*f);A.humv&&ac&&A.humv(f*.014)}
+function applyLights(f){lightF=f;L1.intensity=f*8;L2.intensity=f*8;LZ.intensity=f*ZK;amb.intensity=.02+f*.4;tubeMat.forEach(m=>m.color.setRGB(.2+.8*f,.22+.8*f,.25+.8*f));scene.fog.color.setRGB(.02+.01*f,.027+.01*f,.04+.01*f);A.humv&&ac&&A.humv(f*.014)}
 async function flicker(pat,gap=70){for(const v of pat){applyLights(v);await sleep(gap+Math.random()*50)}}
 async function lightsOnNow(){await flicker([.3,0,.8,0,0,.6,1,.2,1]);lightsOn=true}
 function lightsOffNow(){lightsOn=false;applyLights(0)}
@@ -192,21 +237,21 @@ async function say(t,ms=2600){const s=$('sub');s.textContent=t;s.classList.add('
 const ITS=[];
 function it(id,pos,label,enabled,act,meshes){const o={id,pos:new THREE.Vector3(...pos),label,enabled,act};for(const m of meshes)m.traverse(n=>{if(n.isMesh)n.userData.it=o});ITS.push(o);return o}
 it('radio',[4.15,1.2,-.2],'Turn off the radio',()=>state==='lit1',radioAct,[radio]);
-it('shutter',[0,1.2,3.9],'Lower the shutter',()=>state==='lit1'||state==='leave',shutterAct,[shutter]);
+it('shutter',[0,1.2,3.9],'Lower the shutter',()=>state==='lit1',shutterAct,[shutter]);
 it('fuse',[-4.9,1.5,.5],'Check the fuse box',()=>state==='dark',fuseAct,[fuse]);
 it('hatch',[0,1.3,-3.9],'Check the kitchen hatch',()=>state==='lit2',hatchAct,[cup,slip,ledge]);
 const hatchIt=ITS[3];
+it('housedoor',[6.1,1.2,15.1],'Go inside',()=>state==='leave',houseAct,[doorMesh]);
 async function radioAct(){busy=true;A.click();A.static(.12);await say('The radio hisses. Nobody tuned it.',2400);A.static(.2);await say('"...order forty-two..."',2300);A.static(.28);await say('"...still waiting..."',2300);A.static(0);A.sting();lightsOffNow();torch.intensity=26;state='dark';objT('Find the fuse box');busy=false;say('Something scrapes, far off in the dark.',2800);setTimeout(()=>A.scrape(),600)}
 async function fuseAct(){busy=true;A.click();await say('The breaker is warm to the touch.',1800);torch.intensity=0;await lightsOnNow();state='lit2';fig.visible=true;objT('Check the kitchen hatch');busy=false;say('The lights are back.',1800)}
 async function doScare(){busy=true;lightsOffNow();A.sting();await sleep(800);fig.visible=false;seat.position.set(2.45,.23,-.55);seat.rotation.y=.7;A.scrape();await sleep(500);await lightsOnNow();scareDone=true;await say('The stool is still swaying.',2300);busy=false}
 async function hatchAct(){busy=true;A.click();if(!scareDone){await doScare();busy=true}
   cup.visible=true;await say('A cold cup of kopi on the ledge.',2400);slip.visible=true;await say('Under it, a paper slip. No. 42.',2600);
   A.static(.25);await say('"...order forty-two. Ready."',2800);A.static(0);
-  A.rumble();const t0=performance.now();const sh=async()=>{while(performance.now()-t0<2600){shutter.position.y=1.2+2.4*Math.min(1,(performance.now()-t0)/2600);await sleep(33)}};
-  outside.material.color.set(0x24345e);dawn.intensity=4;await sh();shutter.visible=false;
-  state='leave';objT('Go home');busy=false;say('The shutter is open. Grey light outside.',2800)}
-async function shutterAct(){
-  if(state==='lit1'){A.click();busy=true;await say('Stuck. Like something is holding it from outside.',2600);busy=false;return}
+  A.rumble();dawn.intensity=4;await sleep(2000);
+  state='leave';objT('Go home');busy=false;say('Grey light outside. Your house is across the road.',3200)}
+async function shutterAct(){A.click();busy=true;await say('It will not come down. Like something is holding it from outside.',2800);busy=false}
+async function houseAct(){
   busy=true;A.click();$('fade').style.transition='opacity 1.6s';$('fade').style.opacity=1;await sleep(1800);$('end').style.display='flex';busy=false;state='end'}
 
 /* ---------- input ---------- */
@@ -237,7 +282,6 @@ prompt.addEventListener('pointerdown',e=>{e.stopPropagation()});
 prompt.addEventListener('click',e=>{e.stopPropagation();if(cur&&!busy)cur.act()});
 
 /* ---------- loop ---------- */
-const ZONES=[[-4.65,4.65,-3.65,3.6],[-2.2,4.65,-6.65,-4.35],[3.45,4.15,-4.4,-3.6],[-7.15,-4.35,2.15,2.85],[-9.15,-7.15,1.35,3.65]];
 function collide(){let bd=1e9,bx=P.x,bz=P.z;for(const [a,b,c,d] of ZONES){const x=Math.max(a,Math.min(b,P.x)),z=Math.max(c,Math.min(d,P.z)),q=(x-P.x)**2+(z-P.z)**2;if(q<bd){bd=q;bx=x;bz=z}}P.x=bx;P.z=bz;const r=.32;
   for(const [a,b,c,d] of AABB){if(P.x>a-r&&P.x<b+r&&P.z>c-r&&P.z<d+r){const l=P.x-(a-r),rr=(b+r)-P.x,t=P.z-(c-r),bt=(d+r)-P.z,m=Math.min(l,rr,t,bt);if(m===l)P.x=a-r;else if(m===rr)P.x=b+r;else if(m===t)P.z=c-r;else P.z=d+r}}}
 let last=0,acc=0,flickT=3;
@@ -254,7 +298,12 @@ function update(dt){
      P.x+=((-jy/l)*fx+(jx/l)*rx)*sp;P.z+=((-jy/l)*fz+(jx/l)*rz)*sp;collide();moving=Math.hypot(P.x-ox,P.z-oz)>sp*.15}}
   if(moving){P.bob+=dt*9;walkT+=dt;if(walkT>.52){walkT=0;A.step()}}
   camera.position.set(P.x,1.6+(moving?Math.sin(P.bob)*.035:0),P.z);camera.rotation.y=P.yaw;camera.rotation.x=P.pitch;
-  {const ks=P.z<1?1:0,bs=P.x<-3?1:0;if(ks!==kitS||bs!==batS){kitS=ks;batS=bs;applyLights(lightF)}}
+  {let zx=0,zy=2.5,zz=0,zk=0;
+   if(P.z>4.2&&P.z<14.8&&(P.z>14.2?!(P.x>3&&P.x<15.2):true)){let lx=LAMPS[0];for(const l of LAMPS)if(Math.abs(l-P.x)<Math.abs(lx-P.x))lx=l;zx=lx;zy=3.5;zz=10.5;zk=26}
+   else if(P.z>=14.8&&P.x>3&&P.x<15.2){zx=9;zy=2.6;zz=19;zk=16}
+   else if(P.z<-4.2&&P.x>-2.7){zx=1.25;zz=-5.5;zk=7}
+   else if(P.x<-6.8){zx=-8.25;zz=2.5;zk=6}
+   LZ.position.set(zx,zy,zz);if(zk!==ZK){ZK=zk}LZ.intensity=lightF*ZK}
   fan.rotation.y+=dt*(lightsOn?2.2:.4);
   led.visible=state==='dark'?(Math.floor(performance.now()/450)%2===0):false;
   if(lightsOn&&!busy){flickT-=dt;if(flickT<0){flickT=3+Math.random()*6;if(Math.random()<.5)flicker([.35,1],60)}}
@@ -267,7 +316,10 @@ function update(dt){
     if(vis>.8&&d<7)lookT+=dt;else lookT=Math.max(0,lookT-dt*.5);
     if(lookT>1.4||d<2.2){lookT=0;doScare()}}
 }
-function frame(t){requestAnimationFrame(frame);const dt=Math.min(.07,(t-last)/1000);if(t-last<30)return;last=t;update(dt);renderer.render(scene,camera)}
+let ema=33,adT=0;
+function frame(t){requestAnimationFrame(frame);const raw=t-last;if(raw<30)return;const dt=Math.min(.07,raw/1000);last=t;ema=ema*.93+Math.min(raw,200)*.07;adT+=raw;
+  if(adT>2500){adT=0;if(ema>46&&RES>.37){RES=Math.max(.37,RES-.06);resize()}}
+  update(dt);renderer.render(scene,camera)}
 
 /* ---------- start ---------- */
 resize();
