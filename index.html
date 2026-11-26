@@ -55,7 +55,7 @@ const $=id=>document.getElementById(id),sleep=ms=>new Promise(r=>setTimeout(r,ms
 const cv=$('c');
 let renderer;
 try{renderer=new THREE.WebGLRenderer({canvas:cv,antialias:false,powerPreference:'low-power'})}catch(e){document.body.insertAdjacentHTML('beforeend','<div class="card"><p>This game needs WebGL, which your browser did not start.</p></div>');throw e}
-let RES=.55;
+let RES=1;try{const v=parseFloat(localStorage.lo_res);if(v>=.4&&v<=1)RES=v}catch(_){}
 function resize(){renderer.setPixelRatio(1);renderer.setSize(Math.max(120,Math.round(innerWidth*RES)),Math.max(200,Math.round(innerHeight*RES)),false);camera.aspect=innerWidth/innerHeight;camera.fov=camera.aspect>1?68:88;camera.updateProjectionMatrix()}
 const isLand=()=>innerWidth>innerHeight*1.1;
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x05070a);scene.fog=new THREE.FogExp2(0x05070a,.075);
@@ -419,7 +419,7 @@ function update(dt){
 }
 let ema=33,adT=0;
 function frame(t){requestAnimationFrame(frame);const raw=t-last;if(raw<30)return;const dt=Math.min(.07,raw/1000);last=t;ema=ema*.93+Math.min(raw,200)*.07;adT+=raw;
-  if(adT>2500){adT=0;if(ema>46&&RES>.37){RES=Math.max(.37,RES-.06);resize()}}
+  if(adT>1800){adT=0;if(ema>44&&RES>.4){RES=Math.max(.4,RES-.1);try{localStorage.lo_res=RES}catch(_){}resize()}}
   update(dt);renderer.render(scene,camera)}
 
 /* ---------- start ---------- */
