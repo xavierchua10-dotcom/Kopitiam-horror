@@ -9,7 +9,9 @@ const pace=(x,z,sp_=1.7)=>{const x0=P.x,z0=P.z,L=Math.hypot(x-x0,z-z0);if(L<.9)r
 const card=async(h,sm,ms=2400)=>{const dc=$('dcard');dc.innerHTML=h+'<small>'+sm+'</small>';dc.style.opacity=1;await sleep(ms);dc.style.opacity=0};
 
 /* smoke haze: a soft warm-grey wash over the picture, only on Day 3 */
-const haze=document.createElement('div');haze.style.cssText='position:fixed;inset:0;pointer-events:none;opacity:0;transition:opacity 2s;z-index:3;background:radial-gradient(ellipse at 50% 60%,rgba(120,100,80,.05) 0%,rgba(90,75,60,.32) 100%)';document.body.appendChild(haze);
+const haze=document.createElement('div');haze.style.cssText='position:fixed;inset:0;pointer-events:none;opacity:0;transition:opacity 2.5s;z-index:3;background:radial-gradient(ellipse at 50% 55%,rgba(150,50,40,.05) 0%,rgba(120,28,24,.36) 100%);animation:lo-beat 3.4s ease-in-out infinite';
+{const st=document.createElement('style');st.textContent='@keyframes lo-beat{0%,100%{filter:brightness(.8)}12%{filter:brightness(1.25)}24%{filter:brightness(.9)}36%{filter:brightness(1.15)}}';document.head.appendChild(st)}
+document.body.appendChild(haze);
 
 /* the TV on the east wall */
 const tvC=document.createElement('canvas');tvC.width=96;tvC.height=60;const tvX=tvC.getContext('2d'),tvT=new THREE.CanvasTexture(tvC);tvT.colorSpace=THREE.SRGBColorSpace;tvT.magFilter=THREE.NearestFilter;
@@ -40,6 +42,26 @@ const FIG=new THREE.Group();FIG.position.set(-6,0,10.3);FIG.visible=false;scene.
 const sph=(r,m,x,y,z,p,sx=1,sy=1,sz=1)=>{const o=new THREE.Mesh(new THREE.SphereGeometry(r,8,6),m);o.position.set(x,y,z);o.scale.set(sx,sy,sz);p.add(o);return o};
 let detDone=false;
 
+function details(){if(detDone)return;detDone=true;
+  const red=M(0xa22d22,{emissive:0x300806}),dark=M(0x3a0f0c),soot=M(0x24201c);
+  /* Mak Cik Salmah: a burn up the arm */
+  {const u=CROWD[1].userData;sph(.085,red,0,-.14,.02,u.aL.fo,1,2.4,.9);sph(.08,red,0,-.26,0,u.aL.fo,1.1,1.1,1.1);sph(.09,dark,.02,-.05,.03,u.aL.up,1,2,.9);sph(.06,red,0,-.14,.02,u.aR.fo,1,1.6,.8)}
+  /* Ah Seng: a watch, soot on his shirt */
+  {const u=CROWD[0].userData,fo=u.aL.fo,band=new THREE.Mesh(new THREE.CylinderGeometry(.068,.068,.045,10),M(0x9a9a9a));band.position.y=-.2;fo.add(band);
+   const face=new THREE.Mesh(new THREE.BoxGeometry(.05,.012,.05),new THREE.MeshBasicMaterial({color:0xe8e4d4}));face.position.set(0,-.2,.072);fo.add(face);
+   sph(.12,soot,.06,1.22,.12,u.body,1,1.3,.35);sph(.07,soot,-.1,1.35,.14,u.body,1,1,.4)}
+  /* Raj: only one shoe, a scraped foot */
+  {const u=CROWD[2].userData,sh=u.L.sh,shoe=sh.children[2];shoe.visible=false;
+   sph(.072,M(0x8a5836),0,-.41,.05,sh,1,.6,1.8);sph(.05,red,.02,-.41,.09,sh,1,.5,1.2);sph(.1,soot,-.04,1.2,.14,u.body,1,1.2,.35)}
+  /* Mei Ling: a dark stain on her top, soot on her hands */
+  {const u=CROWD[4].userData;sph(.14,red,.09,1.22,.12,u.body,1,1.4,.32);sph(.07,dark,.14,1.1,.14,u.body,1,1,.3);sph(.065,soot,0,-.26,0,u.aR.fo)}
+  /* Pak Hassan: the same newspaper page, smudged */
+  {const t=ctex(60,80,c=>{c.fillStyle='#d9d2bd';c.fillRect(0,0,60,80);c.fillStyle='#2a2824';c.fillRect(4,5,52,9);c.fillStyle='#555';for(let y=20;y<74;y+=4)c.fillRect(5,y,50,1.5);
+     c.fillStyle='#222';c.font='bold 8px sans-serif';c.fillText('7',27,78);c.fillStyle='rgba(30,25,20,.55)';c.beginPath();c.ellipse(30,44,20,14,.3,0,7);c.fill();c.fillStyle='rgba(120,20,16,.5)';c.beginPath();c.ellipse(40,52,9,7,0,0,7);c.fill()}),
+   pm=new THREE.Mesh(new THREE.PlaneGeometry(.36,.48),new THREE.MeshLambertMaterial({map:t}));pm.rotation.x=-Math.PI/2;pm.rotation.z=.12;pm.position.set(-1.7,.785,.0);scene.add(pm)}
+}
+
+
 /* ---- blood / burn texture painting ---- */
 const mkT=(w,h,draw)=>{const c=document.createElement('canvas');c.width=w;c.height=h;draw(c.getContext('2d'),w,h);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t};
 const rnd=(a,b)=>a+Math.random()*(b-a);
@@ -60,7 +82,8 @@ const faceBlister=(g,x,y)=>{g.fillStyle='#d9705a';g.fillRect(x,y,4,3);g.fillStyl
 const raw=(w,h)=>shellTex(w,h,(g,ox,W,H)=>{g.fillStyle='#c9604a';g.fillRect(ox-W*.3,0,W*.6,H);for(let i=0;i<14;i++)blob(g,ox+rnd(-W*.28,W*.28),rnd(0,H),rnd(5,12),['#3a1410','#7a2a20']);for(let i=0;i<7;i++){const x=ox+rnd(-W*.25,W*.25),y=rnd(4,H-4);g.fillStyle='#e8a090';g.beginPath();g.arc(x,y,rnd(3,5),0,7);g.fill();g.fillStyle='rgba(255,255,255,.55)';g.fillRect(x-1,y-2,2,1)}drips(g,ox,H*.55,4,W*.18,H*.4,3)});
 const splat=(w,h,n,r0,dr)=>shellTex(w,h,(g,ox,W,H)=>{blob(g,ox+rnd(-W*.05,W*.05),H*.38,r0,BL);for(let i=0;i<n;i++)blob(g,ox+rnd(-W*.22,W*.22),rnd(H*.1,H*.85),rnd(3,r0*.55),BL);drips(g,ox,H*.45,dr,W*.2,H*.5,4);for(let i=0;i<30;i++){g.fillStyle=BL[1];g.beginPath();g.arc(ox+rnd(-W*.3,W*.3),rnd(0,H),rnd(.6,1.8),0,7);g.fill()}});
 const soot=(w,h)=>shellTex(w,h,(g,ox,W,H)=>{for(let i=0;i<10;i++)blob(g,ox+rnd(-W*.25,W*.25),rnd(0,H),rnd(6,16),['rgba(16,13,11,.75)','rgba(16,13,11,.55)'])});
-function details(){if(detDone)return;detDone=true;
+let goreDone=false;
+function goreDetails(){if(goreDone)return;goreDone=true;
   const U=i=>CROWD[i].userData;
   /* Mak Cik Salmah: raw blistered burn from hand to elbow, charred sleeve, scorched face */
   {const u=U(1);for(const arm of[u.aL,u.aR]){shell(arm.fo,.071,.06,.24,-.12,1,raw(64,48));capS(arm.fo,.078,-.26,raw(48,48))}
@@ -109,6 +132,8 @@ async function start(){
   G.setBlur(false);await lids(1,800);
   await camTo(14.5,17.0,0,-.02,1000);
   handAct('knock',900);await sleep(480);A.click();stopAlarm();await sleep(500);
+  await say(sp('YOU','...A dream. There was fire. Everyone was...'),2800);
+  await say(sp('YOU','Just a dream.'),1500);
   setClock('6:55 AM');drawClock(6,55);await say(sp('YOU','6:55.'),1300);
   await say('A faint smell of smoke.',2200);
   await Promise.all([tween(k=>{EYE.y=.62+(1.6-.62)*k},1200),camTo(13.1,18.2,Math.PI,0,1200)]);
@@ -121,16 +146,13 @@ async function greet(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
   await pace(2.95,3.05);
   await camTo(P.x,P.z,yawTo(-3,-1),-.02,1100);
   await say('Nobody is talking. The shop is very quiet.',2600);
-  await say('And they are hurt. All of them.',2400);
   await camTo(P.x,P.z,yawTo(atuk.position.x,atuk.position.z),.02,1000);
   await say(sp('ATUK','Ah, you came. ...Eh, what day today ah?'),2800);
   await say(sp('YOU','Wednesday, Atuk.'),1800);
   await csleep(900);
   await say(sp('ATUK','Wednesday. Okay. ...Wednesday.'),2400);
-  await say(sp('YOU','Atuk... the customers. They are bleeding.'),2400);
-  await csleep(700);
-  await say(sp('ATUK','Bleeding? ...Dapur. Always the kitchen. Smoke from the kitchen.'),3000);
-  await say(sp('ATUK','Go. Serve them.'),1800);
+  await say(sp('YOU','Atuk, do you smell smoke?'),2000);
+  await say(sp('ATUK','Dapur. Always the kitchen. Go, see the customers.'),2800);
   await camTo(P.x,P.z,0,0,700);
   G.state='d3_look';setClock('7:20 AM');ci=0;objT(LK[0].obj);G.busy=false;await cineOut()}
 
@@ -138,11 +160,9 @@ async function greet(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
 let ci=0;
 const Y=t=>say(sp('YOU',t),2200);
 const LK=[
- {obj:'Ask Mak Cik Salmah',m:[-2.2,-2.6],c:1,pit:-.45,clk:'8:05 AM',run:async c=>{await Y('Mak Cik... your arm. It is all burnt. Are you okay?');await say('"Teh tarik, adik. Panas-panas."',2600,c);await say('She smiles, and slides her arm under the table. Like nothing is wrong.',3000)}},
- {obj:'Ask Ah Seng',m:[-2.15,-.85],c:0,pit:-.55,clk:'8:40 AM',run:async c=>{await Y('Ah Seng... your head. You are bleeding. Do you need a doctor?');await say('"Teh-C peng."',2200,c);await say('He keeps smiling. His watch is frozen at 12:41.',2800)}},
- {obj:'Ask Raj',m:[-3.95,.4],c:2,pit:-.7,clk:'9:15 AM',run:async c=>{await Y('Raj... your foot. Where is your shoe? You are bleeding.');await say('"Kopi-O kurang manis, boss."',2400,c);await say('He does not look down.',2200)}},
- {obj:'Ask Mei Ling',m:[-.9,1.15],c:4,pit:-.3,clk:'9:50 AM',run:async c=>{await Y('Mei Ling... there is blood all over you. What happened?');await say('"Her birthday is next week. I must buy a cake..."',3000,c);await say('"Milo dinosaur."',1800,c);await say('She is not answering you. She only talks about her daughter.',2800)}},
- {obj:'Ask Pak Hassan',m:[-.9,-.5],c:3,pit:-.5,clk:'10:30 AM',run:async c=>{await Y('Pak Hassan... your hand. The paper is soaked in blood.');await say('"Kopi. Roti bakar."',2200,c);await say('Page seven again. He reads it like nothing is wrong.',2800);await say(sp('YOU',"They can't feel any of it. And only I can see."),2800)}}];
+ {obj:'Ask Mak Cik Salmah',m:[-2.2,-2.6],c:1,pit:-.45,clk:'8:05 AM',run:async c=>{await Y('Mak Cik... your hand. Are you okay?');await say('"Teh tarik, adik. Panas-panas."',2600,c);await say('She slides her hand under the table. A shiny red mark, up to the wrist.',3000)}},
+ {obj:'Ask Ah Seng',m:[-2.15,-.85],c:0,pit:-.55,clk:'8:40 AM',run:async c=>{await Y('Ah Seng, your watch stopped.');await say('"Teh-C peng."',2200,c);await say('The hands are frozen at 12:41.',2600)}},
+ {obj:'Ask Mei Ling',m:[-.9,1.15],c:4,pit:-.3,clk:'9:50 AM',run:async c=>{await Y('Mei Ling, how is your daughter?');await say('"Her birthday is next week. I must buy a cake..."',3000,c);await say('"Milo dinosaur."',1800,c);await say('She said "next week" yesterday too.',2600);await say(sp('YOU','It is just a bad dream. It has to be.'),2600)}}];
 WPS.d3_look={get x(){return LK[Math.min(ci,LK.length-1)].m[0]},get z(){return LK[Math.min(ci,LK.length-1)].m[1]},r:.6,go:1,get fn(){return lookRun}};
 async function lookRun(){if(G.busy||CINE.on)return;G.busy=true;const k=LK[ci],c=CROWD[k.c];A.click();await cineIn();
   await camTo(k.m[0],k.m[1],yawTo(c.position.x,c.position.z),0,900);
@@ -173,11 +193,8 @@ WPS.d3_talk={x:2.8,z:3.05,r:.6,go:1,fn:atukTalk};
 WPS.d3_rule={x:2.8,z:3.05,r:.6,go:1,fn:atukRule};
 async function atukTalk(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
   await pace(2.95,3.05);await camTo(P.x,P.z,yawTo(atuk.position.x,atuk.position.z),.02,500);
-  await say(sp('ATUK','Eh, you ah. Who make the kopi today?'),2400);
-  await say(sp('YOU','Me, Atuk. I did.'),1800);
-  await say(sp('ATUK','Oh. ...Good. Atuk forget things lately.'),2800);
   await say(sp('YOU','The TV said "lorry". A kopitiam.'),2400);
-  await csleep(1100);
+  await csleep(900);
   await say(sp('ATUK','TV rosak. Don\'t watch. Don\'t ask.'),2600);
   $('fade').style.transition='opacity 1.4s';$('fade').style.opacity=1;await sleep(1600);
   showCrowd(false);atuk.visible=true;atuk.position.set(3.9,0,3.5);atuk.rotation.y=1.0;
@@ -186,12 +203,10 @@ async function atukTalk(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
   $('fade').style.opacity=0;G.state='d3_rule';objT('Talk to Atuk');G.busy=false;await cineOut()}
 async function atukRule(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
   await pace(2.95,3.05);await camTo(P.x,P.z,yawTo(atuk.position.x,atuk.position.z),.02,500);
-  await say(sp('ATUK','Dengar ah. Tonight, if anybody knock...'),2600);
-  await csleep(1300);
-  await say(sp('ATUK','...Eh. What I was going to say?'),2400);
-  await say(sp('YOU','Three knocks, Atuk. Only three.'),2400);
-  await csleep(800);
-  await say(sp('ATUK','Yes. Three knock. Good boy. You remember better than Atuk now.'),3200);
+  await say(sp('ATUK','Dengar ah. Tonight, if anybody knock, three knock only.'),3000);
+  await say(sp('YOU','Even if somebody is crying outside?'),2200);
+  await csleep(900);
+  await say(sp('ATUK','...Especially if somebody is crying.'),2800);
   await say(sp('ATUK','Atuk balik dulu. Lock properly.'),2200);
   G.state='d3_lock';objT('Lock up');setClock('6:00 PM');G.busy=false;atukLeave();await cineOut()}
 
@@ -250,4 +265,5 @@ async function homeNight(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
   $('endh').textContent='END OF DAY 3';$('endp').textContent='Somebody was crying at the door. Atuk did not answer.';$('endl').textContent='Last Order · Day 4 is coming';
   $('end').style.display='flex';G.busy=false;G.state='end'}
 
+G.gore=goreDetails;
 G.day3=start}

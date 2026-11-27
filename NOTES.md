@@ -157,3 +157,4 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 
 - Day 3 gore pass: blood/burns painted onto faces (face canvas), wrapped on shirts/arms/legs (shell cylinders), pools on floor. Customer subtitles now carry a name tag like YOU/ATUK do (AH SENG, MAK CIK, RAJ, PAK HASSAN, MEI LING).
 - Day 3 dialogue now reacts to the wounds (you ask about the blood/burns; they only answer with their order; Atuk deflects "smoke from the kitchen").
+- Day 3 reworked (escalation ladder): subtle visible clues only (soot, burn mark, stopped watch, one shoe, smudged page 7), faint pulsing red dream tint, wake-up "just a dream", 3 customer walk-ups (Mak Cik, Ah Seng, Mei Ling), no Atuk-forgets scenes (moved to Day 4). The gore pass is kept as G.gore() for Day 4. Day 5 plan: blood gone, customers calm and clean.
