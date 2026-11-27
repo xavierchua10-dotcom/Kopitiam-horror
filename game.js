@@ -692,7 +692,7 @@ async function atukAct(){busy=true;A.click();
   if(state==='d1_greet'){await say(sp('ATUK','Eh, late ah today. Customers all waiting outside.'),2800);await say(sp('ATUK','Kopi ready. But the tables nobody wipe. Go go.'),2900);state='d1_chores';setClock('7:10 AM');refreshObj();busy=false;return}
   if(state==='d1_report'){await say(sp('ATUK','Okay lah, not bad. Sit, eat roti bakar first.'),2800);await say(sp('ATUK','Eh, bathroom light kelip-kelip again. Go see.'),2800);state='d1_bath';setClock('10:15 AM');objT('Check the bathroom light');busy=false;return}
   if(state==='d1_back'){await say(sp('ATUK','Fixed? Good boy.'),2200);await say(sp('ATUK','Now sit. Let Atuk look at the customers a while.'),2800);await toEvening();return}
-  if(state==='d1_rule'){await say(sp('ATUK','Dengar ah. Shop tutup now. Tonight, if anybody knock our door...'),3200);await say(sp('ATUK',"Don't open. Don't care who. Don't care what they say."),3200);await say(sp('ATUK','Only three knock. Same like this morning. That one is us. Faham?'),3400);await say(sp('YOU','Faham, Atuk.'),1800);await say(sp('ATUK','Good. Atuk balik dulu. You lock the shop properly, then come home.'),3200);state='d1_lock';objT('Lock up');setClock('6:00 PM');busy=false;atukLeave()}}
+  if(state==='d1_rule'){await say(sp('ATUK','Dengar ah. Shop tutup now. Tonight, if anybody knock our door...'),3200);await say(sp('ATUK',"Don't open. Don't care who. Don't care what they say."),3200);await say(sp('ATUK','Only three knock. Same like this morning. That one is us. Faham?'),3400);await say(sp('YOU','Faham, Atuk.'),1800);await say(sp('ATUK','Good. Atuk balik dulu. Before you lock: mop the floor, clear the cups, rubbish go out the back.'),3800);if(G.closeInit){state='d1_close';G.closeInit()}else{state='d1_lock';objT('Lock up');setClock('6:00 PM')}busy=false;atukLeave()}}
 async function toEvening(){busy=true;await say('The day goes by. Kopi, toast, the same faces.',2200);
   $('fade').style.transition='opacity 1.4s';$('fade').style.opacity=1;await sleep(1600);
   showCrowd(false);atuk.visible=true;atuk.position.set(3.9,0,3.5);atuk.rotation.y=1.0;
@@ -890,16 +890,17 @@ function frame(t){requestAnimationFrame(frame);const raw=t-last;if(raw<30)return
   update(dt);renderer.render(scene,camera)}
 
 /* ---------- hook for the later days (day2.js ...) ---------- */
-const G={AMB,person,THREE,scene,camera,P,EYE,A,CINE,D,WPS,atuk,CROWD,HOME,QUEUE,FEET,shutter,radio,BULB,STREAM,ALK,stain,cupsD,tick:[],day2:null,day3:null,day4:null,day5:null,stools,fan,
+const G={ZONES,AABB,AMB,person,THREE,scene,camera,P,EYE,A,CINE,D,WPS,atuk,CROWD,HOME,QUEUE,FEET,shutter,radio,BULB,STREAM,ALK,stain,cupsD,tick:[],day2:null,day3:null,day4:null,day5:null,stools,fan,
   $,sleep,say,sp,cineIn,cineOut,camTo,yawTo,csleep,tween,handAct,pose,objT,setClock,setTime,applyLights,bulbSet,flicker,tapOn,tapOff,lids,startAlarm,stopAlarm,drawClock,
   showCrowd,drawBoard,day1Props,shutBlock,chWipe,chCups,ctex,isLand,atukLeave,M,B,box,
   get state(){return state},set state(v){state=v},get busy(){return busy},set busy(v){busy=v},
   setLights(v){lightsOn=v},setBlur(v){cv.style.transition='filter 1.4s';cv.style.filter=v?'blur(8px)':''}};
-const V=new URL(import.meta.url).search,BUILD='202611272905';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+const V=new URL(import.meta.url).search,BUILD='202611272958';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));
 import('./day5.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day5 not loaded',e));
+import('./close.js'+V).then(m=>m.default(G)).catch(e=>console.warn('close not loaded',e));
 
 /* ---------- start ---------- */
 resize();
