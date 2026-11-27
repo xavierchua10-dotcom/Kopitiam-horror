@@ -435,27 +435,31 @@ prompt.addEventListener('pointerdown',e=>{e.stopPropagation()});
 prompt.addEventListener('click',e=>{e.stopPropagation();if(cur&&!busy)go(cur)});
 
 /* first-person hands (only while interacting) */
-const hands=new THREE.Group();camera.add(hands);hands.visible=false;hands.scale.setScalar(.8);
+const hands=new THREE.Group();camera.add(hands);hands.visible=false;
 const HMt=c=>{const m=NM(c);m.depthTest=false;return m};const skinH=HMt(0xc9a27e),sleeveH=HMt(0x4a5a72),clothH=HMt(0xe9e4d2),cupH=HMt(0xeeeeee),cupT=HMt(0x3a1d10);
 function mkArm(){const g=new THREE.Group();hands.add(g);const up=new THREE.Group();g.add(up);
-  for(const [geo,m,z] of [[new THREE.CylinderGeometry(.06,.07,.32,8),sleeveH,-.16],[new THREE.CylinderGeometry(.042,.055,.3,8),skinH,-.46]]){const me=new THREE.Mesh(geo,m);me.rotation.x=Math.PI/2;me.position.z=z;me.renderOrder=40;up.add(me)}
-  const hd=new THREE.Mesh(new THREE.SphereGeometry(.062,8,6),skinH);hd.scale.set(1,.7,1.35);hd.position.z=-.66;hd.renderOrder=40;up.add(hd);
-  const cloth=new THREE.Mesh(new THREE.BoxGeometry(.17,.03,.15),clothH);cloth.position.set(0,-.05,-.7);cloth.renderOrder=41;cloth.visible=false;up.add(cloth);
-  const cup=new THREE.Group();cup.position.set(0,.06,-.68);cup.visible=false;up.add(cup);
+  for(const [geo,m,z] of [[new THREE.CylinderGeometry(.075,.09,.46,8),sleeveH,-.23],[new THREE.CylinderGeometry(.048,.062,.24,8),skinH,-.58]]){const me=new THREE.Mesh(geo,m);me.rotation.x=Math.PI/2;me.position.z=z;me.renderOrder=40;up.add(me)}
+  const hd=new THREE.Mesh(new THREE.SphereGeometry(.075,8,6),skinH);hd.scale.set(1,.7,1.35);hd.position.z=-.72;hd.renderOrder=40;up.add(hd);
+  const cloth=new THREE.Mesh(new THREE.BoxGeometry(.17,.03,.15),clothH);cloth.position.set(0,-.06,-.76);cloth.renderOrder=41;cloth.visible=false;up.add(cloth);
+  const cup=new THREE.Group();cup.position.set(0,.07,-.74);cup.visible=false;up.add(cup);
   const cb=new THREE.Mesh(new THREE.CylinderGeometry(.06,.045,.1,8),cupH);cb.renderOrder=41;cup.add(cb);const ct=new THREE.Mesh(new THREE.CylinderGeometry(.052,.052,.012,8),cupT);ct.position.y=.045;ct.renderOrder=42;cup.add(ct);
   return {g,up,hd,cloth,cup}}
 const HR=mkArm(),HL=mkArm();let hMode='idle',hT=0,hV=0,hGoal=0,hTO=0;
-function setHands(mode,t,ht){const pose=(a,x,y,z,rx,ry,rz=0)=>{a.g.position.set(x,y,z);a.g.rotation.set(rx,ry,rz)};
-  HR.cloth.visible=HL.cloth.visible=HR.cup.visible=HL.cup.visible=false;HR.hd.scale.set(1,.7,1.35);
-  pose(HL,-.3,-.26,-.3,-.2,.16);pose(HR,.3,-.26,-.3,-.2,-.16);
-  if(mode==='wipe'){pose(HR,.02+Math.sin(t)*.16,-.22,-.4,-.5,-.05+Math.sin(t)*.3);HR.cloth.visible=true}
-  else if(mode==='reach'){const k=Math.sin(Math.min(1,ht/.8)*Math.PI);pose(HR,.14,-.24+k*.04,-.3-k*.2,-.25+k*.2,-.1)}
-  else if(mode==='kopi'){pose(HR,.12,-.26,-.35,.08,.3);HR.cup.visible=true;pose(HL,-.14,-.3,-.35,-.1,-.25)}
-  else if(mode==='serve'){pose(HR,.2,-.26,-.4,.12,.1);HR.cup.visible=true}
-  else if(mode==='lift'){const r=Math.min(1,ht/1.3);pose(HR,.2,-.2+r*.2,-.35,.4+r*.55,-.18);pose(HL,-.2,-.2+r*.2,-.35,.4+r*.55,.18)}
-  else if(mode==='knock'){pose(HR,.1,-.1,-.45-.07*Math.max(0,Math.sin(t*1.9)),.3,.08);HR.hd.scale.set(1.15,1,1.15)}}
+const handle=new THREE.Mesh(new THREE.BoxGeometry(.7,.07,.09),NM(0x2c2f33));handle.position.set(0,-1.12,0);shutter.add(handle);
+const _v=new THREE.Vector3(),_u=new THREE.Vector3(0,0,-1),_d=new THREE.Vector3();
+function aim(a,side,tx,ty,tz){a.g.position.set(side*.3,-.55,-.05);_d.set(tx-side*.3,ty+.55,tz+.05);const L=_d.length();_d.normalize();a.g.quaternion.setFromUnitVectors(_u,_d);a.up.scale.set(.85,.85,Math.max(.6,L/.78))}
+function setHands(mode,t,ht){HR.cloth.visible=HL.cloth.visible=HR.cup.visible=HL.cup.visible=false;HR.hd.scale.set(1,.7,1.35);
+  aim(HL,-1,-.3,-.45,-.5);aim(HR,1,.3,-.45,-.5);
+  if(mode==='wipe'){aim(HR,1,Math.sin(t)*.18,-.4,-.62);HR.cloth.visible=true}
+  else if(mode==='reach'){const k=Math.sin(Math.min(1,ht/.8)*Math.PI);aim(HR,1,.14,-.32+k*.06,-.5-k*.18)}
+  else if(mode==='kopi'){aim(HR,1,.14,-.3,-.52);HR.cup.visible=true;aim(HL,-1,-.12,-.36,-.5)}
+  else if(mode==='serve'){aim(HR,1,.2,-.26,-.64);HR.cup.visible=true}
+  else if(mode==='knock'){aim(HR,1,.1,-.12,-.55-.08*Math.max(0,Math.sin(t*1.9)));HR.hd.scale.set(1.15,1,1.15)}
+  else if(mode==='lift'){handle.getWorldPosition(_v);camera.worldToLocal(_v);aim(HR,1,_v.x+.13,_v.y,_v.z);aim(HL,-1,_v.x-.13,_v.y,_v.z)}}
 function handAct(mode,ms){hMode=mode;hT=0;hGoal=1;clearTimeout(hTO);hTO=setTimeout(()=>{hGoal=0},ms)}
-function handTick(dt){hV+=(hGoal-hV)*Math.min(1,dt*9);if(hGoal===0&&hV<.03)hV=0;hands.visible=hV>.03;if(!hands.visible)return;hT+=dt;hands.position.y=-(1-hV)*.6;setHands(hMode,hT*7,hT)}
+function handTick(dt){hV+=(hGoal-hV)*Math.min(1,dt*9);if(hGoal===0&&hV<.03)hV=0;hands.visible=hV>.03;if(!hands.visible)return;hT+=dt;hands.position.y=-(1-hV)*.7;
+  if(hMode==='lift'){handle.getWorldPosition(_v);const hz=Math.max(.8,Math.abs(3.96-P.z)),want=hGoal?Math.max(-.7,Math.min(.6,Math.atan2(_v.y-1.6,hz)+.12)):0;P.pitch+=(want-P.pitch)*Math.min(1,dt*4)}
+  camera.rotation.x=P.pitch;camera.updateMatrixWorld(true);setHands(hMode,hT*7,hT)}
 const HMODE={wipe:['wipe',1500],cups:['reach',1200],kopi:['kopi',1700],serve:['serve',1700],sugar:['reach',1200],bath:['reach',1200],note:['reach',1200],housedoor:['reach',1200],radio:['reach',1100],fuse:['reach',1100],hatch:['reach',1100],shutter:['lift',1900]};
 function go(o){const dx=o.pos.x-P.x,dz=o.pos.z-P.z;if(Math.hypot(dx,dz)>.3)P.fy=Math.atan2(-dx,-dz);const h=HMODE[o.id];if(h&&!(o.id==='shutter'&&state==='d1_lock'&&P.z<4.3))handAct(h[0],h[1]);o.act()}
 /* markers */
