@@ -137,3 +137,6 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 
 ## Chores = automatic close-up mini playthroughs
 - Chores run in order with a marker each: Refill sugar -> Wipe table -> Clear cups -> Make kopi -> Serve kopi. Walking into the marker plays an automatic close-up (bag pours sugar and the jar fills; cloth wipes the stain away; cups lifted one by one; kopi pours into a cup; you carry the cup and set it down). No buttons. Tap skips lines.
+
+- Cutscene lock: joystick, keyboard, tap-to-walk and look are ignored while any cutscene runs (chores included).
+- Wipe chore: camera leans in close over the table (eye lowered), cloth + arm rest on the tabletop and wipe the stain; eye height restores after.
