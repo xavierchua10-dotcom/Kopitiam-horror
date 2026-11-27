@@ -81,3 +81,6 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 
 ## Hand-gesture interact (Nov 27)
 - Interact prompt = label pill + 58px round amber button with a hand icon; world markers are hand-icon discs. ICONS table (touch/grab/knock/wipe) drives both canvas marker textures (mkTexFor) and the CSS button (--ic data-URI). ICF maps interactable id -> icon; default touch.
+
+## Walk-to waypoint (Nov 27)
+- Ground ring (r .6, dim amber) + faint thin beam + small spinning arrow. Table WPS by state: d1_go (trigger: knock cutscene starts only when you step inside the ring in front of Atuk's shutter), d1_bath, d1_lock, d1_home (guidance only; hidden when you arrive). Objective box appends distance ("· 5 m"). OBJB holds base objective text; wpTick() runs from d1tick. Tests: d1.py now teleports to (0.9,5.5) for the knock.
