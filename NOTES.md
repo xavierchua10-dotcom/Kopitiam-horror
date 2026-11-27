@@ -130,3 +130,7 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 
 ## House light by time of day
 - House light and ceiling now follow day/dusk/night: bright in the morning, warm and dim in the evening, dark and cold at night with the lamp as the warm spot. Ambient lift only in the day.
+
+## Atuk's station + auto-walk to talk
+- Atuk's small table moved to the south end of the big counter (3.9,2.9), stools removed, Atuk stands behind it (3.9,3.5) facing the shop - no more leg/stool overlap.
+- Talk markers moved to (0.9,2.6); walking into one now auto-walks you (with footsteps + bob) to Atuk, then the talk cutscene starts.
