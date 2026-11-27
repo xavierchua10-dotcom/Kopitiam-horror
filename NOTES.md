@@ -38,3 +38,7 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 - Flow: wake in bedroom 6:55 AM → cross the road → three knocks from inside the shutter → lift it → customers + Atuk → 4 chores (wipe table, clear cups, make kopi + serve, refill sugar) → Atuk sends you to the bathroom light (the tap is running) → evening fade, dusk → Atuk's rule (don't open at night, only three knocks) → he walks home → read the rules note (optional), lower the shutter from outside → go home → End of Day 1.
 - Daylight/dusk/night via setTime(). Customer chatter by proximity (Manglish). Tiny wrong things: the knock from inside a locked shop, the running tap, jar never empties, "Even the ones you do not see", Atuk's room dark.
 - Test script idea: __lo.setState / __lo.setTime / __lo.D hooks exist for scripted runs.
+
+## NPCs + graphics (Nov 27)
+- NPCs rebuilt as rounded low-poly people: faces drawn on the head, two-segment arms and legs, seated pose for customers, walk cycle for Atuk (singlet + grey trousers, glasses, white hair).
+- Title screen has a Graphics switch: Sharp (100%) / Normal (70%) / Light (50%). Saved in localStorage `lo_res`; the game still auto-lowers on slow phones.
