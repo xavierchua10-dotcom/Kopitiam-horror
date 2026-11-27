@@ -92,3 +92,6 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 
 ## Knock scene v2 (Nov 27)
 - d1Knock choreography: you walk up to the shutter (camTo .3,4.6) and knock with hand; Atuk answers (muffled); camera cuts to the queue customer who turns to face you and speaks; camera swings back; Atuk explains the rule; you lift the shutter with the 'lift' hand animation; queue walks in.
+
+## Home layout v2 (Nov 27)
+- Dining/living x3..7.2 (smaller): dining table with tabletop clock + chairs, sofa, phone, wall clock above sofa. Atuk's room x7.2..11.2 and My room x11.2..15 (z15..19.4) beside the front door, each with a doorway frame onto the back hall (z19.4..23: table, fridge) which connects to the dining room via an opening in the x=7.2 wall. ZONES/AABBs rewritten; start position (13,17.4) is in My room.

@@ -359,17 +359,35 @@ let STARS,MOON;
 const hwT=(w,h)=>M(0xffffff,{map:ctex(16,16,c=>{c.fillStyle='#b0a58c';c.fillRect(0,0,16,16);c.fillStyle='#8a8070';c.fillRect(0,10,16,6);c.fillStyle='#5a5446';c.fillRect(0,10,16,1)},w/2.4,1),side:THREE.DoubleSide});
 function hw(w,h,x,y,z,ry){const m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),hwT(w,h));m.position.set(x,y,z);m.rotation.y=ry;scene.add(m)}
 hw(2.5,3,4.25,1.5,15,0);hw(8.3,3,10.85,1.5,15,0);hw(1.2,.8,6.1,2.6,15,0);hw(12,3,9,1.5,23,0);hw(8,3,3,1.5,19,Math.PI/2);hw(8,3,15,1.5,19,Math.PI/2);
-hw(1,3,9,1.5,15.5,Math.PI/2);hw(3,3,9,1.5,18.5,Math.PI/2);hw(2,3,9,1.5,22,Math.PI/2);hw(1,.8,9,2.6,16.5,Math.PI/2);hw(1,.8,9,2.6,20.5,Math.PI/2);hw(6,3,12,1.5,19,0);
+/* new layout: dining x3..7.2 | Atuk x7.2..11.2 + mine x11.2..15 (z15..19.4) | back hall z19.4..23 */
+hw(4.9,3,7.2,1.5,17.45,Math.PI/2);hw(1.9,3,7.2,1.5,22.05,Math.PI/2);hw(1.2,.8,7.2,2.6,20.5,Math.PI/2);
+hw(4.4,3,11.2,1.5,17.2,Math.PI/2);
+hw(1.4,3,7.9,1.5,19.4,0);hw(3,3,11.1,1.5,19.4,0);hw(1.4,3,14.3,1.5,19.4,0);hw(1,.8,9.1,2.6,19.4,0);hw(1,.8,13.1,2.6,19.4,0);
+for(const dx of[8.6,9.6,12.6,13.6])box(.08,2.2,.12,M(0x5a3a28),dx,1.1,19.4);box(1.2,.08,.12,M(0x5a3a28),9.1,2.2,19.4);box(1.2,.08,.12,M(0x5a3a28),13.1,2.2,19.4);
 fl(3,15,15,23,chk('#6b5a44','#5e4e3a',24,16));cl(3,15,15,23,M(0x2a2d3a),2.97);
 {const g=new THREE.Group();g.position.set(5.5,0,15);g.rotation.y=-1.25;scene.add(g);box(1.2,2.1,.06,M(0x5a3a28),.6,1.05,0,g);g.traverse(n=>{});window.__doorG=g}
 const doorMesh=window.__doorG.children[0];
-box(2,.45,.8,M(0x4a3b52),5.5,.22,21.5);box(2,.5,.2,M(0x4a3b52),5.5,.7,21.9);box(1,.4,.6,M(0x6b5a3a),5.5,.2,19.9);AABB.push([4.5,6.5,21.1,22.3],[5,6,19.6,20.2]);
+box(2,.45,.8,M(0x4a3b52),5.5,.22,21.5);box(2,.5,.2,M(0x4a3b52),5.5,.7,21.9);AABB.push([4.5,6.5,21.1,22.3]);
+/* dining table + chairs + clock */
+box(1.6,.06,.95,M(0x7a5a38),5.1,.75,18.7);for(const dx of[-.7,.7])for(const dz of[-.4,.4])box(.07,.72,.07,M(0x4a3420),5.1+dx,.36,18.7+dz);AABB.push([4.25,5.95,18.2,19.2]);
+for(const [cx,cz] of[[4.55,19.45],[5.65,19.45],[4.55,17.95],[5.65,17.95]]){box(.42,.05,.42,M(0xb0453a),cx,.45,cz);box(.42,.5,.05,M(0xb0453a),cx,.72,cz+(cz>18.7?.2:-.2));for(const dx of[-.17,.17])for(const dz of[-.17,.17])box(.04,.43,.04,M(0x3a2a18),cx+dx,.22,cz+dz)}
+{const ck=ctex(32,32,c=>{c.fillStyle='#f3efe2';c.beginPath();c.arc(16,16,15,0,7);c.fill();c.strokeStyle='#222';c.lineWidth=1.5;c.stroke();c.fillStyle='#222';for(let i=0;i<12;i++){const a=i/12*Math.PI*2;c.fillRect(16+Math.sin(a)*12.5-.8,16-Math.cos(a)*12.5-.8,1.6,1.6)}c.lineWidth=2;c.beginPath();c.moveTo(16,16);c.lineTo(16,6);c.stroke();c.lineWidth=2.6;c.beginPath();c.moveTo(16,16);c.lineTo(22,16);c.stroke();c.strokeStyle='#c4352a';c.lineWidth=1;c.beginPath();c.moveTo(16,16);c.lineTo(10,21);c.stroke()});
+ box(.34,.05,.16,M(0x2a2a2e),5.1,.8,18.7);const cf=new THREE.Mesh(new THREE.CircleGeometry(.15,16),new THREE.MeshBasicMaterial({map:ck}));cf.position.set(5.1,.97,18.62);cf.rotation.x=-.25;scene.add(cf);
+ const rim=new THREE.Mesh(new THREE.CylinderGeometry(.165,.165,.05,16),M(0x2a2a2e));rim.rotation.x=Math.PI/2-.25;rim.position.set(5.1,.97,18.66);scene.add(rim)
+ /* big wall clock above sofa */const wc=new THREE.Mesh(new THREE.CircleGeometry(.32,20),new THREE.MeshBasicMaterial({map:ck}));wc.position.set(5.5,2.0,22.97);wc.rotation.y=Math.PI;scene.add(wc)}
 box(.5,.9,1.3,M(0x5a3a28),3.3,.45,18.5);box(.6,.05,1.4,M(0x6b4a30),3.3,.92,18.5);box(.04,.5,.4,M(0x222222),3.55,1.2,18.5);{const ph=new THREE.Mesh(new THREE.PlaneGeometry(.3,.4),B(0x9a9486));ph.position.set(3.58,1.2,18.5);ph.rotation.y=Math.PI/2;scene.add(ph)}
 for(const dz of[-.12,0,.12])box(.012,.2,.012,B(0xff5a3a),3.45,1.03,18.5+dz);
 AABB.push([3,3.7,17.8,19.2]);
+/* Atuk's room */
+box(1.0,.35,2.0,M(0x6a5a44),8.4,.18,17.4);box(.95,.12,1.9,M(0x3f6f8a),8.4,.42,17.5);box(.6,.12,.35,M(0xe8e4d8),8.4,.52,16.55);AABB.push([7.85,8.95,16.35,18.45]);
+box(.9,2.0,.5,M(0x5a3a28),10.6,1.0,15.4);AABB.push([10.1,11.1,15.15,15.65]);box(.45,.5,.45,M(0x5a3a28),9.5,.25,15.4);box(.22,.04,.22,M(0xf2d48a),9.5,.55,15.4);AABB.push([9.25,9.75,15.15,15.65]);
+box(.5,.02,.7,M(0x8a3a3a),9.6,.011,17.2);
+/* my room extras */
+box(1.1,.05,.5,M(0x6b4a30),12.0,.72,15.5);for(const dx of[-.5,.5])box(.05,.7,.05,M(0x3a301f),12.0+dx,.35,15.5);box(.35,.04,.35,M(0xf2d48a),12.3,.77,15.5);AABB.push([11.4,12.65,15.15,15.85]);
+box(.7,1.7,.45,M(0x5a3a28),11.7,.85,18.95);AABB.push([11.35,12.05,18.7,19.2]);
 box(2.2,.4,1.2,M(0x6a6f8a),13.9,.2,17);box(.3,.1,.8,M(0xd8d8d8),14.8,.45,17);AABB.push([12.8,15,16.4,17.6]);
-box(1.2,.06,.8,M(0x6b5a3a),12,.75,21.2);for(const dx of[-.5,.5])for(const dz of[-.3,.3])box(.06,.75,.06,M(0x3a301f),12+dx,.37,21.2+dz);box(.7,1.8,.7,M(0xc8ccd0),14.5,.9,19.6);AABB.push([11.35,12.65,20.75,21.65],[14.1,15,19.2,20]);
-ZONES.push([-1.7,1.7,3.5,4.45],[-24.5,24.5,4.4,14.3],[5.65,6.55,14.2,15.4],[3.35,8.65,15.35,22.65],[8.5,9.5,16.15,16.85],[8.5,9.5,20.15,20.85],[9.35,14.65,15.35,18.65],[9.35,14.65,19.35,22.65]);
+box(1.2,.06,.8,M(0x6b5a3a),12,.75,21.2);for(const dx of[-.5,.5])for(const dz of[-.3,.3])box(.06,.75,.06,M(0x3a301f),12+dx,.37,21.2+dz);box(.7,1.8,.7,M(0xc8ccd0),14.5,.9,22.5);AABB.push([11.35,12.65,20.75,21.65],[14.1,15,22.1,22.9]);
+ZONES.push([-1.7,1.7,3.5,4.45],[-24.5,24.5,4.4,14.3],[5.65,6.55,14.2,15.4],[3.35,6.85,15.35,22.65],[6.8,7.6,20.15,20.85],[7.55,10.85,15.35,19.05],[11.55,14.65,15.35,19.05],[7.55,14.65,19.75,22.65],[8.75,9.45,19.0,19.8],[12.75,13.45,19.0,19.8]);
 
 /* ---- house exterior: upper floor, hip roof, balcony, porch, garden ---- */
 {const paint='#f6e3a1';
