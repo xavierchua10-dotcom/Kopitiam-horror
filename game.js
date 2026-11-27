@@ -297,17 +297,48 @@ roomLamp(5.2,19);roomLamp(9.1,17.2);roomLamp(13.1,17.2);roomLamp(11,21.2);
 fl(3,15,15,23,chk('#6b5a44','#5e4e3a',24,16));const HCEIL=new THREE.MeshBasicMaterial({color:0xcfc8b8});cl(3,15,15,23,HCEIL,2.97);
 {const g=new THREE.Group();g.position.set(5.5,0,15);g.rotation.y=-1.25;scene.add(g);box(1.2,2.1,.06,M(0x5a3a28),.6,1.05,0,g);g.traverse(n=>{});window.__doorG=g}
 const doorMesh=window.__doorG.children[0];
-box(2,.45,.8,M(0x4a3b52),5.5,.22,21.5);box(2,.5,.2,M(0x4a3b52),5.5,.7,21.9);AABB.push([4.5,6.5,21.1,22.3]);
+box(2,.45,.8,M(0x4a3b52),4.1,.22,21.5);box(2,.5,.2,M(0x4a3b52),4.1,.7,21.9);AABB.push([3.1,5.1,21.1,22.3]);
 /* dining table + chairs + clock */
 box(1.6,.06,.95,M(0x7a5a38),5.1,.75,18.7);for(const dx of[-.7,.7])for(const dz of[-.4,.4])box(.07,.72,.07,M(0x4a3420),5.1+dx,.36,18.7+dz);AABB.push([4.25,5.95,18.2,19.2]);
 for(const [cx,cz] of[[4.55,19.45],[5.65,19.45],[4.55,17.95],[5.65,17.95]]){box(.42,.05,.42,M(0xb0453a),cx,.45,cz);box(.42,.5,.05,M(0xb0453a),cx,.72,cz+(cz>18.7?.2:-.2));for(const dx of[-.17,.17])for(const dz of[-.17,.17])box(.04,.43,.04,M(0x3a2a18),cx+dx,.22,cz+dz)}
 {const ck=ctex(32,32,c=>{c.fillStyle='#f3efe2';c.beginPath();c.arc(16,16,15,0,7);c.fill();c.strokeStyle='#222';c.lineWidth=1.5;c.stroke();c.fillStyle='#222';for(let i=0;i<12;i++){const a=i/12*Math.PI*2;c.fillRect(16+Math.sin(a)*12.5-.8,16-Math.cos(a)*12.5-.8,1.6,1.6)}c.lineWidth=2;c.beginPath();c.moveTo(16,16);c.lineTo(16,6);c.stroke();c.lineWidth=2.6;c.beginPath();c.moveTo(16,16);c.lineTo(22,16);c.stroke();c.strokeStyle='#c4352a';c.lineWidth=1;c.beginPath();c.moveTo(16,16);c.lineTo(10,21);c.stroke()});
  box(.34,.05,.16,M(0x2a2a2e),5.1,.8,18.7);const cf=new THREE.Mesh(new THREE.CircleGeometry(.15,16),new THREE.MeshBasicMaterial({map:ck}));cf.position.set(5.1,.97,18.62);cf.rotation.x=-.25;scene.add(cf);
  const rim=new THREE.Mesh(new THREE.CylinderGeometry(.165,.165,.05,16),M(0x2a2a2e));rim.rotation.x=Math.PI/2-.25;rim.position.set(5.1,.97,18.66);scene.add(rim)
- /* big wall clock above sofa */const wc=new THREE.Mesh(new THREE.CircleGeometry(.32,20),new THREE.MeshBasicMaterial({map:ck}));wc.position.set(5.5,2.0,22.97);wc.rotation.y=Math.PI;scene.add(wc)}
+ /* big wall clock above sofa */const wc=new THREE.Mesh(new THREE.CircleGeometry(.32,20),new THREE.MeshBasicMaterial({map:ck}));wc.position.set(7.14,2.0,19.8);wc.rotation.y=-Math.PI/2;scene.add(wc)}
 box(.5,.9,1.3,M(0x5a3a28),3.3,.45,18.5);box(.6,.05,1.4,M(0x6b4a30),3.3,.92,18.5);box(.04,.5,.4,M(0x222222),3.55,1.2,18.5);{const ph=new THREE.Mesh(new THREE.PlaneGeometry(.3,.4),B(0x9a9486));ph.position.set(3.58,1.2,18.5);ph.rotation.y=Math.PI/2;scene.add(ph)}
 for(const dz of[-.12,0,.12])box(.012,.2,.012,B(0xff5a3a),3.45,1.03,18.5+dz);
 AABB.push([3,3.7,17.8,19.2]);
+/* family altar facing the front door: red cabinet, plaque, candles, burning joss sticks */
+const ALT={fl:[],sm:[],tip:[]};
+{const gp=new THREE.Group();gp.position.set(6.1,0,22.7);scene.add(gp);
+ const bx=(w,h,d,c,x,y,z,e)=>box(w,h,d,M(c,e?{emissive:e}:{}),x,y,z,gp);
+ const cy=(r,h,c,x,y,z,e,r2)=>{const m=new THREE.Mesh(new THREE.CylinderGeometry(r2||r,r,h,10),M(c,e?{emissive:e}:{}));m.position.set(x,y,z);gp.add(m);return m};
+ const RED=0x8a1a14,DR=0x5e0f0b,GOLD=0xd2a640;
+ bx(1.3,.9,.42,RED,0,.45,0);bx(1.36,.05,.48,GOLD,0,.93,-.01);bx(1.34,.05,.46,GOLD,0,.03,-.01);
+ bx(.58,.68,.02,DR,-.32,.46,-.22);bx(.58,.68,.02,DR,.32,.46,-.22);bx(.04,.14,.03,GOLD,-.04,.46,-.24);bx(.04,.14,.03,GOLD,.04,.46,-.24);
+ bx(1.2,.05,.02,GOLD,0,.84,-.22);bx(.5,.04,.02,GOLD,-.32,.1,-.22);bx(.5,.04,.02,GOLD,.32,.1,-.22);
+ bx(1.3,.05,.34,RED,0,1.5,.04);bx(1.36,.04,.38,GOLD,0,1.53,.04);
+ const plT=ctex(160,100,c=>{c.fillStyle='#8a1a14';c.fillRect(0,0,160,100);c.strokeStyle='#d2a640';c.lineWidth=4;c.strokeRect(5,5,150,90);c.lineWidth=1;c.strokeRect(12,12,136,76);
+   c.fillStyle='#e8c25a';c.font='900 33px "Noto Serif CJK SC","Noto Sans CJK SC","Microsoft YaHei",serif';c.textAlign='center';c.textBaseline='middle';['天','官','赐','福'].forEach((h,i)=>c.fillText(h,32+i*32,50))});
+ const pl=new THREE.Mesh(new THREE.PlaneGeometry(1.3,.82),B(0xffffff,{map:plT}));pl.position.set(0,2.05,.2);pl.rotation.y=Math.PI;gp.add(pl);
+ cy(.09,.04,GOLD,0,1.57,.04,0x3a2a08);cy(.07,.22,GOLD,0,1.7,.04,0x3a2a08,.1);{const hd=new THREE.Mesh(new THREE.SphereGeometry(.06,10,8),M(GOLD,{emissive:0x3a2a08}));hd.position.set(0,1.87,.04);gp.add(hd)}
+ const stex=d=>{const cv=document.createElement('canvas');cv.width=cv.height=64;d(cv.getContext('2d'));return new THREE.CanvasTexture(cv)};
+ const fxT=stex(c=>{const gr=c.createRadialGradient(32,36,2,32,34,28);gr.addColorStop(0,'rgba(255,240,170,1)');gr.addColorStop(.4,'rgba(255,150,40,.8)');gr.addColorStop(1,'rgba(255,70,10,0)');c.fillStyle=gr;c.fillRect(0,0,64,64)});
+ const smT=stex(c=>{const gr=c.createRadialGradient(32,32,2,32,32,30);gr.addColorStop(0,'rgba(235,235,235,.5)');gr.addColorStop(1,'rgba(235,235,235,0)');c.fillStyle=gr;c.fillRect(0,0,64,64)});
+ const sp=(x,y,z,s,tex,op,add)=>{const m=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,opacity:op,depthWrite:false,fog:false,blending:add?THREE.AdditiveBlending:THREE.NormalBlending}));m.position.set(x,y,z);m.scale.set(s,s,1);gp.add(m);return m};
+ for(const [x,y,h] of[[-.5,1.64,.2],[.5,1.64,.2],[-.55,1.01,.16],[.55,1.01,.16]]){cy(.035,h,0xc0201a,x,y,-.04,0x300604);const f=sp(x,y+h/2+.13,-.04,.22,fxT,1,1);ALT.fl.push([f,.22])}
+ cy(.1,.1,GOLD,0,.99,-.08,0x3a2a08,.12);cy(.085,.02,0x3a2a14,0,1.045,-.08);
+ for(const [dx,dz] of[[-.04,0],[0,-.03],[.04,0],[-.02,.03],[.02,.03]]){cy(.005,.26,0x9a2a1a,dx,1.18,-.08+dz,0x200604);const tp=sp(dx,1.31,-.08+dz,.1,fxT,.9,1);ALT.tip.push(tp)}
+ cy(.14,.015,0xe8e0d0,-.4,.96,-.08);for(const [x,z] of[[-.45,-.1],[-.35,-.1],[-.4,-.02]]){const o=new THREE.Mesh(new THREE.SphereGeometry(.05,8,6),M(0xf08a1a,{emissive:0x301800}));o.position.set(x,1.01,z);gp.add(o)}
+ for(const x of[.3,.4,.5])cy(.03,.04,0xf2f0e8,x,.96,-.14);bx(.09,.13,.01,0xc0201a,.28,.98,-.18);
+ for(let i=0;i<9;i++){const s=sp(0,1.4+i*.14,-.08,.12+i*.045,smT,Math.max(.1,.5-i*.05));ALT.sm.push([s,i])}
+ const halo=sp(0,1.3,-.5,3.4,fxT,.2,1);ALT.halo=halo;
+ AABB.push([5.4,6.8,22.2,23.1]);ALT.gp=gp}
+function animAltar(t){for(const [f,s] of ALT.fl){const k=1+Math.sin(t*11+f.position.x*7)*.12+Math.sin(t*23+f.position.x)*.08;f.scale.set(s*k,s*1.5*k,1)}
+  for(const tp of ALT.tip)tp.material.opacity=.7+Math.sin(t*3+tp.position.x*40)*.2;
+  for(const [s,i] of ALT.sm){const ph=(t*.18+i*.11)%1.2;s.position.x=Math.sin(t*.9+i*1.3)*.05*(1+i*.4);s.material.opacity=Math.max(.06,.5-i*.05)*(.8+Math.sin(t*1.7+i)*.2)}
+  if(ALT.halo)ALT.halo.material.opacity=.17+Math.sin(t*5)*.03}
+
 /* Atuk's room */
 box(1.0,.35,2.0,M(0x6a5a44),8.4,.18,17.4);box(.95,.12,1.9,M(0x3f6f8a),8.4,.42,17.5);box(.6,.12,.35,M(0xe8e4d8),8.4,.52,16.55);AABB.push([7.85,8.95,16.35,18.45]);
 box(.9,2.0,.5,M(0x5a3a28),10.6,1.0,15.4);AABB.push([10.1,11.1,15.15,15.65]);box(.45,.5,.45,M(0x5a3a28),9.5,.25,15.4);box(.22,.04,.22,M(0xf2d48a),9.5,.55,15.4);AABB.push([9.25,9.75,15.15,15.65]);
@@ -754,6 +785,7 @@ function collide(){if(CINE.noclip)return;let bd=1e9,bx=P.x,bz=P.z;for(const [a,b
   for(const [a,b,c,d] of AABB){if(P.x>a-r&&P.x<b+r&&P.z>c-r&&P.z<d+r){const l=P.x-(a-r),rr=(b+r)-P.x,t=P.z-(c-r),bt=(d+r)-P.z,m=Math.min(l,rr,t,bt);if(m===l)P.x=a-r;else if(m===rr)P.x=b+r;else if(m===t)P.z=c-r;else P.z=d+r}}}
 let last=0,acc=0,flickT=3;
 function update(dt){
+  animAltar(performance.now()/1000);
   let moving=false;
   if(CINE.on){P.tx=null;stk=null;look=null}
   if(P.tx!==null&&state!=='end'){const dx=P.tx-P.x,dz=P.tz-P.z,d=Math.hypot(dx,dz);
@@ -799,7 +831,7 @@ const G={person,THREE,scene,camera,P,EYE,A,CINE,D,WPS,atuk,CROWD,HOME,QUEUE,FEET
   showCrowd,drawBoard,day1Props,shutBlock,chWipe,chCups,ctex,isLand,atukLeave,M,B,box,
   get state(){return state},set state(v){state=v},get busy(){return busy},set busy(v){busy=v},
   setLights(v){lightsOn=v},setBlur(v){cv.style.transition='filter 1.4s';cv.style.filter=v?'blur(8px)':''}};
-const V=new URL(import.meta.url).search,BUILD='202611272550';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+const V=new URL(import.meta.url).search,BUILD='202611272640';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));
