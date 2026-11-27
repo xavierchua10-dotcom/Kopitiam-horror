@@ -66,8 +66,8 @@ const look=(x,z,pitch=0,ms=650)=>camTo(P.x,P.z,yawTo(x,z),pitch,ms);
 /* ---------- the three chores ---------- */
 const CL=[
  {x:.6,z:1.0,obj:'Mop the floor',fn:()=>run(0)},
- {x:-1.9,z:1.0,obj:'Clear the cups',fn:()=>run(1)},
- {x:4.0,z:-2.5,obj:'Take the trash out',fn:()=>run(2)}];
+ {x:-3.0,z:-.2,obj:'Clear the cups',fn:()=>run(1)},
+ {x:1.5,z:-2.4,obj:'Take the trash out',fn:()=>run(2)}];
 let ci=0;
 WPS.d1_close={get x(){return CL[ci].x},get z(){return CL[ci].z},r:.6,go:1,get fn(){return CL[ci].fn}};
 G.closeJump=n=>{ci=n;objT(CL[n].obj)};

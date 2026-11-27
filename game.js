@@ -75,8 +75,13 @@ const GLOW=(()=>{const c=document.createElement('canvas');c.width=c.height=64;co
 function bulbSet(f){GLOW.material.opacity=f;bulbM.color.setRGB(1*f+.06*(1-f),.94*f+.06*(1-f),.75*f+.06*(1-f))}
 const tapM=M(0xb8c0c4);box(.04,.04,.16,tapM,-7.7,1.2,1.14);box(.05,.28,.05,tapM,-7.7,1.065,1.08);box(.12,.025,.025,tapM,-7.7,1.24,1.08);
 const STREAM=new THREE.Mesh(new THREE.BoxGeometry(.03,.26,.03),B(0xa8dcf0,{transparent:true,opacity:.75,fog:false}));STREAM.position.set(-7.7,1.06,1.21);STREAM.visible=false;scene.add(STREAM);
-let tapTI=0;function tapOn(){tapOff();tapTI=setInterval(()=>{A.nz(.45,2600,2200,.045,'highpass');STREAM.scale.y=.85+Math.random()*.3},330);STREAM.visible=true}
-function tapOff(){clearInterval(tapTI);tapTI=0;STREAM.visible=false}
+let tapTI=0,tapN=null;
+/* running water: a steady soft band of noise plus little drips, not hissing bursts */
+function tapSnd(on){if(!ac||typeof A==='undefined'||!A.nb)return;
+  if(on&&!tapN){const s=ac.createBufferSource();s.buffer=A.nb;s.loop=true;const hp=ac.createBiquadFilter();hp.type='highpass';hp.frequency.value=600;const lp=ac.createBiquadFilter();lp.type='lowpass';lp.frequency.value=2200;const g=ac.createGain();g.gain.value=0;s.connect(hp);hp.connect(lp);lp.connect(g);g.connect(master);s.start();g.gain.setTargetAtTime(.04,ac.currentTime,.2);tapN={s,g}}
+  else if(!on&&tapN){const{s,g}=tapN;tapN=null;g.gain.setTargetAtTime(0,ac.currentTime,.1);setTimeout(()=>{try{s.stop()}catch(e){}},600)}}
+function tapOn(){tapOff();tapSnd(true);tapTI=setInterval(()=>{if(Math.random()<.5)A.tone(1500+Math.random()*1300,900+Math.random()*500,.06,.018,'sine');STREAM.scale.y=.85+Math.random()*.3},300);STREAM.visible=true}
+function tapOff(){clearInterval(tapTI);tapTI=0;tapSnd(false);STREAM.visible=false}
 
 const radio=new THREE.Group();radio.position.set(4.15,1.05,-.2);scene.add(radio);
 box(.3,.2,.5,M(0x6b4a2b),0,.1,0,radio);box(.02,.14,.28,M(0x111111),-.16,.1,0,radio);box(.02,.04,.1,B(0xe8b44a),-.16,.17,.2,radio);box(.02,.3,.02,M(0x999999),.1,.3,-.2,radio);
@@ -896,7 +901,7 @@ const G={ZONES,AABB,AMB,person,THREE,scene,camera,P,EYE,A,CINE,D,WPS,atuk,CROWD,
   AEV,AMBD,get ac(){return ac},get master(){return master},get ambG(){return ambG},
   get state(){return state},set state(v){state=v},get busy(){return busy},set busy(v){busy=v},
   setLights(v){lightsOn=v},setBlur(v){cv.style.transition='filter 1.4s';cv.style.filter=v?'blur(8px)':''}};
-const V=new URL(import.meta.url).search,BUILD='202611273001';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+const V=new URL(import.meta.url).search,BUILD='202611273002';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));

@@ -108,7 +108,7 @@ async function bathScene(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
   await camTo(-7.7,1.95,yawTo(-7.7,1.0),.03,1200);
   await csleep(500);
   flicker([.5,1,.3,.9],80);await csleep(500);
-  A.nz(.25,5000,3000,.2,'highpass');A.tone(3200,2200,.12,.07,'square');crack.visible=true;
+  A.nz(.04,6500,3000,.3,'highpass');A.tone(170,80,.09,.22,'sine');[[70,4300,.18],[150,5300,.14],[260,3700,.12],[430,4900,.09]].forEach(([t,f,v])=>setTimeout(()=>A.nz(.05,f,f*.6,v,'bandpass',6),t));A.tone(5400,5000,.18,.012,'sine');crack.visible=true;
   await csleep(1400);
   await say('A crack. Right where your face should be.',2800);
   await say(sp('YOU',"It wasn't there yesterday."),2200);
