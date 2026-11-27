@@ -1,7 +1,7 @@
 /* DAY 3 — the first hint. Smoke in the air, quiet customers, half a news sentence, a figure across the road, a man crying at night. */
 export default function install(G){
 const {THREE,scene,camera,P,EYE,A,CINE,D,WPS,atuk,CROWD,HOME,FEET,shutter,
-  $,sleep,say,sp,cineIn,cineOut,camTo,yawTo,csleep,tween,handAct,pose,objT,setClock,setTime,applyLights,bulbSet,flicker,tapOff,lids,startAlarm,stopAlarm,drawClock,
+  $,sleep,say,sp,cineIn,cineOut,camTo,yawTo,csleep,tween,handAct,pose,objT,setClock,setTime,applyLights,bulbSet,flicker,tapOn,tapOff,STREAM,lids,startAlarm,stopAlarm,drawClock,
   showCrowd,drawBoard,day1Props,shutBlock,atukLeave,M,B,box,ctex}=G;
 
 const pace=(x,z,sp_=1.7)=>{const x0=P.x,z0=P.z,L=Math.hypot(x-x0,z-z0);if(L<.9)return Promise.resolve();let st=0;
@@ -160,8 +160,54 @@ async function greet(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
   await csleep(900);
   await say(sp('ATUK','Wednesday. Okay. ...Wednesday.'),2400);
   await say(sp('YOU','Atuk, do you smell smoke?'),2000);
-  await say(sp('ATUK','Dapur. Always the kitchen. Go, see the customers.'),2800);
+  await say(sp('ATUK','Dapur. Always the kitchen. ...Eh, your face pucat. Go wash first.'),3200);
   await camTo(P.x,P.z,0,0,700);
+  G.state='d3_bath';setClock('6:58 AM');objT('Wash your face');G.busy=false;await cineOut()}
+
+/* ---------- the bathroom: the tap will not stop, then the red words ---------- */
+const bm=[];let bmG=null;
+function bathBuild(){if(bmG)return;bmG=new THREE.Group();scene.add(bmG);
+  const R1='#4a0806',R2='#8a0f0b';
+  const mk=(w,h,px,py,draw,pos,ry)=>{const c=document.createElement('canvas');c.width=px;c.height=py;draw(c.getContext('2d'),px,py);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;
+    const m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({map:t,transparent:true,opacity:0,depthWrite:false,fog:false,polygonOffset:true,polygonOffsetFactor:-4}));m.position.set(...pos);m.rotation.y=ry;bmG.add(m);bm.push(m)};
+  const word=(txt,size)=>(g,px,py)=>{g.font=`900 ${size}px "Noto Serif CJK SC","Noto Sans CJK SC","Microsoft YaHei","PingFang SC",serif`;g.textAlign='center';g.textBaseline='middle';
+    g.fillStyle=R1;g.fillText(txt,px/2+2,py*.4+2);g.fillStyle=R2;g.fillText(txt,px/2,py*.4);const w=g.measureText(txt).width;
+    for(let i=0;i<Math.max(3,txt.length*2);i++){const x=px/2-w/2+Math.random()*w,y=py*.4+size*.3,l=14+Math.random()*py*.3;g.fillStyle=R2;g.fillRect(x-1.5,y,3,l);g.beginPath();g.arc(x,y+l,2.6,0,7);g.fill()}};
+  const palm=(g,px,py)=>{g.save();g.translate(px/2,py*.58);g.fillStyle=R2;g.beginPath();g.ellipse(0,0,22,26,0,0,7);g.fill();
+    for(const [fx,fy,fl,fr] of [[-18,-24,34,-.35],[-8,-34,40,-.1],[4,-36,40,.05],[16,-30,36,.25]]){g.save();g.translate(fx,fy);g.rotate(fr);g.fillRect(-4.5,-fl,9,fl);g.beginPath();g.arc(0,-fl,4.5,0,7);g.fill();g.restore()}
+    g.save();g.translate(-22,8);g.rotate(-1.1);g.fillRect(-5,-24,10,24);g.restore();g.fillStyle=R1;for(let i=0;i<4;i++){const x=-16+i*11,l=14+Math.random()*30;g.fillRect(x-1.8,24,3.6,l);g.beginPath();g.arc(x,24+l,3.4,0,7);g.fill()}g.restore()};
+  mk(.62,.82,128,170,palm,[-7.7,1.7,1.06],0);                         /* a hand on the mirror */
+  mk(.9,.9,160,160,word('冤',140),[-8.75,1.85,1.06],0);                /* wall beside the mirror */
+  mk(1.7,.85,360,180,word('还我命',130),[-9.46,1.75,2.5],Math.PI/2);    /* west wall */
+  mk(.9,.8,200,170,word('救命',90),[-7.04,1.7,3.5],-Math.PI/2);          /* east wall */
+  mk(1.2,.6,260,130,word('对不起',80),[-8.25,1.3,3.96],Math.PI)}        /* south wall */
+const fadeIn=(m,ms)=>tween(k=>{m.material.opacity=.88*k},ms);
+WPS.d3_bath={x:-7.7,z:2.5,r:.6,go:1,fn:bathScene};
+async function bathScene(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();bathBuild();if(G.crack)G.crack.visible=true;
+  await camTo(-7.7,2.5,yawTo(-7.7,1.1),-.05,1300);
+  tapOn();A.nz(.5,5200,3000,.1,'highpass');
+  await say('The tap is already running.',2200);
+  await say(sp('YOU','...Who left this on?'),2000);
+  handAct('reach',1400);await csleep(700);tapOff();A.click();await csleep(600);
+  tapOn();A.tone(900,300,.25,.1,'sawtooth');STREAM.scale.x=2.6;
+  const flood=setInterval(()=>A.nz(.3,4800,2800,.14,'highpass'),260);
+  await say('The handle spins loose. The water will not stop.',2800);
+  await say(sp('YOU','Fine. ...Fine.'),1800);
+  await camTo(-7.7,1.95,yawTo(-7.7,1.0),-.55,1300);
+  handAct('reach',2200);await lids(0,500);A.nz(.4,3000,1200,.2,'bandpass');await csleep(1800);
+  await lids(1,1000);await camTo(-7.7,1.95,yawTo(-7.7,1.0),.02,900);
+  /* the marks creep in, one at a time */
+  const marks=(async()=>{for(let i=0;i<bm.length;i++){fadeIn(bm[i],1100);A.tone(90+i*12,55,.5,.09,'sine');await csleep(1000)}})();
+  await csleep(900);await camTo(-7.7,1.95,yawTo(-9.4,2.2),0,1600);await csleep(1000);
+  await camTo(-7.7,1.95,yawTo(-8.4,4.0),0,1400);await csleep(500);
+  await camTo(-7.7,1.95,yawTo(-7.7,1.0),.02,1300);await marks;
+  await say('Red. All over the walls. Slowly.',2600);
+  await say(sp('YOU','...No. No, no, no.'),2000);
+  await lids(0,260);clearInterval(flood);tapOff();STREAM.scale.x=1;bm.forEach(m=>m.material.opacity=0);A.click();await csleep(1500);
+  await lids(1,900);
+  await say('A drip. Only that.',2400);
+  await say(sp('YOU','Just a dream.'),1800);
+  await camTo(-7.9,2.6,yawTo(-6,2.5),0,1000);
   G.state='d3_look';setClock('7:20 AM');ci=0;objT(LK[0].obj);G.busy=false;await cineOut()}
 
 /* ---------- ask each customer: nobody answers straight ---------- */

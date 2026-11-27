@@ -186,4 +186,4 @@ async function homeNight(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
   $('endh').textContent='END OF DAY 2';$('endp').textContent='Atuk said not to answer. Someone is still asking.';$('endl').textContent='Last Order · Day 3 is coming';
   $('end').style.display='flex';G.busy=false;G.state='end'}
 
-G.day2=start}
+G.crack=crack;G.day2=start}
