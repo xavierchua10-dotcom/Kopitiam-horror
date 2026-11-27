@@ -1,7 +1,7 @@
 /* DAY 4 — the truth. A wrecked, red shop; the full news; the collapse; the run home; the banging; three gentle knocks. */
 export default function install(G){
 const {THREE,scene,P,EYE,A,CINE,D,WPS,atuk,CROWD,HOME,FEET,shutter,
-  $,sleep,say,sp,cineIn,cineOut,camTo,yawTo,csleep,tween,handAct,pose,objT,setClock,setTime,applyLights,bulbSet,flicker,tapOff,lids,drawClock,
+  $,sleep,say,sp,cineIn,cineOut,camTo,yawTo,csleep,tween,handAct,pose,objT,setClock,setTime,applyLights,bulbSet,flicker,tapOn,tapOff,lids,drawClock,
   showCrowd,drawBoard,day1Props,shutBlock,M,box,ctex}=G;
 
 const card=async(h,sm,ms=2400)=>{const dc=$('dcard');dc.innerHTML=h+'<small>'+sm+'</small>';dc.style.opacity=1;await sleep(ms);dc.style.opacity=0};
@@ -221,6 +221,18 @@ async function newsScene(){
   await say(sp('ATUK','Dengar ah, cucu.'),2000);
   await say(sp('ATUK','It is time. Do not be afraid.'),3000);
 
+  /* the warning: he is coming. each time the lights flicker, he is closer */
+  {const FIG=G.FIG;mkFire();
+   const cry=()=>{A.tone(210,170,1.4,.09,'triangle');A.nz(.8,700,400,.05,'bandpass',2)};
+   const look=(x,z,ms=500)=>camTo(P.x,P.z,yawTo(x,z),0,ms);
+   await look(0,5,600);
+   await flicker([.1,0,.2]);applyLights(.45);FIG.position.set(.2,0,13.5);FIG.rotation.y=Math.PI;FIG.visible=true;cry();
+   await say('...maaf...',1800);
+   await flicker([0,.3,0,.2]);applyLights(.35);FIG.position.set(.1,0,7.8);cry();await csleep(700);
+   await flicker([0,0,.3,0]);applyLights(.3);FIG.position.set(-.4,0,-3.0);FIG.rotation.y=0;
+   await look(-.4,-3.0,350);A.sting();
+   await say(sp('ATUK','Dia datang! LARI, cucu! LARI!'),1800);
+   await flicker([0,.2,0]);FIG.position.set(.4,0,-.4);FIG.rotation.y=Math.atan2(P.x-.4,P.z+.4)+Math.PI;await look(.4,-.4,300);cry();await csleep(500)}
   /* the collapse: slow, then all at once */
   A.rumble&&A.rumble();A.sting();
   const hz=(r,g,b,a1,a2)=>{G.haze.style.background=`radial-gradient(ellipse at 50% 55%,rgba(${r},${g},${b},${a1}) 0%,rgba(${Math.round(r*.8)},${Math.round(g*.3)},${Math.round(b*.3)},${a2}) 100%)`};
@@ -236,7 +248,6 @@ async function newsScene(){
   await shake(.02,1800);
   if(tubeM){tubeM.position.y=.12;tubeM.rotation.z=1.4;A.tone(180,60,.5,.25,'sawtooth')}
   applyLights(0);bulbSet(0);
-  await say(sp('ATUK','Lari! Lari, cucu!'),1500);
   await shake(.03,1400);
   clearInterval(fl);dust.forEach(d=>scene.remove(d));
   hz(255,120,40,.18,.6);
@@ -247,7 +258,7 @@ async function newsScene(){
   /* hand the controls back: the chase */
   mkFire();FIRE.forEach((f,i)=>{const t=(i>>1)/8,x=.9+(5.6-.9)*t+(i%2?3.2:-3.2),z=6.6+(13-6.6)*t+(i%2?-1:1);f.position.set(x,1.5,z);f.visible=true});
   const dg=window.__doorG;if(dg)dg.rotation.y=-1.25;
-  const FIG=G.FIG;FIG.position.set(-1.5,0,-3.2);FIG.visible=true;
+  const FIG=G.FIG;FIG.position.set(.4,0,-.9);FIG.visible=true;
   RT=0;G.spd=1.9;chase=true;
   G.state='d4_run';objT('RUN home!');G.busy=false;await cineOut()}
 
@@ -338,20 +349,28 @@ async function startFind(){G.busy=true;await cineIn();
   FIRE.forEach(f=>f.visible=false);SPOT.forEach((p,i)=>{const f=FIRE[i];f.position.set(p[0],p[1]+.6,p[2]);f.visible=true});
   G.haze.style.background='radial-gradient(ellipse at 50% 55%,rgba(255,110,40,.2) 0%,rgba(130,25,10,.72) 100%)';
   applyLights(.14);
-  CROWD.forEach((c,i)=>{c.visible=true;c.position.set(HOME[i][0],0,HOME[i][1]);c.rotation.y=HOME[i][2];pose(c,0,'sit');fadeP(c,.7)});
+  FIND.forEach(k=>{const c=CROWD[k.c];c.visible=true;c.position.set(k.pos[0],0,k.pos[1]);c.rotation.y=k.pos[2];pose(c,0,k.pos[3]);fadeP(c,.7)});
+  tapOn();
+  cueI=setInterval(cue,1300);
   atuk.visible=true;atuk.position.set(3.9,0,3.5);atuk.rotation.y=1.0;fadeP(atuk,.7);
   fx=setInterval(()=>A.nz(.14,2800+Math.random()*1500,1800,.06,'highpass'),380);
   await camTo(.6,2.9,yawTo(-2,-.5),-.05,1200);
-  await say('Smoke. Small fires. Shapes in the smoke.',2800);
-  await say(sp('YOU','Where are you...?'),2000);
+  await say('Smoke. Small fires. Nobody is sitting where they were.',3000);
+  await say(sp('YOU','Where are you...? Where did you go?'),2400);
   ci2=0;objT(FIND[0].obj);await csleep(300);G.busy=false;await cineOut()}
-let ci2=0;
+let ci2=0,cueI=0;
+const cue=()=>{const k=FIND[Math.min(ci2,FIND.length-1)],c=CROWD[k.c];if(G.state!=='d4_find'||!c.visible)return;const d=Math.hypot(P.x-c.position.x,P.z-c.position.z),v=Math.max(0,1-d/16);if(v<.03)return;const q=.2*v+.03;
+  if(k.cue==='tick'){A.tone(2200,1800,.03,q,'square');setTimeout(()=>A.tone(2200,1800,.03,q,'square'),500)}
+  else if(k.cue==='cry'){A.tone(380,300,.9,q*.8,'triangle')}
+  else if(k.cue==='call'){A.tone(260,220,.7,q*.9,'sawtooth')}
+  else if(k.cue==='page'){A.nz(.35,3000,2400,q*.8,'highpass')}
+  else if(k.cue==='tap'){A.nz(.6,5000,3000,q,'highpass')}};
 const FIND=[
- {obj:'Find Mak Cik Salmah',m:[-2.2,-2.6],c:1,pit:-.35,it:'glass',tab:[-3,.8,-2.6],name:'MAK CIK',lines:['"Panas... so hot. You came, cucu."','"It is not so hot now."']},
- {obj:'Find Ah Seng',m:[-2.15,-.85],c:0,pit:-.4,it:'watch',tab:[-3,.8,-1.0],name:'AH SENG',lines:['"Teh-C peng... always so cold."','"My watch. Keep it. It was always tired."']},
- {obj:'Find Pak Hassan',m:[-.95,-.5],c:3,pit:-.3,it:'page7',tab:[-1.7,.8,-.5],name:'PAK HASSAN',lines:['"Page seven. I finally turned it."','"Take it. Read the next one for me."']},
- {obj:'Find Raj',m:[-2.15,.45],c:2,pit:-.4,it:'shoe',tab:[-3,.5,.4],name:'RAJ',lines:['"I stopped looking for my shoe."','"Keep this one. I will not need it."']},
- {obj:'Find Mei Ling',m:[-.9,1.15],c:4,pit:-.3,it:'card',tab:[-1.7,.8,1.1],name:'MEI LING',lines:['"Tell my daughter... happy birthday."','"Next week. I know it was never next week."']}];
+ {obj:'Someone is reading in the smoke',cue:'page',m:[-.95,-.5],c:3,pos:[-1.7,-.5,Math.PI,'sit'],pit:-.3,it:'page7',name:'PAK HASSAN',lines:['"Page seven. I finally turned it."','"Take it. Read the next one for me."']},
+ {obj:'A watch is ticking in the corner',cue:'tick',m:[-4.0,-2.3],c:0,pos:[-4.25,-3.3,0,'stand'],pit:-.3,it:'watch',name:'AH SENG',lines:['"Cold... always so cold. Teh-C peng."','"My watch. Keep it. It was always tired."']},
+ {obj:'Someone is crying at the entrance',cue:'cry',m:[.4,2.45],c:4,pos:[.4,3.55,Math.PI,'stand'],pit:-.15,it:'card',name:'MEI LING',lines:['"I must go home. Tell my daughter... happy birthday."','"Next week. I know it was never next week."']},
+ {obj:'Someone is calling from the kitchen',cue:'call',m:[3.4,-5.35],c:1,pos:[3.2,-6.2,0,'stand'],pit:-.3,it:'glass',name:'MAK CIK',lines:['"Panas... so hot. You came, cucu."','"It is not so hot now."']},
+ {obj:'The tap is running in the toilet',cue:'tap',m:[-7.7,2.45],c:2,pos:[-8.7,3.2,Math.PI/2,'stand'],pit:-.25,it:'shoe',name:'RAJ',lines:['"I stopped looking for my shoe."','"Keep this one. I will not need it."']}];
 G.d4items=[];
 WPS.d4_find={get x(){return FIND[Math.min(ci2,FIND.length-1)].m[0]},get z(){return FIND[Math.min(ci2,FIND.length-1)].m[1]},r:.65,go:1,get fn(){return findRun}};
 function itemMesh(k,p){const T=THREE;let m;
@@ -360,7 +379,7 @@ function itemMesh(k,p){const T=THREE;let m;
   else if(k==='page7'){m=new T.Mesh(new T.BoxGeometry(.2,.006,.28),new T.MeshBasicMaterial({color:0xe8e4d0}))}
   else if(k==='shoe'){m=new T.Mesh(new T.BoxGeometry(.11,.07,.26),new T.MeshBasicMaterial({color:0x6a4a2a}))}
   else{m=new T.Mesh(new T.BoxGeometry(.2,.008,.14),new T.MeshBasicMaterial({color:0xf2d6e0}))}
-  m.position.set(p[0]+.25,p[1]+.04,p[2]);m.rotation.y=Math.random()*3;scene.add(m);return m}
+  m.position.set(p[0]+.3,p[1]+.05,p[2]+.1);m.rotation.y=Math.random()*3;scene.add(m);return m}
 async function findRun(){if(G.busy||CINE.on)return;G.busy=true;const k=FIND[ci2],c=CROWD[k.c];A.click();await cineIn();
   await camTo(k.m[0],k.m[1],yawTo(c.position.x,c.position.z),-.02,900);
   await turnTo(c,1500);
@@ -370,7 +389,7 @@ async function findRun(){if(G.busy||CINE.on)return;G.busy=true;const k=FIND[ci2]
   await say(sp('YOU','I am here. I am here.'),1800);
   await say(sp(k.name,k.lines[1]),3200);
   await say('You touch their hand. It is warm, and then it is not there.',3000);
-  const o=itemMesh(k.it,k.tab);G.d4items.push(k.it);
+  const o=itemMesh(k.it,[c.position.x,0,c.position.z]);G.d4items.push(k.it);
   await tween(k=>{fadeP(c,.7*(1-k))},2400);c.visible=false;A.tone(500,200,.9,.08,'sine');
   await csleep(600);await say('They left something behind.',2200);
   await camTo(k.m[0],k.m[1],yawTo(c.position.x,c.position.z),-.02,500);
@@ -389,7 +408,7 @@ async function atukEnd(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
   await say(sp('ATUK','Atuk will be here.'),2400);
   await tween(k=>{fadeP(atuk,.7*(1-k*.8))},2600);
   /* the fires sink, the shop goes quiet, just the beep */
-  clearInterval(fx);await tween(k=>{FIRE.forEach(f=>f.scale.set(1.9*(1-k*.5),3*(1-k*.5),1))},1400);
+  clearInterval(fx);clearInterval(cueI);tapOff();await tween(k=>{FIRE.forEach(f=>f.scale.set(1.9*(1-k*.5),3*(1-k*.5),1))},1400);
   $('fade').style.transition='opacity 2.4s';$('fade').style.opacity=1;await sleep(2800);
   FIRE.forEach(f=>f.visible=false);SM&&SM.forEach(s=>s.visible=false);
   beepQuiet();await sleep(3200);beepSoft=false;
