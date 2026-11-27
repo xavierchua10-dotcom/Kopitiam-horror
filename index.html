@@ -63,7 +63,7 @@ let RES=1;try{const v=parseFloat(localStorage.lo_res);if(v>=.4&&v<=1)RES=v}catch
 function resize(){renderer.setPixelRatio(1);renderer.setSize(Math.max(120,Math.round(innerWidth*RES)),Math.max(200,Math.round(innerHeight*RES)),false);camera.aspect=innerWidth/innerHeight;camera.fov=camera.aspect>1?68:88;camera.updateProjectionMatrix()}
 const isLand=()=>innerWidth>innerHeight*1.1;
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x05070a);scene.fog=new THREE.FogExp2(0x05070a,.075);
-const camera=new THREE.PerspectiveCamera(88,1,.08,160);camera.rotation.order='YXZ';scene.add(camera);
+const camera=new THREE.PerspectiveCamera(88,1,.12,160);camera.rotation.order='YXZ';scene.add(camera);
 addEventListener('resize',resize);
 
 /* ---------- helpers ---------- */
@@ -260,13 +260,49 @@ const SKYT={};let DOME;
  SKYT.day=mk([[0,'#3d86d6'],[.55,'#8fc8f0'],[1,'#e4f3ff']],'rgba(255,255,255,.9)');
  SKYT.dusk=mk([[0,'#3e3a78'],[.5,'#c9707a'],[1,'#f6b878']],'rgba(255,190,160,.75)');
  DOME=new THREE.Mesh(new THREE.SphereGeometry(140,16,10),new THREE.MeshBasicMaterial({map:SKYT.day,side:THREE.BackSide,fog:false}));DOME.position.y=-10;DOME.visible=false;scene.add(DOME)}
+/* ---- upper floors + longer shop row ---- */
+{const COLS=['#f1deb0','#7fd1b9','#79b8e8','#f08fb0','#f2a65a','#c9b8e8','#f2d46a','#9fd08a','#f0a090'];
+ const NAMES=['BAKERI','KEDAI KASUT','CAFE 24','SALON','KEDAI BUKU','LAUNDRI','MINIMART','KLINIK'];
+ const upTex=col=>M(0xffffff,{map:ctex(40,24,c=>{c.fillStyle=col;c.fillRect(0,0,40,24);c.fillStyle='rgba(0,0,0,.12)';c.fillRect(0,20,40,4);c.fillStyle='#fff';c.fillRect(0,0,40,2);
+   for(const wx of[5,27]){c.fillStyle='#fff';c.fillRect(wx-1,5,10,14);c.fillStyle='#2b3947';c.fillRect(wx,6,8,12);c.fillStyle='rgba(255,255,255,.25)';for(let y=7;y<18;y+=3)c.fillRect(wx,y,8,1);c.fillStyle='#fff';c.fillRect(wx+3,6,1,12)}})});
+ const ext=[];for(let cx=-65;cx<=65;cx+=10){const i=Math.round((cx+65)/10),col=COLS[i%COLS.length];
+   if(Math.abs(cx)>25){ext.push(cx);facade(cx,10,col);const sh=new THREE.Mesh(new THREE.PlaneGeometry(4.2,2.4),shutTex());sh.position.set(cx,1.2,4.04);scene.add(sh);sign(NAMES[i%NAMES.length],cx,'#1d4f86','#ffffff')}
+   const f=new THREE.Mesh(new THREE.PlaneGeometry(10,3.5),upTex(cx===0?'#f1deb0':col));f.position.set(cx,4.85,6.56);scene.add(f);
+   box(10,.5,.4,M(0xffffff),cx,6.8,6.55);box(.7,.45,.5,M(0xc9ced4),cx-2.75,3.75,6.8);
+   box(2,.04,.04,M(0x555555),cx+2.75,5.55,6.9);[0xe84a5f,0x2a9d8f,0xf4d35e].forEach((cc,k)=>box(.4,.55,.02,B(cc),cx+2.2+k*.5,5.25,6.9));
+   if(i%2===0){const t=new THREE.Mesh(new THREE.CylinderGeometry(.7,.7,1.1,8),M(0x3a7bbf));t.position.set(cx+3,7.5,5.6);scene.add(t);box(.1,.5,.1,M(0x444444),cx+3,6.95,5.6)}}
+ fl(26,66,4,6.5,chk('#d9b48a','#b86f50',40,5));fl(-66,-26,4,6.5,chk('#d9b48a','#b86f50',40,5));cl(26,66,4,6.5,M(0x23252e));cl(-66,-26,4,6.5,M(0x23252e));
+ for(const x of[-65,-55,-45,-35,35,45,55,65])box(.35,3,.35,M(0x5d5a52),x,1.5,6.4)}
 /* lamps (cheap glow, no extra lights) */
 const GLOWS=[];
 for(const x of LAMPS){box(.12,3.6,.12,M(0x222428),x,1.8,13.6);box(.5,.1,.2,M(0x222428),x,3.6,13.4);box(.3,.08,.14,B(0xffd27a),x,3.52,13.3);
   const g=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,fog:false}));g.position.set(x,3.45,13.3);g.scale.set(4,4,1);scene.add(g);GLOWS.push(g)}
 /* empty city blocks (dark windows) */
 const winTex=(rx,ry,col='#15171d')=>M(0xffffff,{map:ctex(16,16,c=>{c.fillStyle=col;c.fillRect(0,0,16,16);c.fillStyle='#41627f';c.fillRect(3,3,10,10);c.fillStyle='rgba(255,255,255,.35)';c.fillRect(3,8,10,1)},rx,ry)});
-[[-44,-26,9,'#e07a5f'],[-24,-8,6,'#81b29a'],[17,28,8,'#f2cc8f'],[30,46,6,'#7b9acc'],[-12,2,5,'#d98fb0']].forEach(([a,b,h,col])=>{const m=new THREE.Mesh(new THREE.BoxGeometry(b-a,h,8),winTex((b-a)/2.5,h/2.5,col));m.position.set((a+b)/2,h/2,19);scene.add(m)});
+(()=>{let sd=7;const R=()=>{sd=(sd*16807)%2147483647;return sd/2147483647};
+ const PAL=['#e07a5f','#81b29a','#f2cc8f','#7b9acc','#d98fb0','#f4a259','#9bc4a8','#c98bb9','#e9c46a','#6d9dc5','#e8a0a0','#a3c4a0'];
+ const stripe=(c1)=>M(0xffffff,{map:ctex(8,8,c=>{c.fillStyle=c1;c.fillRect(0,0,8,8);c.fillStyle='#fff';c.fillRect(0,0,4,8)},4,1),side:THREE.DoubleSide});
+ /* front row across the road: z 15..23, leaves the house gap alone */
+ let x=-62;while(x<62){const w=5.5+R()*4,h=5+Math.floor(R()*5)*1.2,x0=x,x1=x+w;x=x1+.15;
+   if(x1>1.5&&x0<16.5)continue;
+   const col=PAL[Math.floor(R()*PAL.length)],m=new THREE.Mesh(new THREE.BoxGeometry(w,h,8),winTex(w/2.5,h/2.5,col));m.position.set((x0+x1)/2,h/2,19);scene.add(m);
+   /* ground-floor shutter + awning facing the street */
+   const sh=new THREE.Mesh(new THREE.PlaneGeometry(w*.7,2.3),shutTex());sh.position.set((x0+x1)/2,1.15,14.97);sh.rotation.y=Math.PI;scene.add(sh);
+   const aw=new THREE.Mesh(new THREE.BoxGeometry(w*.85,.08,1.0),stripe(PAL[Math.floor(R()*PAL.length)]));aw.position.set((x0+x1)/2,2.75,14.5);aw.rotation.x=.3;scene.add(aw)}
+ /* tall back row for a real skyline */
+ x=-80;while(x<80){const w=7+R()*7,h=12+R()*14,x0=x,x1=x+w;x=x1+.2;const col=['#b9a99a','#9fb0b8','#c4b5a0','#a9a2b8','#b2b9a4'][Math.floor(R()*5)],m=new THREE.Mesh(new THREE.BoxGeometry(w,h,9),winTex(w/2.5,h/2.5,col));m.position.set((x0+x1)/2,h/2,29);scene.add(m)}
+})();
+/* far hills */
+for(const [hx,hr,hh] of[[-110,40,26],[-60,34,20],[-10,46,30],[45,38,22],[100,44,28]]){const c=new THREE.Mesh(new THREE.ConeGeometry(hr,hh,7),M(0x5f8f84));c.position.set(hx,hh/2-2,125);scene.add(c)}
+/* utility poles + wires on the far pavement */
+{const pm=M(0x6b5a4a);for(let px=-50;px<=46;px+=12){box(.16,6.4,.16,pm,px,3.2,14.2);box(1.3,.1,.1,pm,px,5.9,14.2);if(px<46)for(const wz of[-.5,0,.5])box(12,.025,.025,B(0x1a1a1a),px+6,5.85-Math.abs(wz)*.1,14.2+wz)}}
+/* parked cars + zebra crossing */
+function car(x,z,col){const g=new THREE.Group();g.position.set(x,0,z);scene.add(g);box(4,.55,1.8,M(col),0,.55,0,g);box(2.1,.5,1.55,M(col),-.2,1.05,0,g);box(1.9,.38,1.58,M(0x2a3a4a),-.2,1.07,0,g);
+  for(const wx of[-1.25,1.25])for(const wz of[-.85,.85]){const w=new THREE.Mesh(new THREE.CylinderGeometry(.3,.3,.2,8),M(0x151515));w.rotation.x=Math.PI/2;w.position.set(wx,.3,wz);g.add(w)}}
+car(-6,12.2,0xd9382a);car(11,12.3,0xe9e9ee);car(26,12.2,0x2a6fd0);car(-30,12.3,0xf0b020);
+for(let i=0;i<5;i++)box(.5,.02,6.3,B(0xe8e6da),11+i*.95,.03,9.75);
+for(const cx of[-6,11])AABB.push([cx-1.9,cx+1.9,11.3,13.2]);for(const px of[-14,-2,10,22])AABB.push([px-.3,px+.3,13.9,14.5]);
+
 box(30,.2,10,M(0x15171d),-8,.1,32);
 /* sky */
 let STARS,MOON;

@@ -57,3 +57,7 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 
 ## Colourful street (Nov 27)
 - Painted shophouse facades (Atuk cream; neighbours mint/blue/pink/orange with matching shutters + bright signs), terracotta five-foot-way tiles, red lanterns, potted plants, parked motorbikes, trees, coloured far buildings, sky dome with clouds (day/dusk textures; hidden at night). Dusk/night lighting tints it automatically.
+
+## Street v3 (Nov 27)
+- Shophouses have upper floors (windows, AC units, laundry, parapet, water tanks) and the shop row runs x -65..65. Far side of the road: generated non-overlapping painted row (fixes z-fighting glitch seen on phone) + tall back skyline, hills, utility poles with wires, parked cars (with simple collision), zebra crossing. Camera near plane .12.
+- Gotcha: coplanar overlapping boxes flicker on phone GPUs; never overlap building faces.
