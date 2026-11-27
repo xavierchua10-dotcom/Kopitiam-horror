@@ -456,6 +456,7 @@ async function cineHome(){if(busy||CINE.on)return;busy=true;await cineIn();const
   await say(sp('ATUK','Jangan buka. Go sleep.'),2600);await csleep(600);
   $('fade').style.transition='opacity 1.6s';$('fade').style.opacity=1;await sleep(1800);
   FEET.visible=false;await cineOut();
+  if(G.day2){busy=false;state='d2_intro';G.day2();return}
   $('endh').textContent='END OF DAY 1';$('endp').textContent='Nothing strange happened today. Remember the rule: three knocks.';$('endl').textContent='Last Order · Day 2 is coming';
   $('end').style.display='flex';busy=false;state='end'}
 async function houseAct(){
@@ -662,6 +663,7 @@ const CHATST=['d1_greet','d1_chores','d1_report','d1_bath','d1_back'];
 let chatT=4,ambT=1;
 function revealCrowd(){if(D.crowd)return;D.crowd=true;CROWD.forEach(c=>c.visible=true)}
 function d1tick(dt){
+  for(const f of G.tick)f(dt);
   if(state==='d1_bath'&&!CINE.on){const t=performance.now()/1000;bulbSet(Math.sin(t*23)+Math.sin(t*37)>1.3?.15:.85)}
   {const w=WPS[state];if(w&&w.fn&&!busy&&!CINE.on&&Math.hypot(P.x-w.x,P.z-w.z)<w.r)w.fn()}
   wpTick();
@@ -786,6 +788,14 @@ function frame(t){requestAnimationFrame(frame);const raw=t-last;if(raw<30)return
   if(adT>1800){adT=0;if(ema>44&&RES>.4){RES=Math.max(.4,RES-.1);try{localStorage.lo_res=RES}catch(_){}resize()}}
   update(dt);renderer.render(scene,camera)}
 
+/* ---------- hook for the later days (day2.js ...) ---------- */
+const G={THREE,scene,camera,P,EYE,A,CINE,D,WPS,atuk,CROWD,HOME,QUEUE,FEET,shutter,radio,BULB,STREAM,ALK,stain,cupsD,tick:[],day2:null,
+  $,sleep,say,sp,cineIn,cineOut,camTo,yawTo,csleep,tween,handAct,pose,objT,setClock,setTime,applyLights,bulbSet,flicker,tapOn,tapOff,lids,startAlarm,stopAlarm,drawClock,
+  showCrowd,drawBoard,day1Props,shutBlock,chWipe,chCups,ctex,isLand,atukLeave,M,B,box,
+  get state(){return state},set state(v){state=v},get busy(){return busy},set busy(v){busy=v},
+  setLights(v){lightsOn=v},setBlur(v){cv.style.transition='filter 1.4s';cv.style.filter=v?'blur(8px)':''}};
+import('./day2.js').then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
+
 /* ---------- start ---------- */
 resize();
 async function goFull(){try{const d=document.documentElement;if(!document.fullscreenElement&&d.requestFullscreen)await d.requestFullscreen({navigationUI:'hide'})}catch(_){}try{await screen.orientation.lock('landscape')}catch(_){}}
@@ -805,4 +815,4 @@ $('begin').addEventListener('click',begin);
 $('again').addEventListener('click',()=>location.reload());
 if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 requestAnimationFrame(t=>{last=t;frame(t)});
-window.__lo={hand:()=>[hV,hMode],D:()=>D,setState:v=>{state=v},setTime,shut:()=>shutter.position.y,board:drawBoard,crowd:showCrowd,land:isLand,st:()=>({state,busy,scareDone,x:P.x,z:P.z,yaw:P.yaw,lights:lightsOn,cur:cur&&cur.id}),goto:(x,z)=>{P.tx=x;P.tz=z},tp:(x,z,y)=>{P.x=x;P.z=z;P.yaw=y||0;P.tx=null},look:(y,p)=>{P.yaw=y;P.pitch=p||0},act:id=>{const o=ITS.find(i=>i.id===id);o.act()},begin};
+window.__lo={day2:()=>G.day2&&G.day2(),hand:()=>[hV,hMode],D:()=>D,setState:v=>{state=v},setTime,shut:()=>shutter.position.y,board:drawBoard,crowd:showCrowd,land:isLand,st:()=>({state,busy,scareDone,x:P.x,z:P.z,yaw:P.yaw,lights:lightsOn,cur:cur&&cur.id}),goto:(x,z)=>{P.tx=x;P.tz=z},tp:(x,z,y)=>{P.x=x;P.z=z;P.yaw=y||0;P.tx=null},look:(y,p)=>{P.yaw=y;P.pitch=p||0},act:id=>{const o=ITS.find(i=>i.id===id);o.act()},begin};

@@ -144,3 +144,5 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 - Talk-to-Atuk marker moved next to Atuk (2.8,3.05): player walks up to him, no door-marker sprint (auto-walk only if >0.9 away).
 
 - Files split: index.html (page), style.css (looks), game.js (all game code), three.module.min.js. Edit game.js / style.css from now on.
+
+- DAY 2 (day2.js, loaded by game.js through the G hook): Day 1 night flows straight into Day 2 (no end card). Same 6:55 alarm; everyone already inside repeating Day 1 lines; Atuk repeats his greeting; chores = wipe table + clear cups (still full, cold); radio cuts at "...lori..."; bathroom tap runs again + cracked mirror; evening rule talk ("especially if they call your name"); lock up; night 2:07 AM knock with a woman voice "Can you hear me? Squeeze my hand." + Atuk "Jangan buka / jangan jawab"; ends with END OF DAY 2 card. Later days: add day3.js the same way.
