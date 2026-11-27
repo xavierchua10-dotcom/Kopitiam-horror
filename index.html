@@ -299,7 +299,7 @@ for(const x of[-26,-14,-1,14,26])tree(x,13.9);
 const SKYT={};let DOME;
 {const mk=(stops,cl)=>{const t=ctex(256,128,c=>{const g=c.createLinearGradient(0,0,0,128);stops.forEach(([o,col])=>g.addColorStop(o,col));c.fillStyle=g;c.fillRect(0,0,256,128);c.fillStyle=cl;
    for(const [x,y,w] of[[30,40,34],[90,30,28],[150,50,40],[210,34,30],[60,62,26],[190,70,32]]){for(let k=0;k<4;k++){c.beginPath();c.ellipse(x+k*10-14,y+(k%2)*3,w/2.6,7,0,0,7);c.fill()}}});t.wrapS=THREE.RepeatWrapping;return t};
- SKYT.day=mk([[0,'#7f9aaa'],[.5,'#b5c4cb'],[1,'#dfe5e6']],'rgba(235,238,240,.85)');
+ SKYT.day=mk([[0,'#3d86d6'],[.55,'#8fc8f0'],[1,'#e4f3ff']],'rgba(255,255,255,.9)');
  SKYT.dusk=mk([[0,'#3e3a78'],[.5,'#c9707a'],[1,'#f6b878']],'rgba(255,190,160,.75)');
  DOME=new THREE.Mesh(new THREE.SphereGeometry(140,16,10),new THREE.MeshBasicMaterial({map:SKYT.day,side:THREE.BackSide,fog:false}));DOME.position.y=-10;DOME.visible=false;scene.add(DOME)}
 /* ---- upper floors + longer shop row ---- */
@@ -389,46 +389,6 @@ ZONES.push([-1.7,1.7,3.5,4.45],[-24.5,24.5,4.4,14.3],[5.65,6.55,14.2,15.4],[3.35
  const pt2=new THREE.Mesh(new THREE.PlaneGeometry(.46,.26),new THREE.MeshBasicMaterial({map:ctex(46,26,c=>{c.fillStyle='#f5f5f0';c.fillRect(0,0,46,26);c.fillStyle='#8f3d20';c.font='bold 18px monospace';c.textAlign='center';c.fillText('No.7',23,19)})}));pt2.position.set(7.35,1.7,14.92);pt2.rotation.y=Math.PI;scene.add(pt2);
  /* lit upstairs window (warm) */
  const lw=new THREE.Mesh(new THREE.PlaneGeometry(.8,.65),B(0xf2d48a));lw.position.set(9,4.55,14.93);lw.rotation.y=Math.PI;scene.add(lw)}
-/* ---- realism pass: grime decals, clutter, cables, puddles ---- */
-{let sd=11;const R=()=>{sd=(sd*16807)%2147483647;return sd/2147483647};
- const dm=(w,h,draw)=>new THREE.MeshBasicMaterial({map:ctex(w,h,draw,1,1),transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-3,fog:true});
- const grimeWall=(w,h)=>dm(w,h,c=>{c.clearRect(0,0,w,h);
-   for(let i=0;i<9;i++){const x=R()*w,len=h*(.3+R()*.7),sw=.5+R()*1.6,g=c.createLinearGradient(0,0,0,len);g.addColorStop(0,'rgba(70,58,40,.34)');g.addColorStop(1,'rgba(70,58,40,0)');c.fillStyle=g;c.fillRect(x,0,sw,len)}
-   for(let i=0;i<7;i++){const x=R()*w,y=R()*h*.8,r=.5+R()*1.3;c.fillStyle='rgba(110,92,70,.35)';c.beginPath();c.ellipse(x,y,r*1.4,r,R()*3,0,7);c.fill();c.fillStyle='rgba(225,215,190,.28)';c.beginPath();c.ellipse(x-.3,y-.2,r*.8,r*.55,R()*3,0,7);c.fill()}for(let i=0;i<60;i++){c.fillStyle='rgba(60,48,34,'+(.05+R()*.1)+')';c.fillRect(R()*w,R()*h,.4+R()*.8,.4+R()*.8)}
-   const g2=c.createLinearGradient(0,h*.65,0,h);g2.addColorStop(0,'rgba(30,24,16,0)');g2.addColorStop(1,'rgba(30,24,16,.45)');c.fillStyle=g2;c.fillRect(0,h*.65,w,h*.35);
-   c.strokeStyle='rgba(30,26,20,.5)';c.lineWidth=.25;for(let i=0;i<3;i++){c.beginPath();let x=R()*w,y=R()*h*.5;c.moveTo(x,y);for(let k=0;k<5;k++){x+=(R()-.5)*3;y+=1+R()*2.5;c.lineTo(x,y)}c.stroke()}});
- const rustShut=()=>dm(16,24,c=>{c.clearRect(0,0,16,24);for(let i=0;i<7;i++){const x=R()*16,len=6+R()*18,g=c.createLinearGradient(0,0,0,len);g.addColorStop(0,'rgba(150,80,30,.45)');g.addColorStop(1,'rgba(150,80,30,0)');c.fillStyle=g;c.fillRect(x,0,.6+R()*1.2,len)}
-   for(let i=0;i<5;i++){c.fillStyle='rgba(15,15,18,'+(.15+R()*.2)+')';c.beginPath();c.ellipse(R()*16,4+R()*18,1+R()*2,.8+R()*1.4,0,0,7);c.fill()}
-   c.fillStyle='rgba(30,30,30,.5)';c.fillRect(10,14,4,.6)});
- for(let cx=-65;cx<=65;cx+=10){
-   const a=new THREE.Mesh(new THREE.PlaneGeometry(10,3),grimeWall(40,12));a.position.set(cx,1.5,4.036);scene.add(a);
-   const b=new THREE.Mesh(new THREE.PlaneGeometry(10,3.7),grimeWall(40,15));b.position.set(cx,4.85,6.585);scene.add(b);
-   if(cx!==0){const r=new THREE.Mesh(new THREE.PlaneGeometry(4.2,2.4),rustShut());r.position.set(cx,1.2,4.052);scene.add(r)}
-   /* drainpipe between lots */
-   const dp=new THREE.Mesh(new THREE.CylinderGeometry(.045,.045,6.4,6),M(0x8a8a84));dp.position.set(cx+5,3.2,6.62);scene.add(dp);
-   /* meter box + cable bundle */
-   if(R()<.7){box(.35,.45,.14,M(0x9a9a92),cx+3.6,1.9,4.1);for(const dy of[0,.07])box(.02,.5,.02,M(0x1b1b1b),cx+3.5+dy,2.45,4.12)}
-   /* AC unit drip stain */
- }
- /* cables draped from facade to poles + across street */
- const cab=M(0x151515);for(let px=-50;px<46;px+=12){for(const [y0,dz] of[[5.4,.35],[5.1,-.35]])for(let k=0;k<6;k++){const t=k/6,t2=(k+1)/6,sag=a=>Math.sin(a*Math.PI)*.4;const x0=px+t*12,x1=px+t2*12,y1=y0-sag(t),y2=y0-sag(t2);const m=new THREE.Mesh(new THREE.BoxGeometry(Math.hypot(x1-x0,y2-y1),.03,.03),cab);m.position.set((x0+x1)/2,(y1+y2)/2,14.2+dz);m.rotation.z=Math.atan2(y2-y1,x1-x0);scene.add(m)}}
- /* puddles + manholes + drains on the road */
- const puddle=(x,z,w,d)=>{const m=new THREE.Mesh(new THREE.CircleGeometry(1,14),new THREE.MeshBasicMaterial({color:0x2c3340,transparent:true,opacity:.55,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2}));m.rotation.x=-Math.PI/2;m.scale.set(w,d,1);m.position.set(x,.012,z);scene.add(m)};
- [[-14,9,1.6,.7],[-4,11.5,1.2,.6],[8,8.2,1.8,.8],[17,10.4,1.3,.6],[-24,8.6,1.7,.7],[27,9,1.4,.6]].forEach(a=>puddle(...a));
- for(const x of[-9,13,-20]){const mh=new THREE.Mesh(new THREE.CircleGeometry(.5,12),M(0x2b2b2f));mh.rotation.x=-Math.PI/2;mh.position.set(x,.014,10.4);scene.add(mh);box(.7,.02,.04,M(0x45454a),x,.02,10.4)}
- for(const x of[-18,-6,6,18,30])box(1.1,.02,.35,M(0x1d1d22),x,.015,6.8);
- /* clutter on the five-foot-way */
- const lpg=(x,z)=>{for(const dx of[0,.38]){const c=new THREE.Mesh(new THREE.CylinderGeometry(.17,.17,.55,10),M(0xc8392e));c.position.set(x+dx,.28,z);scene.add(c);const t=new THREE.Mesh(new THREE.CylinderGeometry(.07,.09,.1,8),M(0x888888));t.position.set(x+dx,.6,z);scene.add(t)}AABB.push([x-.25,x+.62,z-.25,z+.25])};
- const crates=(x,z,n)=>{for(let i=0;i<n;i++){const col=[0x3a6fb0,0xc9a14a,0x3a8f5a][i%3];box(.55,.32,.4,M(col),x+(i%2)*.05,.16+i*.33,z);}AABB.push([x-.35,x+.35,z-.28,z+.28])};
- const bin=(x,z,col)=>{const b=new THREE.Mesh(new THREE.CylinderGeometry(.3,.24,.8,10),M(col));b.position.set(x,.4,z);scene.add(b);const l=new THREE.Mesh(new THREE.CylinderGeometry(.32,.32,.07,10),M(0x222222));l.position.set(x,.83,z);scene.add(l);AABB.push([x-.35,x+.35,z-.35,z+.35])};
- const stool=(x,z,col)=>{const t=new THREE.Mesh(new THREE.CylinderGeometry(.19,.19,.04,10),M(col));t.position.set(x,.45,z);scene.add(t);for(const [dx,dz] of[[-.12,-.12],[.12,-.12],[-.12,.12],[.12,.12]])box(.03,.43,.03,M(col),x+dx,.22,z+dz)};
- lpg(-11.8,4.7);crates(9.6,4.7,3);bin(-17.9,4.8,0x2f6b3a);bin(17.5,4.8,0x2f4a6b);crates(-23,4.7,2);lpg(22.4,4.7);
- [[-13.5,5.4],[-12.9,5.0],[14.2,5.2],[14.8,5.6],[-7.2,5.3],[24.4,5.2]].forEach(([x,z],i)=>stool(x,z,[0xd0392e,0x2a6fd0,0xe8b020][i%3]));
- /* laundry lines under the upper floor */
- for(const cx of[-30,-20,20,30,40]){box(8,.015,.015,M(0x333333),cx,3.55,6.0);for(let k=0;k<5;k++){const col=[0xe84a5f,0xf4d35e,0x7fd1b9,0xffffff,0x79b8e8][k];box(.45,.7+R()*.25,.03,M(col),cx-3+k*1.5,3.15,6.0)}}
- /* graffiti-ish stickers/posters on a few walls */
- for(const cx of[-30,-20,30,50]){const pm=new THREE.Mesh(new THREE.PlaneGeometry(.7,1),new THREE.MeshBasicMaterial({map:ctex(14,20,c=>{c.fillStyle=['#e8d9a0','#c9d9e8','#e8b0b0'][Math.abs(cx)%3];c.fillRect(0,0,14,20);c.fillStyle='#222';c.fillRect(2,3,10,1.4);c.fillRect(2,6,8,1);c.fillRect(2,8,9,1);c.fillStyle='#b02a2a';c.fillRect(2,12,10,5)}),polygonOffset:true,polygonOffsetFactor:-4,polygonOffsetUnits:-4}));pm.position.set(cx+3.9,1.55,4.056);scene.add(pm)}
-}
 /* ---------- audio ---------- */
 let ac=null,master,hum,humG,statG,droneG;
 function initAudio(){
@@ -454,7 +414,7 @@ const A={
 
 /* ---------- lights ---------- */
 let lightF=0,lightsOn=false,TIME='night',AB=.02,AK=.4,SK=26,HK=16,LK=8;
-const SKY={day:{bg:0xb9c3c7,fd:.020,amb:0xe3e7ea,ab:1.25,ak:.15,sk:0,hk:2,lk:2,lamp:0,star:0,drone:.012},
+const SKY={day:{bg:0xb4d2e6,fd:.012,amb:0xf2f5fa,ab:1.5,ak:.15,sk:0,hk:2,lk:2,lamp:0,star:0,drone:.012},
  dusk:{bg:0xc9805e,fd:.026,amb:0xffc4a0,ab:.8,ak:.2,sk:10,hk:8,lk:4,lamp:.6,star:0,drone:.03},
  night:{bg:0x05070a,fd:.075,amb:0x6070a0,ab:.02,ak:.4,sk:26,hk:16,lk:8,lamp:1,star:1,drone:.05}};
 function setTime(t){TIME=t;const k=SKY[t];scene.background.setHex(k.bg);scene.fog.density=k.fd;if(t!=='night')scene.fog.color.setHex(k.bg);amb.color.setHex(k.amb);AB=k.ab;AK=k.ak;SK=k.sk;HK=k.hk;LK=k.lk;

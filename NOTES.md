@@ -81,6 +81,3 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 
 ## Hand-gesture interact (Nov 27)
 - Interact prompt = label pill + 58px round amber button with a hand icon; world markers are hand-icon discs. ICONS table (touch/grab/knock/wipe) drives both canvas marker textures (mkTexFor) and the CSS button (--ic data-URI). ICF maps interactable id -> icon; default touch.
-
-## Real-city pass (Nov 27)
-- Overcast hazy day sky + fog; grime decals (rain streaks, stains, peeling) on shop facades and upper floors, rust/dent decals on neighbour shutters, drainpipes, meter boxes, sagging cables, puddles/manholes/drains, clutter (LPG cylinders, crates, bins, stools with AABBs), laundry lines, posters. Decals use polygonOffset to avoid z-fighting. Block "realism pass" before audio.
