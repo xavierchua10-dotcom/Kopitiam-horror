@@ -530,7 +530,10 @@ async function cineHome(){if(busy||CINE.on)return;busy=true;await cineIn();const
   await tween(k=>{dg.rotation.y=-1.25*k},900);
   await camTo(6.1,13.9,yawTo(6.1,15.85),.05,700);
   await say(sp('ATUK','Three knock. Okay. Masuk.'),2400);
-  await Promise.all([camTo(6.1,15.5,Math.PI,0,1300),(async()=>{let cx=6.1,cz=15.85;for(const [tx,tz] of [[6.7,16.6],[6.9,18.0]]){const dx=tx-cx,dz=tz-cz,L=Math.hypot(dx,dz),x0=cx,z0=cz;atuk.rotation.y=Math.atan2(-dx,-dz);await tween(k=>{atuk.position.set(x0+dx*k,0,z0+dz*k);pose(atuk,performance.now()/170,'walk')},L/1.6*1000);cx=tx;cz=tz}})()]);
+  await camTo(6.1,15.4,Math.PI,0,900);
+  {let cx=6.1,cz=15.85;for(const [tx,tz] of [[6.1,17.0],[6.5,20.5],[7.2,20.5],[9.1,20.4],[9.1,19.4],[9.1,18.3]]){const dx=tx-cx,dz=tz-cz,L=Math.hypot(dx,dz),x0=cx,z0=cz,ry=atuk.rotation.y,ty=Math.atan2(-dx,-dz),dyy=((ty-ry+Math.PI*3)%(Math.PI*2))-Math.PI;
+    await tween(k=>{atuk.position.set(x0+dx*k,0,z0+dz*k);atuk.rotation.y=ry+dyy*Math.min(1,k*6);pose(atuk,performance.now()/170,'walk');
+      if(atuk.position.x<7.3){const dy=Math.atan2(Math.sin(yawTo(atuk.position.x,atuk.position.z)-P.yaw),Math.cos(yawTo(atuk.position.x,atuk.position.z)-P.yaw));P.yaw+=dy*.08}},L/2.0*1000);cx=tx;cz=tz}}
   atuk.visible=false;pose(atuk,0,'stand');
   await camTo(6.1,16.3,Math.PI,0,700);
   await tween(k=>{dg.rotation.y=-1.25*(1-k)},700);A.tone(90,60,.25,.18,'sine');A.click();

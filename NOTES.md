@@ -114,3 +114,6 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 
 ## Lock-up cutscene
 - End of shift: no shutter button. Walk into the marker outside the shutter; cutscene pulls the shutter down, padlock click, camera turns toward home. Objective "Go home".
+
+## Atuk walks to his room
+- In the ending, Atuk walks through the living room, the gap to the back hall, and in through his bedroom doorway (no teleport); camera follows him while he's in the dining room.
