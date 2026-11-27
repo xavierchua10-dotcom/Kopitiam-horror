@@ -218,7 +218,7 @@ function sign(txt,x,bg,fg){const m=new THREE.Mesh(new THREE.PlaneGeometry(3.4,.5
  const sg=new THREE.Mesh(new THREE.PlaneGeometry(4.4,.6),new THREE.MeshBasicMaterial({map:t}));sg.position.set(0,2.7,4.07);scene.add(sg);
  const gl=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,fog:false,opacity:.35,color:0xff6a4a}));gl.position.set(0,2.7,4.3);gl.scale.set(7,2.2,1);scene.add(gl)}
 [[-20,'KEDAI RUNCIT','#3f8fd0','#2d6aa0','#1d4f86','#ffffff'],[-10,'FARMASI','#2fae8a','#1f8a6c','#0e6e52','#f4fff8'],[10,'GUNTING RAMBUT','#d9577f','#b23f64','#9a2a50','#fff2f6'],[20,'KEDAI EMAS','#e89a2a','#c27a18','#8a1f1f','#ffe08a']].forEach(([cx,t,c1,c2,sb,sf])=>{
-  wall(10,3,cx,1.5,4,0);const sh=new THREE.Mesh(new THREE.PlaneGeometry(4.2,2.4),shutTex(c1,c2));sh.position.set(cx,1.2,4.04);scene.add(sh);sign(t,cx,sb,sf);facade(cx,10,c1);
+  wall(10,3,cx,1.5,4,0);const sh=new THREE.Mesh(new THREE.PlaneGeometry(4.2,2.4),shutTex());sh.position.set(cx,1.2,4.04);scene.add(sh);sign(t,cx,sb,sf);facade(cx,10,c1);
   wall(10,.01,cx,.01,4.05,0).visible=false});
 /* A-frame chalkboard beside the door (fades day by day) */
 const boardCv=document.createElement('canvas');boardCv.width=256;boardCv.height=336;
@@ -239,6 +239,7 @@ drawBoard(1);
  AABB.push([2.5,3.3,4.9,5.5])}
 
 /* ---- colour pass ---- */
+{const gnd=new THREE.Mesh(new THREE.PlaneGeometry(280,280),M(0x5f6459));gnd.rotation.x=-Math.PI/2;gnd.position.set(0,-.03,10);scene.add(gnd)}
 facade(-3.5,3,'#f1deb0');facade(3.5,3,'#f1deb0');
 {const m=new THREE.Mesh(new THREE.PlaneGeometry(4,.6),M(0xffffff,{map:ctex(32,6,c=>{c.fillStyle='#f1deb0';c.fillRect(0,0,32,6);c.fillStyle='#c4352a';c.fillRect(0,0,32,1)})}));m.position.set(0,2.7,4.03);scene.add(m)}
 for(const lx of[-1.9,1.9]){const L=new THREE.Mesh(new THREE.SphereGeometry(.22,8,6),B(0xd63a2a));L.scale.y=1.2;L.position.set(lx,2.45,5.0);scene.add(L);box(.02,.4,.02,B(0x222222),lx,2.85,5.0);box(.14,.03,.14,B(0xe8c35a),lx,2.2,5.0)}
