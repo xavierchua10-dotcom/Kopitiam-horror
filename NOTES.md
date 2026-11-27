@@ -101,3 +101,6 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 
 ## No button for Atuk talks
 - Talking to Atuk (greet/report/back/rule) has no interact button anymore; walking into the marker ring plays the cutscene only.
+
+## Customers walk in and sit
+- The 5 customers waiting outside are the same people who sit in the shop (no more vanishing/pop-in). After the shutter opens they walk through the door, around the tables, turn and sit at their seats, staggered 1s apart.
