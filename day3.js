@@ -66,7 +66,7 @@ function details(){if(detDone)return;detDone=true;
   /* Pak Hassan: the same newspaper page, smudged */
   {const t=ctex(60,80,c=>{c.fillStyle='#d9d2bd';c.fillRect(0,0,60,80);c.fillStyle='#2a2824';c.fillRect(4,5,52,9);c.fillStyle='#555';for(let y=20;y<74;y+=4)c.fillRect(5,y,50,1.5);
      c.fillStyle='#222';c.font='bold 8px sans-serif';c.fillText('7',27,78);c.fillStyle='rgba(30,25,20,.55)';c.beginPath();c.ellipse(30,44,20,14,.3,0,7);c.fill();c.fillStyle='rgba(120,20,16,.5)';c.beginPath();c.ellipse(40,52,9,7,0,0,7);c.fill()}),
-   pm=new THREE.Mesh(new THREE.PlaneGeometry(.36,.48),new THREE.MeshLambertMaterial({map:t}));pm.rotation.x=-Math.PI/2;pm.rotation.z=.12;pm.position.set(-1.7,.785,.0);scene.add(pm)}
+   pm=new THREE.Mesh(new THREE.PlaneGeometry(.36,.48),new THREE.MeshLambertMaterial({map:t}));pm.rotation.x=-Math.PI/2;pm.rotation.z=.12;pm.position.set(-1.7,.785,.0);scene.add(pm);goreFloor.push(pm)}
 }
 
 
@@ -90,7 +90,7 @@ const faceBlister=(g,x,y)=>{g.fillStyle='#d9705a';g.fillRect(x,y,4,3);g.fillStyl
 const raw=(w,h)=>shellTex(w,h,(g,ox,W,H)=>{g.fillStyle='#c9604a';g.fillRect(ox-W*.3,0,W*.6,H);for(let i=0;i<14;i++)blob(g,ox+rnd(-W*.28,W*.28),rnd(0,H),rnd(5,12),['#3a1410','#7a2a20']);for(let i=0;i<7;i++){const x=ox+rnd(-W*.25,W*.25),y=rnd(4,H-4);g.fillStyle='#e8a090';g.beginPath();g.arc(x,y,rnd(3,5),0,7);g.fill();g.fillStyle='rgba(255,255,255,.55)';g.fillRect(x-1,y-2,2,1)}drips(g,ox,H*.55,4,W*.18,H*.4,3)});
 const splat=(w,h,n,r0,dr)=>shellTex(w,h,(g,ox,W,H)=>{blob(g,ox+rnd(-W*.05,W*.05),H*.38,r0,BL);for(let i=0;i<n;i++)blob(g,ox+rnd(-W*.22,W*.22),rnd(H*.1,H*.85),rnd(3,r0*.55),BL);drips(g,ox,H*.45,dr,W*.2,H*.5,4);for(let i=0;i<30;i++){g.fillStyle=BL[1];g.beginPath();g.arc(ox+rnd(-W*.3,W*.3),rnd(0,H),rnd(.6,1.8),0,7);g.fill()}});
 const soot=(w,h)=>shellTex(w,h,(g,ox,W,H)=>{for(let i=0;i<10;i++)blob(g,ox+rnd(-W*.25,W*.25),rnd(0,H),rnd(6,16),['rgba(16,13,11,.75)','rgba(16,13,11,.55)'])});
-let goreDone=false;
+let goreDone=false;const goreFloor=[];
 function goreDetails(){if(goreDone)return;goreDone=true;
   const U=i=>CROWD[i].userData;
   /* Mak Cik Salmah: raw blistered burn from hand to elbow, charred sleeve, scorched face */
@@ -121,7 +121,7 @@ function goreDetails(){if(goreDone)return;goreDone=true;
    FP(u.head,g=>{g.fillStyle='rgba(70,40,90,.75)';g.fillRect(4,10,9,6);g.fillStyle='rgba(40,20,50,.6)';g.fillRect(5,11,7,3);g.fillStyle='#4a0806';g.fillRect(14,15,3,6);g.fillStyle='#a8160e';g.fillRect(14,15,2,5);faceDrip(g,15,20,4,2);g.fillStyle='#4a0806';g.fillRect(14,21,5,2)})}
   /* floor: irregular dark pools with a wet shine, and a drip trail */
   const poolT=r=>mkT(96,96,(g)=>{blob(g,48,48,r*1.9,['#2a0403','#4a0806','#6e0b09']);for(let i=0;i<5;i++)blob(g,48+rnd(-30,30),48+rnd(-30,30),rnd(6,14),['#3c0605','#5a0908']);g.fillStyle='rgba(255,170,150,.35)';g.fillRect(40,38,16,3)});
-  for(const [x,z,r] of [[-3,-1.0,.5],[-3,.4,.55],[-1.7,-.5,.45],[-1.7,1.1,.5],[-3,-2.6,.4]]){const p=new THREE.Mesh(new THREE.PlaneGeometry(r*2,r*2),new THREE.MeshLambertMaterial({map:poolT(14),transparent:true,alphaTest:.04,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2}));p.rotation.x=-Math.PI/2;p.rotation.z=Math.random()*6;p.position.set(x,.014,z);scene.add(p)}
+  for(const [x,z,r] of [[-3,-1.0,.5],[-3,.4,.55],[-1.7,-.5,.45],[-1.7,1.1,.5],[-3,-2.6,.4]]){const p=new THREE.Mesh(new THREE.PlaneGeometry(r*2,r*2),new THREE.MeshLambertMaterial({map:poolT(14),transparent:true,alphaTest:.04,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2}));p.rotation.x=-Math.PI/2;p.rotation.z=Math.random()*6;p.position.set(x,.014,z);scene.add(p);goreFloor.push(p)}
 }
 
 /* ---------- opening: same alarm, with smoke ---------- */
@@ -279,5 +279,5 @@ async function homeNight(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
   $('endh').textContent='END OF DAY 3';$('endp').textContent='Somebody was crying at the door. Atuk did not answer.';$('endl').textContent='Last Order · Day 4 is coming';
   $('end').style.display='flex';G.busy=false;G.state='end'}
 
-G.gore=goreDetails;G.details=details;G.FIG=FIG;G.tvSet=tvSet;G.haze=haze;
+G.gore=goreDetails;G.goreVis=v=>goreFloor.forEach(o=>o.visible=v);G.details=details;G.FIG=FIG;G.tvSet=tvSet;G.haze=haze;
 G.day3=start}

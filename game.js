@@ -794,7 +794,7 @@ function frame(t){requestAnimationFrame(frame);const raw=t-last;if(raw<30)return
   update(dt);renderer.render(scene,camera)}
 
 /* ---------- hook for the later days (day2.js ...) ---------- */
-const G={THREE,scene,camera,P,EYE,A,CINE,D,WPS,atuk,CROWD,HOME,QUEUE,FEET,shutter,radio,BULB,STREAM,ALK,stain,cupsD,tick:[],day2:null,day3:null,day4:null,stools,fan,
+const G={person,THREE,scene,camera,P,EYE,A,CINE,D,WPS,atuk,CROWD,HOME,QUEUE,FEET,shutter,radio,BULB,STREAM,ALK,stain,cupsD,tick:[],day2:null,day3:null,day4:null,stools,fan,
   $,sleep,say,sp,cineIn,cineOut,camTo,yawTo,csleep,tween,handAct,pose,objT,setClock,setTime,applyLights,bulbSet,flicker,tapOn,tapOff,lids,startAlarm,stopAlarm,drawClock,
   showCrowd,drawBoard,day1Props,shutBlock,chWipe,chCups,ctex,isLand,atukLeave,M,B,box,
   get state(){return state},set state(v){state=v},get busy(){return busy},set busy(v){busy=v},

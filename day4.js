@@ -12,6 +12,7 @@ const pace=(x,z,sp_=1.7)=>{const x0=P.x,z0=P.z,L=Math.hypot(x-x0,z-z0);if(L<.9)r
 /* ================= the wrecked, red shop (built once, kept in a group so Day 5 can hide it) ================= */
 const RED=new THREE.Group();scene.add(RED);RED.visible=false;
 let built=false,wrecked=[];
+const setWreck=on=>{for(const w of wrecked){const [o,r,p,wr,wp]=w;if(on){o.rotation.copy(wr);o.position.copy(wp)}else{o.rotation.copy(r);o.position.copy(p)}}};
 function buildRed(){if(built)return;built=true;
   const R1='#4a0806',R2='#7a0d0a',R3='#a8160e';
   const dec=(w,h,px,py,fn,pos,ry,rx=0)=>{const c=document.createElement('canvas');c.width=px;c.height=py;const g=c.getContext('2d');fn(g,px,py);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;
@@ -53,12 +54,13 @@ function buildRed(){if(built)return;built=true;
   for(const [x,z,ry,l] of [[.9,.9,.6,1.2],[-.2,2.6,-.4,.9],[1.9,-2.3,1.2,1.1],[-2.3,3.1,.2,.8],[3.1,1,-.9,.7]]){const p=new THREE.Mesh(new THREE.BoxGeometry(l,.05,.12),plank);p.position.set(x,.04,z);p.rotation.y=ry;p.rotation.z=.04;RED.add(p)}
   for(let i=0;i<46;i++){const t=new THREE.Mesh(new THREE.ConeGeometry(.04+Math.random()*.05,.09,3),shard);t.position.set(-3+Math.random()*6,.03,-2.5+Math.random()*5.5);t.rotation.set(Math.PI/2*Math.random()+1.2,Math.random()*6,Math.random());RED.add(t)}
   /* toppled stools, bent fan, a dead hanging tube */
-  wrecked=[];[0,2,5,6].forEach((i,k)=>{const st=G.stools[i];if(!st)return;wrecked.push([st,st.rotation.clone(),st.position.clone()]);st.rotation.z=1.45;st.rotation.y=k*1.3;st.position.y=.17});
-  wrecked.push([G.fan,G.fan.rotation.clone(),G.fan.position.clone()]);G.fan.rotation.z=.32;G.fan.position.y=2.6;
+  wrecked=[];const rec=(o,f)=>{const r=o.rotation.clone(),p=o.position.clone();f(o);wrecked.push([o,r,p,o.rotation.clone(),o.position.clone()])};
+  [0,2,5,6].forEach((i,k)=>{const st=G.stools[i];if(st)rec(st,o=>{o.rotation.z=1.45;o.rotation.y=k*1.3;o.position.y=.17})});
+  rec(G.fan,o=>{o.rotation.z=.32;o.position.y=2.6});
   const tube=scene.children.find(m=>m.isMesh&&Math.abs(m.position.y-2.94)<.01&&Math.abs(m.position.z-1.4)<.01);
-  if(tube){wrecked.push([tube,tube.rotation.clone(),tube.position.clone()]);tube.rotation.z=.5;tube.position.y=2.55}
+  if(tube)rec(tube,o=>{o.rotation.z=.5;o.position.y=2.55});
 }
-G.unwreck=()=>{RED.visible=false;for(const [o,r,p] of wrecked){o.rotation.copy(r);o.position.copy(p)}};
+G.unwreck=()=>{RED.visible=false;setWreck(false)};
 
 /* ================= fire sprites for the street ================= */
 const FIRE=[];
@@ -111,52 +113,114 @@ async function greet(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
   await say(sp('YOU','Look around!'),1600);
   await say(sp('ATUK','...Don\'t look too long, cucu.'),2600);
   await camTo(P.x,P.z,0,0,600);
-  G.state='d4_look';ci=0;setClock('11:05 AM');objT(LK[0].obj);G.busy=false;await cineOut()}
+  G.state='d4_look';setClock('11:05 AM');objT('Look at the customers');G.busy=false;await cineOut()}
 
-/* ---------- each customer slips into the truth without noticing ---------- */
-let ci=0;
-const Y=t=>say(sp('YOU',t),2200);
+/* ---------- the silent turn: they only look at you ---------- */
 const fade=a=>atukMats.forEach(m=>m.opacity=a);
-const LK=[
- {obj:'Talk to Ah Seng',m:[-2.15,-.85],c:0,pit:-.5,clk:'11:15 AM',run:async c=>{await Y('Ah Seng... your watch.');await say('"Stopped at 12:41. Funny, no? Like time also tired."',3200,c);await say(sp('YOU','What happens at 12:41?'),2000);await say('"Teh-C peng, please. ...Why so cold today?"',2800,c)}},
- {obj:'Talk to Mak Cik Salmah',m:[-2.2,-2.6],c:1,pit:-.45,clk:'11:22 AM',run:async c=>{await Y('Mak Cik, your arm...');await say('"Why so hot in here, cucu? My arm is burning."',3000,c);await say('She is shivering. Nothing is on fire.',2600);await say('"Teh tarik. Panas-panas. Please."',2400,c)}},
- {obj:'Talk to Raj',m:[-2.15,.45],c:2,pit:-.5,clk:'11:30 AM',run:async c=>{await Y('Raj, where is your other shoe?');await say('"I keep looking. I walked in with two, I swear."',3000,c);await say('"I was only going to buy kopi, then go to work."',3000,c);await say('He stares at his sock. It is a long time before he looks up.',3000)}},
- {obj:'Talk to Pak Hassan',m:[-.95,-.5],c:3,pit:-.35,clk:'11:37 AM',run:async c=>{await Y('Pak Hassan, same page again?');await say('"Page seven. I cannot turn it. Strange."',2800,c);await say('The newspaper is dated today. The headline is blank.',2800);await say('"Roti bakar. Kurang butter."',2200,c)}},
- {obj:'Talk to Mei Ling',m:[-.9,1.15],c:4,pit:-.3,clk:'11:44 AM',run:async c=>{await Y('Mei Ling... how is your daughter?');await say('"Her birthday is next week. I must go home."',3000,c);await say('"I must go home, I must go home..."',2600,c);await say(sp('YOU','...I know. I know you must.'),2800)}}];
-WPS.d4_look={get x(){return LK[Math.min(ci,LK.length-1)].m[0]},get z(){return LK[Math.min(ci,LK.length-1)].m[1]},r:.6,go:1,get fn(){return lookRun}};
-async function lookRun(){if(G.busy||CINE.on)return;G.busy=true;const k=LK[ci],c=CROWD[k.c];A.click();await cineIn();
-  await camTo(k.m[0],k.m[1],yawTo(c.position.x,c.position.z),0,900);
-  await camTo(k.m[0],k.m[1],yawTo(c.position.x,c.position.z),k.pit,700);
-  await k.run(c);
-  await camTo(k.m[0],k.m[1],yawTo(c.position.x,c.position.z),0,500);
-  setClock(k.clk);ci++;fade(.72-ci*.1);
-  if(ci>=LK.length){G.state='d4_tv';objT('The TV is on');await say('The TV is on. Nobody turned it on.',2600)}else objT(LK[ci].obj);
-  G.busy=false;await cineOut()}
+const turnTo=(g,ms)=>{const r0=g.rotation.y,dx=P.x-g.position.x,dz=P.z-g.position.z;let d=Math.atan2(dx,dz)-Math.PI-r0;d=Math.atan2(Math.sin(d),Math.cos(d));return tween(k=>{const e=k*k*(3-2*k);g.rotation.y=r0+d*e},ms)};
+const beatT=()=>{let on=true;(async()=>{while(on){A.tone(70,45,.14,.2,'sine');await sleep(260);A.tone(70,45,.12,.14,'sine');await sleep(900)}})();return()=>{on=false}};
+WPS.d4_look={x:-.2,z:-.2,r:.75,go:1,fn:silent};
+async function silent(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
+  await pace(-.2,-.2,1.5);
+  const stop=beatT();
+  await camTo(-.2,-.2,yawTo(-3,-1.2),-.12,1100);
+  await say('...What is this?',2600);
+  for(const i of [1,0,3,2,4]){const c=CROWD[i];
+    await camTo(-.2,-.2,yawTo(c.position.x,c.position.z),-.1,1000);
+    turnTo(c,2000);await csleep(1500)}
+  await camTo(-.2,-.2,yawTo(-2.6,-.7),-.1,900);
+  fade(.5);await csleep(2200);stop();
+  await newsScene()}
 
 /* ================= the news, the collapse, the run, the door ================= */
 const newsLine=(t,ms)=>say(sp('NEWS',t),ms);
-const turnToYou=(ms=1500)=>{const all=CROWD.concat([atuk]);const st=all.map(g=>g.rotation.y);const tg=all.map((g,i)=>{const dx=P.x-g.position.x,dz=P.z-g.position.z;let d=Math.atan2(dx,dz)-Math.PI-st[i];d=Math.atan2(Math.sin(d),Math.cos(d));return d});
+const turnToYou=(ms=1500)=>{const all=[atuk];const st=all.map(g=>g.rotation.y);const tg=all.map((g,i)=>{const dx=P.x-g.position.x,dz=P.z-g.position.z;let d=Math.atan2(dx,dz)-Math.PI-st[i];d=Math.atan2(Math.sin(d),Math.cos(d));return d});
   return tween(k=>{all.forEach((g,i)=>{g.rotation.y=st[i]+tg[i]*k})},ms)};
-WPS.d4_tv={x:3.4,z:.5,r:.6,go:1,fn:tvAndAfter};
-async function tvAndAfter(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
-  await camTo(3.4,.5,yawTo(4.9,.5),.27,1200);
+
+/* ---- the CCTV footage the TV shows: a clean kopitiam, a normal morning, then the lorry ---- */
+let cc=null,LOR=null,FAKE=null;
+function ccBuild(){if(cc)return;
+  cc=document.createElement('div');cc.id='cctv';
+  cc.style.cssText='position:fixed;inset:0;z-index:40;pointer-events:none;opacity:0;transition:opacity .5s;background:repeating-linear-gradient(0deg,rgba(0,0,0,.2) 0 1px,transparent 1px 3px);box-shadow:inset 0 0 90px 40px rgba(0,0,0,.8);border:20px solid #0a0a0a;border-radius:44px;font:700 15px system-ui,sans-serif;color:#fff';
+  cc.innerHTML='<div style="position:absolute;left:16px;top:10px"><span style="color:#e33">●</span> REC</div><div id="cctime" style="position:absolute;right:16px;top:10px"></div><div style="position:absolute;left:16px;bottom:58px;opacity:.8;font-size:12px">CAM 02  KEDAI KOPI ATUK</div><div style="position:absolute;left:12px;right:12px;bottom:10px;background:#a81414;padding:6px 12px;display:flex;gap:14px;align-items:center"><b style="font-size:18px">BERITA TERKINI</b><span style="color:#ffebc8;font-size:14px">LORI LANGGAR KEDAI KOPI</span></div><div id="ccflash" style="position:absolute;inset:0;background:#fff;opacity:0"></div><div id="ccsig" style="position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:#050505;font-size:22px;letter-spacing:4px">SIGNAL LOST</div>';
+  document.body.appendChild(cc)}
+function fakeBuild(){if(FAKE)return;FAKE={};
+  const T=THREE,pp=G.person;
+  FAKE.crowd=[pp(-3,-1.0,0,0x3b5a7a,0x1a1a1a,0xc9a27e,{sit:1,sleeve:1,f:{smile:1}}),pp(-3,-2.6,Math.PI,0x7a3b3b,0xb9b2c8,0xd8b08a,{sit:1,tudung:1,sarong:0x5a2a2a,f:{wrinkle:1,sides:1,brow:'#777',lash:1,lips:1,mouth:'#9a4a4a'}}),pp(-3,.4,Math.PI,0x4a6a3b,0x111111,0x8a5836,{sit:1,shorts:1}),pp(-1.7,-.5,Math.PI,0x6a5a3b,0x111111,0xc9a27e,{sit:1,f:{wrinkle:1}}),pp(-1.7,1.1,0,0x5a3b6a,0x3a2a1a,0xc9a27e,{sit:1,hairUp:1,long:1,sarong:0x2f2a3d,f:{smile:1,sides:1,lash:1,lips:1,mouth:'#c0485a'}})];
+  FAKE.atuk=pp(3.9,3.5,1.0,0xf1efe6,0xe6e6e6,0xb89572,{vest:1,bot:0x6b6f76,shoe:0x6a4a2a,f:{glasses:1,wrinkle:1,sides:1,brow:'#d8d8d8',mouth:'#6a3a2a'}});
+  FAKE.me=pp(2.9,2.7,-2.4,0x2a4a3a,0x1a1a1a,0xc9a27e,{});
+  FAKE.all=FAKE.crowd.concat([FAKE.atuk,FAKE.me]);FAKE.all.forEach(g=>g.visible=false);
+  const L=new T.Group();scene.add(L);L.visible=false;
+  const bx=(w,h,d,c,x,y,z,e)=>{const m=new T.Mesh(new T.BoxGeometry(w,h,d),new T.MeshLambertMaterial({color:c,emissive:e||0}));m.position.set(x,y,z);L.add(m);return m};
+  bx(2.3,1.5,5.2,0xb8bcc0,0,2.0,2.6);bx(2.3,2.2,1.6,0xc23a2a,0,1.4,-.4);bx(2.0,.9,.1,0x1a2430,0,1.9,-1.2);bx(2.3,.3,2.3,0x333333,0,.45,0);bx(2.3,.4,.2,0xdddddd,0,.55,-1.28);
+  bx(.4,.25,.1,0xfff2b0,-.8,.9,-1.28,0xffe890);bx(.4,.25,.1,0xfff2b0,.8,.9,-1.28,0xffe890);
+  for(const x of[-1.2,1.2])for(const z of[-.4,2.6]){const w=new T.Mesh(new T.CylinderGeometry(.5,.5,.35,10),new T.MeshLambertMaterial({color:0x111111}));w.rotation.z=Math.PI/2;w.position.set(x,.5,z);L.add(w)}
+  const hl=new T.SpotLight(0xfff0c0,6,25,.7,.5);hl.position.set(0,1,-1.2);hl.target.position.set(0,0,-10);L.add(hl);L.add(hl.target);
+  const fl=new T.PointLight(0xff7a20,0,14);fl.position.set(0,2,3);scene.add(fl);FAKE.fl=fl;LOR=L;FAKE.L=L}
+async function footage(){
+  ccBuild();fakeBuild();mkFire();
+  const cv=$('c'),fov0=G.camera.fov,P0={x:P.x,z:P.z,yaw:P.yaw,pitch:P.pitch},ey0=EYE.y,cl=$('cctime');
+  /* hide the real, wrecked shop; show a clean one */
+  CROWD.forEach(c=>c.visible=false);atuk.visible=false;RED.visible=false;G.goreVis&&G.goreVis(false);setWreck(false);
+  G.haze.style.opacity=0;setTime('day');applyLights(1);bulbSet(1);
+  FAKE.crowd.forEach((c,i)=>{c.visible=true;c.position.set(HOME[i][0],0,HOME[i][1]);c.rotation.set(0,HOME[i][2],0);pose(c,0,'sit')});
+  const me=FAKE.me,ak=FAKE.atuk;me.visible=ak.visible=true;me.position.set(2.9,0,2.7);me.rotation.set(0,-2.4,0);ak.position.set(3.9,0,3.5);ak.rotation.set(0,1.0,0);pose(ak,0,'stand');pose(me,0,'stand');
+  LOR.position.set(0,0,14);LOR.visible=true;FAKE.fl.intensity=0;
+  const tm=(s)=>{cl.textContent='12:'+(40+((51+s)/60|0))+':'+String(Math.floor(51+s)%60).padStart(2,'0')};tm(0);
+  cv.style.transition='none';cv.style.filter='grayscale(.78) contrast(1.15) brightness(1.1)';
+  G.camera.fov=72;G.camera.updateProjectionMatrix();
+  P.x=3.0;P.z=-3.5;EYE.y=2.75;P.yaw=Math.atan2(2.6,-7.2);P.pitch=-.2;CINE.noclip=true;
+  cc.style.opacity=1;await csleep(600);
+  /* 1: a normal morning, you are serving coffee */
+  await tween(k=>{tm(k*8);const t=performance.now()/1000;const u=me.userData;u.aR&&(u.aR.up=1.1+Math.sin(t*3)*.35);FAKE.crowd.forEach((c,i)=>{const q=c.userData;q.aR&&(q.aR.up=.7+Math.max(0,Math.sin(t*1.2+i*1.7))*.6)})},3600);
+  /* 2: headlights through the shutter */
+  A.tone(55,70,2.4,.18,'sawtooth');
+  await tween(k=>{tm(8+k*4);LOR.position.z=14-6.2*k*k},2400);
+  A.tone(330,330,.7,.2,'square');await csleep(450);A.tone(330,330,.7,.2,'square');
+  /* 3: it does not stop */
+  const sh0=P.yaw;
+  await tween(k=>{tm(12+k*.6);LOR.position.z=7.8-4.4*k},520);
+  A.sting();A.rumble();FAKE.fl.intensity=4;
+  FIRE.forEach((f,i)=>{if(i>9){f.visible=false;return}const q=[[-1.6,.3,4.4],[1.6,.3,4.4],[0,1,3.8],[-.9,.5,2.4],[1,.4,2.6],[-1.4,.4,3.3],[1.4,.5,3.2],[0,.6,3],[.5,1,2],[-.5,.8,2.2]][i];f.position.set(q[0],q[1]+.5,q[2]);f.visible=true});
+  LOR.position.z=3.2;
+  const dir=FAKE.crowd.map((c,i)=>[(Math.random()-.5)*1.4,-1.4-Math.random()*.6]);
+  await tween(k=>{tm(12.6+k*1.6);P.yaw=sh0+Math.sin(k*90)*.03*(1-k);P.pitch=-.2+Math.sin(k*70)*.02*(1-k);
+    FAKE.crowd.forEach((c,i)=>{const u=c.userData;u.aL&&(u.aL.up=2.6);u.aR&&(u.aR.up=2.6);c.position.y=Math.max(0,Math.sin(k*9+i)*.12*k);c.position.x+=dir[i][0]*.016;c.position.z+=dir[i][1]*.016;c.rotation.y+=.05});
+    const u=ak.userData;u.aL&&(u.aL.up=2.6);u.aR&&(u.aR.up=2.6)},1800);
+  /* 4: the explosion */
+  A.rumble();A.tone(40,20,1.4,.45,'sine');A.nz(1.2,3000,200,.4,'lowpass',.8);
+  LOR.position.z=1.2;FAKE.fl.intensity=10;FIRE.forEach((f,i)=>{if(i<9){const q=[[0,1.4,2.2],[-1.4,1.6,1.5],[1.4,1.6,1.5],[0,2.5,1.2],[-2,1,0],[2,1,0],[0,.8,-.4],[-1,2.4,.2],[1,2.4,.2]][i];f.position.set(q[0],q[1],q[2]);f.visible=true;f.scale.set(4,5,1)}});
+  const fl=$('ccflash');fl.style.transition='opacity .08s';fl.style.opacity=1;await csleep(380);fl.style.transition='opacity .9s';fl.style.opacity=.6;await csleep(700);
+  fl.style.transition='opacity .1s';fl.style.opacity=1;await csleep(250);
+  $('ccsig').style.display='flex';A.static(.35);await csleep(1400);
+  /* back to the room */
+  A.static(0);cc.style.transition='opacity .1s';cc.style.opacity=0;$('ccsig').style.display='none';fl.style.opacity=0;
+  cv.style.filter='';FAKE.all.forEach(g=>g.visible=false);LOR.visible=false;FAKE.fl.intensity=0;FIRE.forEach(f=>f.visible=false);
+  G.camera.fov=fov0;G.camera.updateProjectionMatrix();
+  P.x=P0.x;P.z=P0.z;P.yaw=P0.yaw;P.pitch=P0.pitch;EYE.y=ey0;
+  CROWD.forEach(c=>c.visible=true);atuk.visible=true;RED.visible=true;G.goreVis&&G.goreVis(true);setWreck(true);setTime('dusk');applyLights(1);bulbSet(1);G.haze.style.opacity=1;
+  cc.style.transition='opacity .5s'}
+
+async function newsScene(){
+  await camTo(3.9,.5,yawTo(4.9,.5),.27,1400);
   G.tvSet('static');A.static(.25);await csleep(900);
   G.tvSet('crash');A.static(.05);await csleep(500);
-  await newsLine('Breaking news. A lorry lost control early this morning and crashed into a kopitiam on Jalan Besar.',4200);
+  await newsLine('Breaking news. This morning, a lorry lost control and crashed into a kopitiam on Jalan Besar. This is CCTV from inside the shop.',4600);
+  A.static(0);await footage();
+  G.tvSet('static');A.static(.3);await csleep(900);G.tvSet('crash');A.static(.05);
   await newsLine('The lorry burst into flames. The driver survived and is in police custody.',3600);
   await newsLine('Six people died at the scene: the owner, an elderly man, and five customers.',3800);
   await csleep(600);
   await newsLine('One person survived. The owner\'s grandson was found unconscious and rushed to hospital. He has not woken up.',4600);
   G.tvSet('static');A.static(.3);await csleep(700);G.tvSet('off');A.static(0);
   await csleep(900);
-  /* everyone turns and looks at you */
   await say(sp('YOU','...That is me. That is all of us.'),2800);
   A.tone(60,40,1.2,.2,'sine');
-  await camTo(3.4,.5,yawTo(-2,.5),0,1300);
-  await turnToYou(1600);
-  await csleep(1200);
+  await camTo(3.9,.5,yawTo(2.5,2.5),0,1100);
+  await turnToYou(1300);
   await say(sp('ATUK','Dengar ah, cucu.'),2000);
-  await say(sp('ATUK','It is time. Do not be afraid.'),3400);
+  await say(sp('ATUK','It is time. Do not be afraid.'),3000);
+
   /* the collapse: slow, then all at once */
   A.rumble&&A.rumble();A.sting();
   const hz=(r,g,b,a1,a2)=>{G.haze.style.background=`radial-gradient(ellipse at 50% 55%,rgba(${r},${g},${b},${a1}) 0%,rgba(${Math.round(r*.8)},${Math.round(g*.3)},${Math.round(b*.3)},${a2}) 100%)`};
