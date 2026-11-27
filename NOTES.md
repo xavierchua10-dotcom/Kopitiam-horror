@@ -150,3 +150,5 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 - Shortcut: add ?day2 to the URL to start straight at Day 2 (index.html?day2).
 
 - Day 2 radio: Atuk lunges in from behind, slaps it off, camera whips to his face (jump scare), then camera drifts down the hall to the flickering bathroom bulb with the tap running (clue to go there). Bathroom door leaf now opens outward into the hall (no longer blocks the sink/mirror); Day 2 bathroom camera is centred on the mirror.
+
+- DAY 3 (day3.js): Day 2 night flows into it. Smoke haze overlay, quiet shop, Atuk asks what day it is; walk-to markers to ask each customer (Mak Cik burn, Ah Seng stopped watch 12:41, Raj one shoe, Mei Ling next-week cake, Pak Hassan page 7), they only answer with their last order; TV (east wall, appears Day 3) shows static + half a news sentence; Atuk forgets things; evening rule talk where he forgets what he was saying; lock-up with a dark figure across the road that vanishes; night 3:07 AM a man crying "maaf" outside the door, then sits against it. End card Day 3. Shortcut: ?day3.

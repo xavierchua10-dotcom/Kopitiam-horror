@@ -182,6 +182,7 @@ async function homeNight(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
   await say('"...please. Squeeze my hand."',3200);
   $('fade').style.transition='opacity 2s';$('fade').style.opacity=1;await sleep(2400);
   CINE.noclip=false;EYE.y=1.6;await cineOut();
+  if(G.day3){G.busy=false;G.state='d3_intro';G.day3();return}
   $('endh').textContent='END OF DAY 2';$('endp').textContent='Atuk said not to answer. Someone is still asking.';$('endl').textContent='Last Order · Day 3 is coming';
   $('end').style.display='flex';G.busy=false;G.state='end'}
 
