@@ -113,7 +113,7 @@ async function greet(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
   await say(sp('YOU','Look around!'),1600);
   await say(sp('ATUK','...Don\'t look too long, cucu.'),2600);
   await camTo(P.x,P.z,0,0,600);
-  G.state='d4_look';setClock('11:05 AM');objT('Look at the customers');G.busy=false;await cineOut()}
+  G.state='d4_look';setClock('12:30 PM');objT('Look at the customers');G.busy=false;await cineOut()}
 
 /* ---------- the silent turn: they only look at you ---------- */
 const fade=a=>atukMats.forEach(m=>m.opacity=a);
@@ -202,6 +202,7 @@ async function footage(){
   cc.style.transition='opacity .5s'}
 
 async function newsScene(){
+  setClock('12:48 PM');
   await camTo(3.9,.5,yawTo(4.9,.5),.27,1400);
   G.tvSet('static');A.static(.25);await csleep(900);
   G.tvSet('crash');A.static(.05);await csleep(500);
@@ -209,7 +210,7 @@ async function newsScene(){
   A.static(0);await footage();
   G.tvSet('static');A.static(.3);await csleep(900);G.tvSet('crash');A.static(.05);
   await newsLine('The lorry burst into flames. The driver survived and is in police custody.',3600);
-  await newsLine('Six people died at the scene: the owner, an elderly man, and five customers.',3800);
+  await newsLine('Six people died at the scene: the elderly owner and five customers.',3800);
   await csleep(600);
   await newsLine('One person survived. The owner\'s grandson was found unconscious and rushed to hospital. He has not woken up.',4600);
   G.tvSet('static');A.static(.3);await csleep(700);G.tvSet('off');A.static(0);
@@ -293,6 +294,7 @@ async function bedroom(){
   await csleep(1400);
   /* the banging: slow, then frantic */
   const rattle=async(n,gap)=>{for(let i=0;i<n;i++){A.knock();if(dg2)dg2.rotation.y=(i%2?.02:-.02);await csleep(gap);if(dg2)dg2.rotation.y=0}};
+  await say('A man outside, crying. "...maaf... tolong... buka pintu..."',3000);
   await rattle(3,700);await csleep(500);
   say('"Open the door!"',1100);await rattle(5,330);
   say('"BUKA! BUKA PINTU!"',1100);await rattle(7,200);
@@ -320,8 +322,8 @@ async function bedroom(){
   await say(sp('ATUK','Cucu! Tolong! TOLONG!'),2200);
   await say(sp('MEI LING','Panas! Please! Somebody!'),2200);
   await say(sp('RAJ','We cannot get out!'),2000);
-  await say(sp('YOU','...They were never banging to hurt me.'),3000);
-  await say(sp('YOU','They were asking for help.'),2600);
+  await say(sp('YOU','That is not the man at the door. That is Atuk.'),3000);
+  await say(sp('YOU','They are still in there. They are still in the fire.'),2800);
   await Promise.all([tween(k=>{EYE.y=.75+.85*k},1000),camTo(13.1,17.7,Math.PI,0,1100)]);
   A.click();handAct('reach',1100);await csleep(500);A.click();
   if(dg2){await tween(k=>{dg2.rotation.y=1.45*k},800);A.tone(110,80,.3,.15,'sine')}
@@ -371,7 +373,7 @@ const FIND=[
  {obj:'Someone is crying at the entrance',cue:'cry',m:[.4,2.45],c:4,pos:[.4,3.55,Math.PI,'stand'],pit:-.15,it:'card',name:'MEI LING',lines:['"I must go home. Tell my daughter... happy birthday."','"Next week. I know it was never next week."']},
  {obj:'Someone is calling from the kitchen',cue:'call',m:[3.4,-5.35],c:1,pos:[3.2,-6.2,0,'stand'],pit:-.3,it:'glass',name:'MAK CIK',lines:['"Panas... so hot. You came, cucu."','"It is not so hot now."']},
  {obj:'The tap is running in the toilet',cue:'tap',m:[-7.7,2.45],c:2,pos:[-8.7,3.2,Math.PI/2,'stand'],pit:-.25,it:'shoe',name:'RAJ',lines:['"I stopped looking for my shoe."','"Keep this one. I will not need it."']}];
-G.d4items=[];
+G.d4items=[];G.d4meshes=[];
 WPS.d4_find={get x(){return FIND[Math.min(ci2,FIND.length-1)].m[0]},get z(){return FIND[Math.min(ci2,FIND.length-1)].m[1]},r:.65,go:1,get fn(){return findRun}};
 function itemMesh(k,p){const T=THREE;let m;
   if(k==='watch'){m=new T.Mesh(new T.CylinderGeometry(.05,.05,.015,12),new T.MeshBasicMaterial({color:0xd8d8d0}))}
@@ -389,7 +391,7 @@ async function findRun(){if(G.busy||CINE.on)return;G.busy=true;const k=FIND[ci2]
   await say(sp('YOU','I am here. I am here.'),1800);
   await say(sp(k.name,k.lines[1]),3200);
   await say('You touch their hand. It is warm, and then it is not there.',3000);
-  const o=itemMesh(k.it,[c.position.x,0,c.position.z]);G.d4items.push(k.it);
+  const o=itemMesh(k.it,[c.position.x,0,c.position.z]);G.d4items.push(k.it);G.d4meshes.push(o);
   await tween(k=>{fadeP(c,.7*(1-k))},2400);c.visible=false;A.tone(500,200,.9,.08,'sine');
   await csleep(600);await say('They left something behind.',2200);
   await camTo(k.m[0],k.m[1],yawTo(c.position.x,c.position.z),-.02,500);
