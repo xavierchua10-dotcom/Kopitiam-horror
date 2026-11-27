@@ -893,14 +893,16 @@ function frame(t){requestAnimationFrame(frame);const raw=t-last;if(raw<30)return
 const G={ZONES,AABB,AMB,person,THREE,scene,camera,P,EYE,A,CINE,D,WPS,atuk,CROWD,HOME,QUEUE,FEET,shutter,radio,BULB,STREAM,ALK,stain,cupsD,tick:[],day2:null,day3:null,day4:null,day5:null,stools,fan,
   $,sleep,say,sp,cineIn,cineOut,camTo,yawTo,csleep,tween,handAct,pose,objT,setClock,setTime,applyLights,bulbSet,flicker,tapOn,tapOff,lids,startAlarm,stopAlarm,drawClock,
   showCrowd,drawBoard,day1Props,shutBlock,chWipe,chCups,ctex,isLand,atukLeave,M,B,box,
+  AEV,AMBD,get ac(){return ac},get master(){return master},get ambG(){return ambG},
   get state(){return state},set state(v){state=v},get busy(){return busy},set busy(v){busy=v},
   setLights(v){lightsOn=v},setBlur(v){cv.style.transition='filter 1.4s';cv.style.filter=v?'blur(8px)':''}};
-const V=new URL(import.meta.url).search,BUILD='202611272958';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+const V=new URL(import.meta.url).search,BUILD='202611273001';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));
 import('./day5.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day5 not loaded',e));
 import('./close.js'+V).then(m=>m.default(G)).catch(e=>console.warn('close not loaded',e));
+import('./sfx.js'+V).then(m=>m.default(G)).catch(e=>console.warn('sfx not loaded',e));
 
 /* ---------- start ---------- */
 resize();
@@ -925,4 +927,4 @@ $('begin').addEventListener('click',begin);
 $('again').addEventListener('click',()=>location.reload());
 if('serviceWorker' in navigator){const rg=()=>navigator.serviceWorker.register('sw.js').catch(()=>{});document.readyState==='complete'?rg():addEventListener('load',rg)}
 requestAnimationFrame(t=>{last=t;frame(t)});
-window.__lo={day5:()=>G.day5&&G.day5(),day4:()=>G.day4&&G.day4(),day2:()=>G.day2&&G.day2(),day3:()=>G.day3&&G.day3(),hand:()=>[hV,hMode],D:()=>D,setState:v=>{state=v},setTime,shut:()=>shutter.position.y,board:drawBoard,crowd:showCrowd,land:isLand,st:()=>({state,busy,scareDone,x:P.x,z:P.z,yaw:P.yaw,lights:lightsOn,cur:cur&&cur.id}),goto:(x,z)=>{P.tx=x;P.tz=z},tp:(x,z,y)=>{P.x=x;P.z=z;P.yaw=y||0;P.tx=null},look:(y,p)=>{P.yaw=y;P.pitch=p||0},act:id=>{const o=ITS.find(i=>i.id===id);o.act()},begin};
+window.__lo={G,day5:()=>G.day5&&G.day5(),day4:()=>G.day4&&G.day4(),day2:()=>G.day2&&G.day2(),day3:()=>G.day3&&G.day3(),hand:()=>[hV,hMode],D:()=>D,setState:v=>{state=v},setTime,shut:()=>shutter.position.y,board:drawBoard,crowd:showCrowd,land:isLand,st:()=>({state,busy,scareDone,x:P.x,z:P.z,yaw:P.yaw,lights:lightsOn,cur:cur&&cur.id}),goto:(x,z)=>{P.tx=x;P.tz=z},tp:(x,z,y)=>{P.x=x;P.z=z;P.yaw=y||0;P.tx=null},look:(y,p)=>{P.yaw=y;P.pitch=p||0},act:id=>{const o=ITS.find(i=>i.id===id);o.act()},begin};

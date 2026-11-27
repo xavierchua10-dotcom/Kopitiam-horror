@@ -344,7 +344,7 @@ async function bedroom(){
   await say('Faint. Far away. A beep, and a voice that is not in this room.',3200);
   await csleep(900);
   /* the screams: they are not banging to hurt you */
-  A.nz(.6,600,300,.12,'bandpass',1);
+  A.nz(.6,600,300,.12,'bandpass',1);G.SFX&&G.SFX.play('ghost_scream_3',{g:.28,lp:1200,rate:.9,wet:.5});
   await say(sp('ATUK','Cucu! Tolong! TOLONG!'),2200);
   await say(sp('MEI LING','Panas! Please! Somebody!'),2200);
   await say(sp('RAJ','We cannot get out!'),2000);
