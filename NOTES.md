@@ -71,3 +71,7 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 ## Day 1 story logic + glitch fixes (Nov 27)
 - Fixed: house ceiling z-fight (house ceiling plane y 3 vs upper-floor box bottom) -> ceiling at 2.97. Fixed: sky slit above shopfronts (upper facade now 3.0..6.7, five-foot-way ceiling extends to z 6.6).
 - Day 1 flow: Atuk's bed empty -> 3 customers queue outside closed shutter -> you knock 3x, Atuk answers inside ("Three knock. That means is us. Anybody else, don't open") -> lift shutter -> queue walks in, regulars appear when you step inside -> chores... -> evening rule (don't open the door to anyone; only three knocks) -> lock shop -> knock 3x at house door, Atuk opens -> END OF DAY 1.
+
+## Smooth city (Nov 27)
+- ctex() now renders canvas textures at 4x with linear/mipmap filtering, plaster grain, wall-bottom dirt + streaks; textured asphalt road + stone curbs; lighter scanlines, smoothed canvas upscaling (html.sm). Title has "Smooth city / Basic" switch (localStorage lo_smooth, reloads page). Default ON unless navigator.deviceMemory<=2. Texture memory ~16MB vs ~1MB.
+- GOTCHA: when patching one-line functions with python, check the replacement text is complete (multi-line) and never use s.index('return t}') across functions.

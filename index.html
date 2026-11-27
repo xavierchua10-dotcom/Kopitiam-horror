@@ -27,9 +27,9 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;touch-action:none
 .card button{margin-top:16px;padding:12px 30px;border:1px solid #F2B531;background:transparent;color:#efeaff;border-radius:10px;font-size:17px}
 #end{display:none}
 #arrow{position:fixed;width:0;height:0;border-left:11px solid transparent;border-right:11px solid transparent;border-bottom:22px solid #F2B531;display:none;pointer-events:none;filter:drop-shadow(0 0 4px #000)}
-#gq{display:flex;gap:6px;align-items:center;font-size:13px;color:#8f88ad;margin-top:6px}
-#gq button{margin:0;padding:6px 12px;font-size:13px;border:1px solid #4a4566;border-radius:8px;color:#b9b2d6}
-#gq button.on{border-color:#F2B531;color:#efeaff}
+#gq,#cq{display:flex;gap:6px;align-items:center;font-size:13px;color:#8f88ad;margin-top:6px}
+#gq button,#cq button{margin:0;padding:6px 12px;font-size:13px;border:1px solid #4a4566;border-radius:8px;color:#b9b2d6}
+#gq button.on,#cq button.on{border-color:#F2B531;color:#efeaff}
 #dcard{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#efeaff;font-size:34px;letter-spacing:8px;font-weight:600;opacity:0;transition:opacity 1s;pointer-events:none;text-shadow:0 2px 8px #000}
 #dcard small{display:block;margin-top:10px;font-size:15px;letter-spacing:3px;color:#b9b2d6;font-weight:400}
 #stick{position:fixed;width:112px;height:112px;margin:-56px 0 0 -56px;border:2px solid rgba(255,255,255,.28);border-radius:50%;display:none;pointer-events:none}
@@ -63,13 +63,14 @@ body{font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 .card h1:after{content:"";display:block;width:44px;height:2px;background:var(--acc);margin:14px auto 0;border-radius:2px}
 .card p{font-size:14px;color:var(--mut);line-height:1.7}
 .card button{border:0;background:var(--acc);color:#1a1408;font-weight:700;font-size:15px;letter-spacing:.5px;padding:13px 38px;border-radius:999px;box-shadow:0 8px 28px rgba(242,181,49,.28)}
-#gq{gap:0;margin-top:4px;padding:3px;border-radius:999px;background:rgba(255,255,255,.07);border:1px solid var(--line);font-size:11px}
-#gq span{display:none}
-#gq button{margin:0;padding:7px 16px;font-size:12px;font-weight:600;border:0;background:transparent;color:var(--mut);border-radius:999px;box-shadow:none;letter-spacing:.3px}
-#gq button.on{background:rgba(255,255,255,.14);color:var(--txt)}
+#gq,#cq{gap:0;margin-top:4px;padding:3px;border-radius:999px;background:rgba(255,255,255,.07);border:1px solid var(--line);font-size:11px}
+#gq span,#cq span{display:none}
+#gq button,#cq button{margin:0;padding:7px 16px;font-size:12px;font-weight:600;border:0;background:transparent;color:var(--mut);border-radius:999px;box-shadow:none;letter-spacing:.3px}
+#gq button.on,#cq button.on{background:rgba(255,255,255,.14);color:var(--txt)}
 #dcard{font-weight:200;font-size:44px;letter-spacing:14px;text-shadow:0 4px 30px #000;background:rgba(0,0,0,.35)}
 #dcard small{margin-top:16px;font-size:12px;letter-spacing:5px;color:var(--acc);font-weight:600}
 #dcard:after{content:"";width:40px;height:1px;background:rgba(255,255,255,.4);margin-top:16px}
+.sm #c{image-rendering:auto}.sm #fx{background:radial-gradient(ellipse at center,rgba(0,0,0,0) 62%,rgba(0,0,0,.32) 100%)}
 </style></head><body>
 <canvas id="c"></canvas>
 <div id="fx"></div>
@@ -80,7 +81,7 @@ body{font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 <div id="prompt"></div><div id="arrow"></div>
 <div id="fade"></div>
 <div id="dcard"></div>
-<div class="card" id="title"><h1>LAST ORDER</h1><p>A kopitiam. Five days.<br>Headphones recommended.<br>Best in landscape, two thumbs.</p><div id="gq"><span>Graphics</span><button data-r="1">Sharp</button><button data-r=".7">Normal</button><button data-r=".5">Light</button></div><button id="begin">Tap to begin</button></div>
+<div class="card" id="title"><h1>LAST ORDER</h1><p>A kopitiam. Five days.<br>Headphones recommended.<br>Best in landscape, two thumbs.</p><div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center"><div id="gq"><span>Graphics</span><button data-r="1">Sharp</button><button data-r=".7">Normal</button><button data-r=".5">Light</button></div><div id="cq"><button data-s="1">Smooth city</button><button data-s="0">Basic</button></div></div><button id="begin">Tap to begin</button></div>
 <div class="card" id="end"><h1 id="endh">HOME</h1><p id="endp">The shutter is open. Someone finally got their order.</p><p id="endl" style="font-size:13px;color:#8f88ad">Last Order · first night</p><button id="again">Play again</button></div>
 <script type="module">
 import * as THREE from './three.module.min.js';
@@ -98,7 +99,12 @@ addEventListener('resize',resize);
 /* ---------- helpers ---------- */
 const M=(c,o={})=>new THREE.MeshLambertMaterial(Object.assign({color:c,flatShading:true},o));
 const B=(c,o={})=>new THREE.MeshBasicMaterial(Object.assign({color:c},o));
-function ctex(w,h,draw,rx=1,ry=1){const c=document.createElement('canvas');c.width=w;c.height=h;draw(c.getContext('2d'));const t=new THREE.CanvasTexture(c);t.magFilter=t.minFilter=THREE.NearestFilter;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(rx,ry);t.colorSpace=THREE.SRGBColorSpace;return t}
+let SMOOTH=true;try{const v=localStorage.lo_smooth;if(v==='0')SMOOTH=false;else if(v==null&&navigator.deviceMemory&&navigator.deviceMemory<=2)SMOOTH=false}catch(_){}
+function ctex(w,h,draw,rx=1,ry=1){const S=SMOOTH?4:1,c=document.createElement('canvas');c.width=w*S;c.height=h*S;const g=c.getContext('2d');g.save();g.scale(S,S);draw(g);g.restore();
+  if(SMOOTH&&ry===1&&h>=20&&w>=24){const d=g.createLinearGradient(0,c.height*.62,0,c.height);d.addColorStop(0,'rgba(50,38,26,0)');d.addColorStop(1,'rgba(50,38,26,.30)');g.fillStyle=d;g.fillRect(0,c.height*.62,c.width,c.height*.38);
+    for(let i=0;i<Math.max(3,w/8|0);i++){const sx=Math.random()*c.width,sw=3+Math.random()*10,sg=g.createLinearGradient(0,0,0,c.height);sg.addColorStop(0,'rgba(40,30,20,0)');sg.addColorStop(1,'rgba(40,30,20,.12)');g.fillStyle=sg;g.fillRect(sx,0,sw,c.height)}}
+  if(SMOOTH&&w>=16){const id=g.getImageData(0,0,c.width,c.height),dd=id.data;for(let i=0;i<dd.length;i+=4){const n=(Math.random()-.5)*14;dd[i]+=n;dd[i+1]+=n;dd[i+2]+=n}g.putImageData(id,0,0)}
+  const t=new THREE.CanvasTexture(c);if(SMOOTH){t.magFilter=THREE.LinearFilter;t.minFilter=THREE.LinearMipmapLinearFilter;t.anisotropy=4}else t.magFilter=t.minFilter=THREE.NearestFilter;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(rx,ry);t.colorSpace=THREE.SRGBColorSpace;return t}
 function box(w,h,d,mat,x,y,z,parent=scene){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);m.position.set(x,y,z);parent.add(m);return m}
 const wallDraw=c=>{c.fillStyle='#8d8672';c.fillRect(0,0,32,32);c.fillStyle='#3f5f55';c.fillRect(0,17,32,15);c.fillStyle='#2a4038';for(let y=17;y<32;y+=5)c.fillRect(0,y,32,1);for(let x=0;x<32;x+=8)c.fillRect(x,17,1,15);c.fillStyle='#6b6553';c.fillRect(0,15,32,2)};
 function wall(w,h,x,y,z,ry){const m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),M(0xffffff,{map:ctex(32,32,wallDraw,w/2.4,h/3),side:THREE.DoubleSide}));m.position.set(x,y,z);m.rotation.y=ry;scene.add(m);return m}
@@ -238,7 +244,7 @@ const chk=(a,b,rx,ry)=>M(0xffffff,{map:ctex(16,16,c=>{c.fillStyle=a;c.fillRect(0
 fl(-26,26,4,6.5,chk('#d9b48a','#b86f50',52,5));            /* five-foot way */
 cl(-26,26,4,6.6,M(0x23252e));
 for(const x of[-25,-15,-5,5,15,25]){box(.35,3,.35,M(0x5d5a52),x,1.5,6.4);AABB.push([x-.4,x+.4,6,6.8])}
-fl(-60,60,6.5,13,M(0x4b4e57));
+fl(-60,60,6.5,13,SMOOTH?M(0xffffff,{map:ctex(32,32,c=>{c.fillStyle='#4d5059';c.fillRect(0,0,32,32);for(let i=0;i<40;i++){c.fillStyle='rgba(0,0,0,'+(.04+Math.random()*.08)+')';c.fillRect(Math.random()*32,Math.random()*32,2+Math.random()*5,1+Math.random()*3)}c.strokeStyle='rgba(20,20,24,.5)';c.lineWidth=.3;c.beginPath();c.moveTo(4,0);c.lineTo(9,14);c.lineTo(6,32);c.stroke()},40,5)}):M(0x4b4e57));if(SMOOTH){box(120,.16,.22,M(0xb7b4a8),0,.08,6.55);box(120,.16,.22,M(0xb7b4a8),0,.08,12.95)}
 fl(-60,60,9.6,9.9,M(0xffffff,{map:ctex(32,2,c=>{c.fillStyle='#1c1d21';c.fillRect(0,0,32,2);c.fillStyle='#b9b6a4';c.fillRect(0,0,16,2)},60,1),transparent:false}),.01);
 fl(-60,60,13,14.6,chk('#c9c3b4','#a7a090',100,2));
 /* neighbour shoplots: closed shutters, dark signs */
@@ -645,6 +651,8 @@ async function begin(){goFull();$('title').style.display='none';initAudio();if(a
 const gqs=[...document.querySelectorAll('#gq button')];
 const gqMark=()=>gqs.forEach(x=>x.classList.toggle('on',Math.abs(parseFloat(x.dataset.r)-RES)<.16));gqMark();
 gqs.forEach(x=>x.addEventListener('click',()=>{RES=parseFloat(x.dataset.r);try{localStorage.lo_res=RES}catch(_){}resize();gqMark()}));
+document.documentElement.classList.toggle('sm',SMOOTH);
+document.querySelectorAll('#cq button').forEach(x=>{x.classList.toggle('on',(x.dataset.s==='1')===SMOOTH);x.addEventListener('click',()=>{if((x.dataset.s==='1')===SMOOTH)return;try{localStorage.lo_smooth=x.dataset.s}catch(_){}location.reload()})});
 $('begin').addEventListener('click',begin);
 $('again').addEventListener('click',()=>location.reload());
 if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
