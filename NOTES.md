@@ -78,3 +78,6 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 
 ## Hotfix (Nov 27)
 - Interact prompt was always visible (CSS display:flex!important from modern UI overrode JS none). Removed !important; JS now toggles 'flex'/'none'.
+
+## Hand-gesture interact (Nov 27)
+- Interact prompt = label pill + 58px round amber button with a hand icon; world markers are hand-icon discs. ICONS table (touch/grab/knock/wipe) drives both canvas marker textures (mkTexFor) and the CSS button (--ic data-URI). ICF maps interactable id -> icon; default touch.

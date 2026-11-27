@@ -71,6 +71,11 @@ body{font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 #dcard small{margin-top:16px;font-size:12px;letter-spacing:5px;color:var(--acc);font-weight:600}
 #dcard:after{content:"";width:40px;height:1px;background:rgba(255,255,255,.4);margin-top:16px}
 .sm #c{image-rendering:auto}.sm #fx{background:radial-gradient(ellipse at center,rgba(0,0,0,0) 62%,rgba(0,0,0,.32) 100%)}
+
+#prompt{padding:6px 6px 6px 18px;gap:12px;border:1px solid rgba(242,181,49,.35);background:rgba(16,14,24,.62)}
+#prompt:before{display:none}
+#prompt:after{content:"";flex:none;width:58px;height:58px;border-radius:50%;background:#F2B531 var(--ic) center/32px no-repeat;box-shadow:0 0 0 5px rgba(242,181,49,.18),0 6px 18px rgba(0,0,0,.45);animation:hp 1.6s ease-in-out infinite}
+@keyframes hp{0%,100%{box-shadow:0 0 0 4px rgba(242,181,49,.2),0 6px 18px rgba(0,0,0,.45)}50%{box-shadow:0 0 0 11px rgba(242,181,49,0),0 6px 18px rgba(0,0,0,.45)}}
 </style></head><body>
 <canvas id="c"></canvas>
 <div id="fx"></div>
@@ -587,9 +592,17 @@ function handTick(dt){hV+=(hGoal-hV)*Math.min(1,dt*9);if(hGoal===0&&hV<.03)hV=0;
 const HMODE={wipe:['wipe',1500],cups:['reach',1200],kopi:['kopi',1700],serve:['serve',1700],sugar:['reach',1200],bath:['reach',1200],note:['reach',1200],housedoor:['reach',1200],radio:['reach',1100],fuse:['reach',1100],hatch:['reach',1100],shutter:['lift',1900]};
 function go(o){const dx=o.pos.x-P.x,dz=o.pos.z-P.z;if(Math.hypot(dx,dz)>.3)P.fy=Math.atan2(-dx,-dz);const h=HMODE[o.id];if(h&&!(o.id==='shutter'&&state==='d1_lock'&&P.z<4.3)&&!(o.id==='housedoor'&&state==='d1_home'))handAct(h[0],h[1]);o.act()}
 /* markers */
-const MK={};const mkTex=ctex(32,32,c=>{c.fillStyle='#F2B531';c.strokeStyle='#000';c.lineWidth=3;c.beginPath();c.moveTo(16,2);c.lineTo(28,16);c.lineTo(16,30);c.lineTo(4,16);c.closePath();c.fill();c.stroke();c.fillStyle='rgba(255,255,255,.55)';c.fillRect(13,8,6,6)});mkTex.minFilter=mkTex.magFilter=THREE.LinearFilter;
+const MK={};
+const HF=[[6.4,4.6,2.5,10,1.25],[9.4,2.4,2.5,11,1.25],[12.4,3,2.5,10.5,1.25],[15.4,5.4,2.4,9,1.2],[5.4,10,13.4,9,4.5],[2.6,9.6,2.6,8,1.3,-32,3.9,13.6]];
+const ICONS={touch:{r:HF},wipe:{r:HF,p:'M3 22q4.5 -2.6 9 0t9 0'},grab:{r:[[6.4,8,11.6,4.2,2.1],[6,11.4,12.4,4,2],[6.4,14.6,11.6,4,2],[5,6,14,13.4,5],[3.2,7.4,5,3,1.5,25,5.7,8.9]]},
+ knock:{r:[[5,8,14,11,4.5],[5.6,4.6,2.8,5,1.4],[8.6,3.6,2.8,6,1.4],[11.6,3.6,2.8,6,1.4],[14.6,4.6,2.8,5,1.4]],p:'M1.5 8.5l2-1.2M1 12h2.4M1.5 15.5l2 1.2'}};
+const iconSvg=k=>{const d=ICONS[k];return 'url("data:image/svg+xml;utf8,'+encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill='#fff'>"+d.r.map(r=>"<rect x='"+r[0]+"' y='"+r[1]+"' width='"+r[2]+"' height='"+r[3]+"' rx='"+r[4]+"'"+(r[5]?" transform='rotate("+r[5]+" "+r[6]+" "+r[7]+")'":'')+'/>').join('')+"</g>"+(d.p?"<path d='"+d.p+"' stroke='#6b4400' stroke-width='1.3' stroke-linecap='round' fill='none'/>":'')+'</svg>')+'")'};
+const ICF={shutter:'grab',wipe:'wipe',cups:'grab',kopi:'grab',serve:'grab',sugar:'grab',housedoor:'knock'},icOf=o=>ICF[o.id]||'touch';
+const mkTexs={};function mkTexFor(k){if(mkTexs[k])return mkTexs[k];const d=ICONS[k];const t=mkTexs[k]=ctex(48,48,c=>{c.fillStyle='rgba(20,16,10,.78)';c.beginPath();c.arc(24,24,21,0,7);c.fill();c.strokeStyle='#F2B531';c.lineWidth=2.6;c.stroke();c.save();c.translate(24,24);c.scale(1.15,1.15);c.translate(-12,-12);c.fillStyle='#fff';
+  for(const r of d.r){c.save();if(r[5]){c.translate(r[6],r[7]);c.rotate(r[5]*Math.PI/180);c.translate(-r[6],-r[7])}const x=r[0],y=r[1],w=r[2],h=r[3],q=Math.min(r[4],w/2,h/2);c.beginPath();c.moveTo(x+q,y);c.arcTo(x+w,y,x+w,y+h,q);c.arcTo(x+w,y+h,x,y+h,q);c.arcTo(x,y+h,x,y,q);c.arcTo(x,y,x+w,y,q);c.closePath();c.fill();c.restore()}
+  if(d.p){c.strokeStyle='#F2B531';c.lineWidth=1.3;c.lineCap='round';c.stroke(new Path2D(d.p))}c.restore()});t.minFilter=t.magFilter=THREE.LinearFilter;return t}
 function markers(t){const arrow=$('arrow');let tgt=null,td=1e9;
-  for(const o of ITS){const on=o.enabled()&&o.id!=='atuk'||o.enabled();let m=MK[o.id];if(!m){m=MK[o.id]=new THREE.Sprite(new THREE.SpriteMaterial({map:mkTex,depthTest:false,transparent:true,fog:false}));m.renderOrder=20;m.visible=false;scene.add(m)}
+  for(const o of ITS){const on=o.enabled()&&o.id!=='atuk'||o.enabled();let m=MK[o.id];if(!m){m=MK[o.id]=new THREE.Sprite(new THREE.SpriteMaterial({map:mkTexFor(icOf(o)),depthTest:false,transparent:true,fog:false}));m.renderOrder=20;m.visible=false;scene.add(m)}
     const d=Math.hypot(o.pos.x-P.x,o.pos.z-P.z);m.visible=!!(on&&d>2.2&&d<14);if(on&&d<td&&d>2.2){td=d;tgt=o}
     if(m.visible){m.position.set(o.pos.x,o.pos.y+.55+Math.sin(t/260)*.05,o.pos.z);const sc=.2+d*.045;m.scale.set(sc,sc,1)}}
   if(tgt){const v=tgt.pos.clone().project(camera);let x=v.x,y=v.y;const behind=v.z>1;if(behind){x=-x;y=-y}
@@ -627,7 +640,7 @@ function update(dt){
   let best=null,bd=9;const fw=new THREE.Vector3(-Math.sin(P.yaw),0,-Math.cos(P.yaw));
   if(!busy)for(const o of ITS){if(!o.enabled())continue;const dx=o.pos.x-P.x,dz=o.pos.z-P.z,d=Math.hypot(dx,dz);if(d<3.4&&(dx*fw.x+dz*fw.z)/d>.1&&d<bd){bd=d;best=o}}
   if(best!==cur){cur=best;prompt.style.display=cur?'flex':'none'}
-  if(cur){const l=lab(cur);if(prompt.textContent!==l)prompt.textContent=l}
+  if(cur){const l=lab(cur);if(prompt.textContent!==l)prompt.textContent=l;const k=icOf(cur);if(prompt.dataset.ic!==k){prompt.dataset.ic=k;prompt.style.setProperty('--ic',iconSvg(k))}}
   /* scare trigger: look at the figure, or get close */
   if(state==='lit2'&&!scareDone&&!busy&&fig.visible&&lightsOn){const dx=fig.position.x-P.x,dz=fig.position.z-P.z,d=Math.hypot(dx,dz);const vis=(dx*fw.x+dz*fw.z)/d;
     if(vis>.8&&d<7)lookT+=dt;else lookT=Math.max(0,lookT-dt*.5);
