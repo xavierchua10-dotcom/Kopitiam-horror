@@ -104,3 +104,6 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 
 ## Customers walk in and sit
 - The 5 customers waiting outside are the same people who sit in the shop (no more vanishing/pop-in). After the shutter opens they walk through the door, around the tables, turn and sit at their seats, staggered 1s apart.
+
+## Day 1 ending cutscene
+- Walk into the marker at your house door (no button): knock x3, Atuk opens ("Three knock. Okay. Masuk."), you step in, door shuts, camera turns to the door, two shadows of feet block the light under it, one slow fourth knock, Atuk: "Jangan buka. Go sleep.", fade to end card. Tap skips lines.
