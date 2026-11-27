@@ -107,3 +107,7 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 
 ## Day 1 ending cutscene
 - Walk into the marker at your house door (no button): knock x3, Atuk opens ("Three knock. Okay. Masuk."), you step in, door shuts, camera turns to the door, two shadows of feet block the light under it, one slow fourth knock, Atuk: "Jangan buka. Go sleep.", fade to end card. Tap skips lines.
+
+## Bathroom light cutscenes
+- After Atuk says the bathroom light is flickering, camera walks a few steps and turns to the bathroom lamp (visible hanging through the doorway with a glow) while the whole place dims and flickers; lights stay slightly dim until fixed.
+- Walking into the bathroom marker (no button) plays a cutscene: lamp flickers, you screw the bulb in, tap starts running by itself (water stream + sound), you turn it off, lights return, objective "Tell Atuk".
