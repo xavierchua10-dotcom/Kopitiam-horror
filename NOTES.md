@@ -54,3 +54,6 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 ## First-person hands (Nov 27)
 - Hands are hidden normally; slide up only while interacting (go() → handAct). Modes: wipe, reach, kopi (cup), serve (cup), lift (shutter, both hands), knock (fist during the 3 knocks). No hands when talking to Atuk. Hands use depthTest=false so they never clip into walls.
 - Hands v2: arms now come up from below the screen with long sleeves and every action aims them at a target (aim()). The shutter has a handle bar; both hands grip it and follow it while the view tilts to track it.
+
+## Colourful street (Nov 27)
+- Painted shophouse facades (Atuk cream; neighbours mint/blue/pink/orange with matching shutters + bright signs), terracotta five-foot-way tiles, red lanterns, potted plants, parked motorbikes, trees, coloured far buildings, sky dome with clouds (day/dusk textures; hidden at night). Dusk/night lighting tints it automatically.
