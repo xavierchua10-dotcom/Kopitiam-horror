@@ -162,7 +162,7 @@ async function greet(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
   await say(sp('YOU','Atuk, do you smell smoke?'),2000);
   await say(sp('ATUK','Dapur. Always the kitchen. ...Eh, your face pucat. Go wash first.'),3200);
   await camTo(P.x,P.z,0,0,700);
-  G.state='d3_bath';setClock('6:58 AM');objT('Wash your face');G.busy=false;await cineOut()}
+  G.state='d3_bath';setClock('6:58 AM');tapOn();objT('Wash your face');G.busy=false;await cineOut()}
 
 /* ---------- the bathroom: the tap will not stop, then the red words ---------- */
 const bm=[];let bmG=null;
@@ -183,27 +183,53 @@ function bathBuild(){if(bmG)return;bmG=new THREE.Group();scene.add(bmG);
   mk(1.2,.6,260,130,word('对不起',80),[-8.25,1.3,3.96],Math.PI)}        /* south wall */
 const fadeIn=(m,ms)=>tween(k=>{m.material.opacity=.88*k},ms);
 WPS.d3_bath={x:-7.7,z:2.5,r:.6,go:1,fn:bathScene};
-async function bathScene(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();bathBuild();if(G.crack)G.crack.visible=true;
-  await camTo(-7.7,2.5,yawTo(-7.7,1.1),-.05,1300);
-  tapOn();A.nz(.5,5200,3000,.1,'highpass');
-  await say('The tap is already running.',2200);
-  await say(sp('YOU','...Who left this on?'),2000);
+/* the bathroom door, the floodwater, the shaking */
+let leaf=null,flood=null,shk=0;
+G.tick.push(()=>{const cv=$('c');if(shk>0){const a=shk;cv.style.transform=`translate(${(Math.random()-.5)*9*a}px,${(Math.random()-.5)*9*a}px) rotate(${(Math.random()-.5)*.012*a}rad) scale(1.05)`}else if(cv.style.transform)cv.style.transform=''});
+function floodBuild(){if(flood)return;
+  const t=ctex(64,64,c=>{c.fillStyle='#7fb2d0';c.fillRect(0,0,64,64);c.strokeStyle='rgba(255,255,255,.55)';c.lineWidth=1.2;for(const r of[8,16,24,31]){c.beginPath();c.arc(32,32,r,0,7);c.stroke()}});
+  flood=new THREE.Mesh(new THREE.CircleGeometry(1,24),new THREE.MeshBasicMaterial({map:t,transparent:true,opacity:.62,depthWrite:false,fog:false,polygonOffset:true,polygonOffsetFactor:-2}));
+  flood.rotation.x=-Math.PI/2;flood.position.set(-7.9,.03,1.7);flood.visible=false;scene.add(flood)}
+async function bathScene(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();bathBuild();floodBuild();if(G.crack)G.crack.visible=true;
+  if(!leaf)leaf=scene.children.find(o=>o.isGroup&&Math.abs(o.position.x+7)<.02&&Math.abs(o.position.z-2)<.02);
+  const hz0=haze.style.background,sc0=STREAM.material.color.getHex(),lf0=leaf?leaf.rotation.y:0;
+  /* in: the water is already running. close the door behind you */
+  await camTo(-7.7,2.5,yawTo(-7.7,1.1),-.05,1100);
+  await say('The tap is already running. It has been running all night.',2600);
+  await camTo(-7.7,2.5,yawTo(-6,2.5),0,900);
+  if(leaf){const r0=leaf.rotation.y;await tween(k=>{leaf.rotation.y=r0+(-Math.PI/2-r0)*k},900);A.click();A.tone(120,70,.15,.2,'sine')}
+  await camTo(-7.7,2.5,yawTo(-7.7,1.1),-.05,1000);
+  /* try to shut it off: it will not shut off. it overflows */
+  await say(sp('YOU','Okay. Off. Off...'),1800);
   handAct('reach',1400);await csleep(700);tapOff();A.click();await csleep(600);
-  tapOn();A.tone(900,300,.25,.1,'sawtooth');STREAM.scale.x=2.6;
-  const flood=setInterval(()=>A.nz(.3,4800,2800,.14,'highpass'),260);
+  tapOn();STREAM.scale.x=2.8;A.tone(900,300,.3,.12,'sawtooth');
+  const gush=setInterval(()=>A.nz(.3,4800,2800,.16,'highpass'),240);
+  flood.visible=true;flood.scale.set(.3,.3,1);
+  tween(k=>{const r=.3+k*2.1;flood.scale.set(r,r,1)},7000);
   await say('The handle spins loose. The water will not stop.',2800);
-  await say(sp('YOU','Fine. ...Fine.'),1800);
-  await camTo(-7.7,1.95,yawTo(-7.7,1.0),-.55,1300);
-  handAct('reach',2200);await lids(0,500);A.nz(.4,3000,1200,.2,'bandpass');await csleep(1800);
-  await lids(1,1000);await camTo(-7.7,1.95,yawTo(-7.7,1.0),.02,900);
-  /* the marks creep in, one at a time */
-  const marks=(async()=>{for(let i=0;i<bm.length;i++){fadeIn(bm[i],1100);A.tone(90+i*12,55,.5,.09,'sine');await csleep(1000)}})();
-  await csleep(900);await camTo(-7.7,1.95,yawTo(-9.4,2.2),0,1600);await csleep(1000);
-  await camTo(-7.7,1.95,yawTo(-8.4,4.0),0,1400);await csleep(500);
-  await camTo(-7.7,1.95,yawTo(-7.7,1.0),.02,1300);await marks;
-  await say('Red. All over the walls. Slowly.',2600);
-  await say(sp('YOU','...No. No, no, no.'),2000);
-  await lids(0,260);clearInterval(flood);tapOff();STREAM.scale.x=1;bm.forEach(m=>m.material.opacity=0);A.click();await csleep(1500);
+  await camTo(-7.7,2.5,yawTo(-7.7,1.7),-.75,900);
+  await say('It is filling the floor. Over the sink, over everything.',2800);
+  await camTo(-7.7,2.5,yawTo(-7.7,1.1),-.05,800);
+  await say(sp('YOU','...Fucked it. Fine.'),1700);
+  await camTo(-7.7,1.95,yawTo(-7.7,1.0),-.55,1200);
+  handAct('reach',2400);await lids(0,500);A.nz(.4,3000,1200,.22,'bandpass');await csleep(1700);
+  await lids(1,900);await camTo(-7.7,1.95,yawTo(-7.7,1.0),.02,800);
+  /* the red comes in: the whole room, hard */
+  A.rumble();A.tone(55,40,2.6,.3,'sine');shk=1;
+  haze.style.background='radial-gradient(ellipse at 50% 50%,rgba(210,25,18,.38) 0%,rgba(120,0,0,.88) 100%)';haze.style.opacity=1;
+  STREAM.material.color.set(0x8a0a0a);flood.material.color.set(0xb02020);
+  flicker([.5,0,.4,0,0,.3],70);
+  const hbL=setInterval(()=>{A.tone(65,40,.16,.34,'sine');setTimeout(()=>A.tone(65,40,.13,.26,'sine'),230)},1000);
+  const marks=(async()=>{for(let i=0;i<bm.length;i++){fadeIn(bm[i],900);A.tone(70+i*14,40,.7,.28,'sawtooth');A.nz(.4,2400,300,.22,'bandpass',2);shk=1+i*.35;await csleep(850)}})();
+  await csleep(500);await camTo(-7.7,1.95,yawTo(-9.4,2.2),0,1500);await csleep(700);
+  await camTo(-7.7,1.95,yawTo(-8.4,4.0),0,1300);await csleep(400);
+  await camTo(-7.7,1.95,yawTo(-7.7,1.0),.02,1200);await marks;
+  await say('Red. On every wall. The water is red.',2400);
+  await say(sp('YOU','...No. No, no, no.'),1900);
+  /* blink: gone */
+  await lids(0,220);shk=0;clearInterval(hbL);clearInterval(gush);tapOff();STREAM.scale.x=1;STREAM.material.color.setHex(sc0);
+  bm.forEach(m=>m.material.opacity=0);flood.visible=false;flood.material.color.set(0xffffff);haze.style.background=hz0;A.click();
+  if(leaf)leaf.rotation.y=lf0;await csleep(1600);
   await lids(1,900);
   await say('A drip. Only that.',2400);
   await say(sp('YOU','Just a dream.'),1800);
