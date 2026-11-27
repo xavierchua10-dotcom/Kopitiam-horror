@@ -68,7 +68,7 @@ function mkFire(){if(FIRE.length)return;const c=document.createElement('canvas')
 G.tick.push(()=>{const t=performance.now()/1000;for(const f of FIRE){if(!f.visible)continue;const s=1+Math.sin(t*9+f.userData.ph)*.15+Math.sin(t*23+f.userData.ph)*.1;f.scale.set(1.9*s,3.0*s,1);f.position.y=1.5+Math.sin(t*7+f.userData.ph)*.1}});
 
 /* ================= opening ================= */
-let beep=false;
+let beep=false,atukMats=[];
 async function beepLoop(){beep=true;while(beep){A.tone(900,900,.14,.1,'sine');await sleep(1250)}}
 async function start(){
   G.busy=true;G.state='d4_intro';
@@ -77,7 +77,7 @@ async function start(){
   G.details();G.gore();buildRed();RED.visible=true;
   showCrowd(true);D.crowd=true;CROWD.forEach((c,i)=>{c.position.set(HOME[i][0],0,HOME[i][1]);c.rotation.y=HOME[i][2];pose(c,0,'sit')});
   atuk.position.set(3.9,0,3.5);atuk.rotation.y=1.0;pose(atuk,0,'stand');FEET.visible=false;
-  atuk.traverse(o=>{if(o.isMesh&&o.material&&!o.material.map){o.material=o.material.clone();o.material.transparent=true;o.material.opacity=.72}});
+  atukMats=[];atuk.traverse(o=>{if(o.isMesh&&o.material&&!o.material.map){o.material=o.material.clone();o.material.transparent=true;o.material.opacity=.72;atukMats.push(o.material)}});
   G.haze.style.background='radial-gradient(ellipse at 50% 55%,rgba(170,60,40,.08) 0%,rgba(140,30,22,.5) 100%)';G.haze.style.opacity=1;
   CINE.noclip=true;EYE.y=.62;P.x=14.5;P.z=17.0;P.yaw=0;P.pitch=1.1;P.tx=null;P.fy=null;lids(0,0);G.setBlur(true);
   $('fade').style.transition='opacity 1s';$('fade').style.opacity=1;
@@ -110,9 +110,28 @@ async function greet(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
   await say(sp('ATUK','Which shop? ...Same like always.'),2600);
   await say(sp('YOU','Look around!'),1600);
   await say(sp('ATUK','...Don\'t look too long, cucu.'),2600);
-  await say('The TV is on. Nobody turned it on.',2400);
   await camTo(P.x,P.z,0,0,600);
-  G.state='d4_tv';setClock('11:45 AM');objT('Watch the TV');G.busy=false;await cineOut()}
+  G.state='d4_look';ci=0;setClock('11:05 AM');objT(LK[0].obj);G.busy=false;await cineOut()}
+
+/* ---------- each customer slips into the truth without noticing ---------- */
+let ci=0;
+const Y=t=>say(sp('YOU',t),2200);
+const fade=a=>atukMats.forEach(m=>m.opacity=a);
+const LK=[
+ {obj:'Talk to Ah Seng',m:[-2.15,-.85],c:0,pit:-.5,clk:'11:15 AM',run:async c=>{await Y('Ah Seng... your watch.');await say('"Stopped at 12:41. Funny, no? Like time also tired."',3200,c);await say(sp('YOU','What happens at 12:41?'),2000);await say('"Teh-C peng, please. ...Why so cold today?"',2800,c)}},
+ {obj:'Talk to Mak Cik Salmah',m:[-2.2,-2.6],c:1,pit:-.45,clk:'11:22 AM',run:async c=>{await Y('Mak Cik, your arm...');await say('"Why so hot in here, cucu? My arm is burning."',3000,c);await say('She is shivering. Nothing is on fire.',2600);await say('"Teh tarik. Panas-panas. Please."',2400,c)}},
+ {obj:'Talk to Raj',m:[-2.15,.45],c:2,pit:-.5,clk:'11:30 AM',run:async c=>{await Y('Raj, where is your other shoe?');await say('"I keep looking. I walked in with two, I swear."',3000,c);await say('"I was only going to buy kopi, then go to work."',3000,c);await say('He stares at his sock. It is a long time before he looks up.',3000)}},
+ {obj:'Talk to Pak Hassan',m:[-.95,-.5],c:3,pit:-.35,clk:'11:37 AM',run:async c=>{await Y('Pak Hassan, same page again?');await say('"Page seven. I cannot turn it. Strange."',2800,c);await say('The newspaper is dated today. The headline is blank.',2800);await say('"Roti bakar. Kurang butter."',2200,c)}},
+ {obj:'Talk to Mei Ling',m:[-.9,1.15],c:4,pit:-.3,clk:'11:44 AM',run:async c=>{await Y('Mei Ling... how is your daughter?');await say('"Her birthday is next week. I must go home."',3000,c);await say('"I must go home, I must go home..."',2600,c);await say(sp('YOU','...I know. I know you must.'),2800)}}];
+WPS.d4_look={get x(){return LK[Math.min(ci,LK.length-1)].m[0]},get z(){return LK[Math.min(ci,LK.length-1)].m[1]},r:.6,go:1,get fn(){return lookRun}};
+async function lookRun(){if(G.busy||CINE.on)return;G.busy=true;const k=LK[ci],c=CROWD[k.c];A.click();await cineIn();
+  await camTo(k.m[0],k.m[1],yawTo(c.position.x,c.position.z),0,900);
+  await camTo(k.m[0],k.m[1],yawTo(c.position.x,c.position.z),k.pit,700);
+  await k.run(c);
+  await camTo(k.m[0],k.m[1],yawTo(c.position.x,c.position.z),0,500);
+  setClock(k.clk);ci++;fade(.72-ci*.1);
+  if(ci>=LK.length){G.state='d4_tv';objT('The TV is on');await say('The TV is on. Nobody turned it on.',2600)}else objT(LK[ci].obj);
+  G.busy=false;await cineOut()}
 
 /* ================= the news, the collapse, the run, the door ================= */
 const newsLine=(t,ms)=>say(sp('NEWS',t),ms);
@@ -137,49 +156,60 @@ async function tvAndAfter(){if(G.busy||CINE.on)return;G.busy=true;await cineIn()
   await turnToYou(1600);
   await csleep(1200);
   await say(sp('ATUK','Dengar ah, cucu.'),2000);
-  await say(sp('ATUK','It is time. Run. Balik rumah. Lock the door. Atuk follow.'),3400);
-  /* the collapse */
+  await say(sp('ATUK','It is time. Do not be afraid.'),3400);
+  /* the collapse: slow, then all at once */
   A.rumble&&A.rumble();A.sting();
-  await flicker([.6,0,.5,0,0,.3,0]);applyLights(0);bulbSet(0);
-  G.haze.style.background='radial-gradient(ellipse at 50% 55%,rgba(255,120,40,.18) 0%,rgba(200,50,20,.6) 100%)';
-  await tween(k=>{P.pitch=Math.sin(k*70)*.02*(1-k*.5);P.yaw+=Math.sin(k*55)*.004},900);
-  for(const c of CROWD.concat([atuk])){c.visible=false;A.tone(300,120,.2,.08,'sawtooth');await csleep(220)}
-  await csleep(500);
-  await say(sp('YOU','RUN.'),1000);
-  await runHome();
-  await bedroom();
-  /* end */
+  const hz=(r,g,b,a1,a2)=>{G.haze.style.background=`radial-gradient(ellipse at 50% 55%,rgba(${r},${g},${b},${a1}) 0%,rgba(${Math.round(r*.8)},${Math.round(g*.3)},${Math.round(b*.3)},${a2}) 100%)`};
+  const tubeM=scene.children.find(m=>m.isMesh&&Math.abs(m.position.x)<.01&&Math.abs(m.position.z-1.4)<.01&&m.position.y>2&&m.position.y<2.7);
+  const dust=[];for(let i=0;i<26;i++){const d=new THREE.Mesh(new THREE.BoxGeometry(.05+Math.random()*.1,.05+Math.random()*.08,.05+Math.random()*.1),M(Math.random()<.5?0x4a4440:0x6a5a4a));d.position.set(P.x-3+Math.random()*6,3.1,P.z-3+Math.random()*6);d.userData.v=.5+Math.random()*1.5;scene.add(d);dust.push(d)}
+  const shake=(amp,ms)=>tween(k=>{P.pitch=Math.sin(k*90)*amp*(1-k*.4);P.yaw+=Math.sin(k*70)*amp*.18},ms);
+  const fall=()=>{for(const d of dust){d.position.y=Math.max(.04,d.position.y-d.userData.v*.05);d.rotation.x+=.1}};
+  const fl=setInterval(fall,50);
+  await flicker([.7,.1,.6,0,.5]);A.tone(70,40,1.6,.25,'sine');
+  hz(230,70,40,.2,.62);shake(.012,1600);await csleep(1600);
+  say('The walls are cracking.',1800);A.nz&&A.nz(.5,200,500,.2,'lowpass',1);
+  await flicker([.4,0,.6,0,0,.5,0]);hz(255,90,40,.3,.72);
+  await shake(.02,1800);
+  if(tubeM){tubeM.position.y=.12;tubeM.rotation.z=1.4;A.tone(180,60,.5,.25,'sawtooth')}
+  applyLights(0);bulbSet(0);
+  await say(sp('ATUK','Lari! Lari, cucu!'),1500);
+  await shake(.03,1400);
+  clearInterval(fl);dust.forEach(d=>scene.remove(d));
+  hz(255,120,40,.18,.6);
+  for(const c of CROWD){c.userData.f0&&0;const dx=P.x-c.position.x,dz=P.z-c.position.z;A.tone(300,120,.2,.08,'sawtooth');c.visible=false;await csleep(420)}
+  await say(sp('ATUK','Balik rumah. Lock the door. Atuk... follow.'),2400);
+  atuk.visible=false;A.tone(260,60,.7,.15,'sawtooth');await csleep(700);
+  await say(sp('YOU','RUN.'),1200);
+  /* hand the controls back: the chase */
+  mkFire();FIRE.forEach((f,i)=>{const t=(i>>1)/8,x=.9+(5.6-.9)*t+(i%2?3.2:-3.2),z=6.6+(13-6.6)*t+(i%2?-1:1);f.position.set(x,1.5,z);f.visible=true});
+  const dg=window.__doorG;if(dg)dg.rotation.y=-1.25;
+  const FIG=G.FIG;FIG.position.set(-1.5,0,-3.2);FIG.visible=true;
+  RT=0;G.spd=1.9;chase=true;
+  G.state='d4_run';objT('RUN home!');G.busy=false;await cineOut()}
+
+/* the chase: you steer, it never quite catches you — but it never stops */
+let chase=false,RT=0,hb=0;
+const ROUTE=[[.5,4.7],[.9,6.8],[5.6,13.0],[6.1,15.4],[6.1,17.4],[6.5,20.8],[13.1,20.8],[13.1,18.9]];
+WPS.d4_run={get x(){return ROUTE[Math.min(RT,ROUTE.length-1)][0]},get z(){return ROUTE[Math.min(RT,ROUTE.length-1)][1]},r:.95,get fn(){return runStep}};
+function runStep(){if(!chase)return;RT++;if(RT>=ROUTE.length){chase=false;G.spd=1;finish()}}
+G.tick.push(dt=>{if(!chase)return;const FIG=G.FIG,t=performance.now()/1000;
+  const dx=P.x-FIG.position.x,dz=P.z-FIG.position.z,d=Math.hypot(dx,dz);
+  const want=d>2.6?(d>9?4.6:3.7):0;
+  if(want){FIG.position.x+=dx/d*want*dt;FIG.position.z+=dz/d*want*dt}
+  FIG.rotation.y=Math.atan2(dx,dz)+Math.PI;FIG.visible=d<16;
+  const near=Math.max(0,Math.min(1,(9-d)/6.5));
+  G.haze.style.opacity=.8+near*.2+Math.sin(t*(6+near*8))*.08;
+  hb-=dt;if(hb<=0){hb=1.1-near*.6;A.tone(70,45,.14,.18+near*.15,'sine')}
+  if(near>.85&&Math.random()<dt*.8)A.nz&&A.nz(.3,500,300,.1,'bandpass',1.2);
+  if(G.state==='d4_run'&&RT===0&&Math.random()<dt*.05)say('"maaf... maaf..."',1500)});
+
+async function finish(){await cineIn();FIG0();await bedroom();
   $('fade').style.transition='opacity 2.2s';$('fade').style.opacity=1;await sleep(2600);
   CINE.noclip=false;EYE.y=1.6;await cineOut();
   if(G.day5){G.busy=false;G.state='d5_intro';G.day5();return}
   $('endh').textContent='END OF DAY 4';$('endp').textContent='Three gentle knocks. "It\'s us."';$('endl').textContent='Last Order · Day 5 is coming';
   $('end').style.display='flex';G.busy=false;G.state='end'}
-
-/* run: shop -> street (fire on both sides) -> house -> back hall -> bedroom */
-async function runHome(){mkFire();
-  const pts=[[3.4,.5],[2.0,3.0],[.5,4.6],[.9,6.6],[5.6,13.0],[6.1,15.3],[6.1,17.4],[6.5,20.8],[13.1,20.8],[13.1,18.7]];
-  /* fire along the road, both sides */
-  FIRE.forEach((f,i)=>{const t=(i>>1)/8,x=.9+(5.6-.9)*t+(i%2?3.2:-3.2),z=6.6+(13-6.6)*t+(i%2?-1:1);f.position.set(x,1.5,z);f.visible=true});
-  const dg=window.__doorG;if(dg)dg.rotation.y=-1.25;
-  const seg=[];let L=0;for(let i=1;i<pts.length;i++){const l=Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]);seg.push(l);L+=l}
-  const at=d=>{let a=d;for(let i=0;i<seg.length;i++){if(a<=seg[i]||i===seg.length-1){const k=Math.min(1,a/seg[i]);return[pts[i][0]+(pts[i+1][0]-pts[i][0])*k,pts[i][1]+(pts[i+1][1]-pts[i][1])*k,i]}a-=seg[i]}};
-  let steps=0,lastLook=false;const FIG=G.FIG;
-  say('"LARI! LARI!"',1800);
-  await tween(k=>{const d=k*L,[x,z,i]=at(d),[x2,z2]=at(Math.min(L,d+1.2));P.x=x;P.z=z;
-      let want=Math.atan2(-(x2-x),-(z2-z));
-      /* glance back at the figure chasing you */
-      const glance=(k>.3&&k<.38)||(k>.62&&k<.69);
-      if(glance){const [bx,bz]=at(Math.max(0,d-5));FIG.position.set(bx,0,bz);FIG.rotation.y=Math.atan2(x-bx,z-bz)+Math.PI;FIG.visible=true;want=Math.atan2(-(bx-x),-(bz-z))}else FIG.visible=false;
-      let dy=want-P.yaw;dy=Math.atan2(Math.sin(dy),Math.cos(dy));P.yaw+=dy*(glance?.35:.14);
-      P.pitch+=(0-P.pitch)*.1+Math.sin(performance.now()/90)*.003;
-      EYE.y=1.6+Math.sin(performance.now()/85)*.07;
-      if(++steps%9===0)A.step();
-      if(steps%14===0)A.nz(.35,500+Math.random()*400,300,.07,'bandpass',1.2);
-      G.haze.style.opacity=.85+Math.sin(performance.now()/130)*.15;
-      if(k>.12&&k<.14&&!lastLook){lastLook=true;say('"...maaf... maaf..."',1600)}
-    },Math.round(L/3.9*1000));
-  FIG.visible=false;EYE.y=1.6;FIRE.forEach(f=>f.visible=false)}
-
+function FIG0(){G.FIG.visible=false;FIRE.forEach(f=>f.visible=false);G.busy=true}
 async function bedroom(){
   const dg2=scene.children.find(o=>o.isGroup&&Math.abs(o.position.x-12.6)<.02&&Math.abs(o.position.z-19.4)<.02);
   setTime('night');applyLights(.1);bulbSet(0);G.haze.style.background='radial-gradient(ellipse at 50% 55%,rgba(120,30,25,.1) 0%,rgba(90,15,12,.55) 100%)';G.haze.style.opacity=1;

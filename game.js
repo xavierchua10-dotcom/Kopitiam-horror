@@ -757,13 +757,13 @@ function update(dt){
   let moving=false;
   if(CINE.on){P.tx=null;stk=null;look=null}
   if(P.tx!==null&&state!=='end'){const dx=P.tx-P.x,dz=P.tz-P.z,d=Math.hypot(dx,dz);
-    if(d<.12)P.tx=null;else{const sp=1.9*dt,k=Math.min(1,sp/d);const ox=P.x,oz=P.z;P.x+=dx*k;P.z+=dz*k;collide();moving=true;
+    if(d<.12)P.tx=null;else{const sp=1.9*dt*(G.spd||1),k=Math.min(1,sp/d);const ox=P.x,oz=P.z;P.x+=dx*k;P.z+=dz*k;collide();moving=true;
       if(Math.hypot(P.x-ox,P.z-oz)<sp*.2)P.tx=null;
       const hd=Math.atan2(-dx,-dz);let df=hd-P.yaw;df=Math.atan2(Math.sin(df),Math.cos(df));P.yaw+=df*Math.min(1,dt*3.2)}}
   {let jx=0,jy=0;if(stk&&(Math.abs(stk.vx)>.12||Math.abs(stk.vy)>.12)){jx=stk.vx;jy=stk.vy}
    if(CINE.on){jx=jy=0}else{if(keys.w||keys.arrowup)jy-=1;if(keys.s||keys.arrowdown)jy+=1;if(keys.a)jx-=1;if(keys.d)jx+=1;if(keys.arrowleft)P.yaw+=dt*1.6;if(keys.arrowright)P.yaw-=dt*1.6}
    const mag=Math.min(1,Math.hypot(jx,jy));
-   if(mag>.01&&state!=='end'&&!CINE.on){P.tx=null;const fx=-Math.sin(P.yaw),fz=-Math.cos(P.yaw),rx=Math.cos(P.yaw),rz=-Math.sin(P.yaw),sp=2.1*dt*mag,l=Math.hypot(jx,jy);const ox=P.x,oz=P.z;
+   if(mag>.01&&state!=='end'&&!CINE.on){P.tx=null;const fx=-Math.sin(P.yaw),fz=-Math.cos(P.yaw),rx=Math.cos(P.yaw),rz=-Math.sin(P.yaw),sp=2.1*dt*mag*(G.spd||1),l=Math.hypot(jx,jy);const ox=P.x,oz=P.z;
      P.x+=((-jy/l)*fx+(jx/l)*rx)*sp;P.z+=((-jy/l)*fz+(jx/l)*rz)*sp;collide();moving=Math.hypot(P.x-ox,P.z-oz)>sp*.15}}
   if(moving){P.bob+=dt*9;walkT+=dt;if(walkT>.52){walkT=0;A.step()}}
   camera.position.set(P.x,EYE.y+(moving?Math.sin(P.bob)*.035:0),P.z);camera.rotation.y=P.yaw;camera.rotation.x=P.pitch;
