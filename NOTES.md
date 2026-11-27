@@ -67,3 +67,7 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 
 ## Modern UI (Nov 27)
 - Glass-pill clock + OBJECTIVE box, rounded subtitle bubble with amber speaker name (say() parses "NAME: text"; dataset.k replaces textContent compare), pill interact button with ring icon, segmented Graphics switch, solid amber start button, light wide day card. CSS block "modern UI" at end of <style>.
+
+## Day 1 story logic + glitch fixes (Nov 27)
+- Fixed: house ceiling z-fight (house ceiling plane y 3 vs upper-floor box bottom) -> ceiling at 2.97. Fixed: sky slit above shopfronts (upper facade now 3.0..6.7, five-foot-way ceiling extends to z 6.6).
+- Day 1 flow: Atuk's bed empty -> 3 customers queue outside closed shutter -> you knock 3x, Atuk answers inside ("Three knock. That means is us. Anybody else, don't open") -> lift shutter -> queue walks in, regulars appear when you step inside -> chores... -> evening rule (don't open the door to anyone; only three knocks) -> lock shop -> knock 3x at house door, Atuk opens -> END OF DAY 1.
