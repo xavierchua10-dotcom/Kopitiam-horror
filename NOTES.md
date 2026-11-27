@@ -121,3 +121,6 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 ## Tidy-up: house
 - House ceiling is now warm off-white instead of dark navy; the house light follows you room by room (dining, Atuk's room, your room, back hall) and is a bit brighter.
 - Added door leaves (standing ajar) to Atuk's room, your room, and the kopitiam bathroom.
+
+## House lamps
+- Hanging cone-shade lamps with a warm bulb + glow in the dining room, Atuk's room, your room and the back hall. House ceiling no longer shows a bright hotspot (unlit ceiling that dims with the lights); the light now reads as coming from the bulb.
