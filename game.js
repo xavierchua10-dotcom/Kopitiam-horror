@@ -407,6 +407,7 @@ function initAudio(){
   hum=ac.createOscillator();hum.type='sawtooth';hum.frequency.value=100;const bp=ac.createBiquadFilter();bp.type='bandpass';bp.frequency.value=300;bp.Q.value=2;humG=ac.createGain();humG.gain.value=0;hum.connect(bp);bp.connect(humG);humG.connect(master);hum.start();
   const nb=ac.createBuffer(1,ac.sampleRate*2,ac.sampleRate),d=nb.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;A.nb=nb;
   const ns=ac.createBufferSource();ns.buffer=nb;ns.loop=true;const sb=ac.createBiquadFilter();sb.type='bandpass';sb.frequency.value=1800;sb.Q.value=.7;statG=ac.createGain();statG.gain.value=0;ns.connect(sb);sb.connect(statG);statG.connect(master);ns.start();
+  try{ambInit()}catch(e){console.warn('amb',e)}
   }catch(e){ac=null}
 }
 const A={
@@ -415,12 +416,49 @@ const A={
   step(){A.nz(.09,500,200,.1,'lowpass',.7)},
   knock(){A.tone(150,60,.14,.5);A.nz(.09,500,150,.35,'lowpass',.8)},
   click(){A.tone(1400,900,.05,.08,'square')},
-  sting(){A.nz(.5,3000,500,.35,'highpass',.5);A.tone(90,30,.9,.5);A.tone(440,466,.35,.07,'sawtooth');A.tone(466,494,.35,.06,'sawtooth')},
+  sting(){AMB.duck(3200);A.nz(.5,3000,500,.35,'highpass',.5);A.tone(90,30,.9,.5);A.tone(440,466,.35,.07,'sawtooth');A.tone(466,494,.35,.06,'sawtooth')},
   scrape(){A.nz(.9,250,900,.22,'bandpass',3)},
   rumble(){A.nz(2.6,90,60,.5,'lowpass',.7);A.tone(48,40,2.6,.25)},
   static(v){if(statG)statG.gain.setTargetAtTime(v,ac.currentTime,.08)},
   humv(v){if(humG)humG.gain.setTargetAtTime(v,ac.currentTime,.05)},
 };
+
+/* ---------- ambience: layered room sound that gets heavier each day ---------- */
+let ambG=null,tenG=null,roomG=null,AMBT=0;
+const AMBD=[null,
+ {lv:.02,gap:[14,26],g:.5,ev:['creak','clink','far']},
+ {lv:.05,gap:[11,20],g:.7,ev:['creak','clink','steps','chair','far']},
+ {lv:.08,gap:[9,17],g:.9,ev:['creak','steps','chair','murmur','knock','far','clink']},
+ {lv:.12,gap:[7,13],g:1.1,ev:['creak','steps','steps','murmur','knock','breath','chair']},
+ {lv:.035,gap:[20,34],g:.4,ev:['clink','far','chair']}];
+function ambInit(){
+  ambG=ac.createGain();ambG.gain.value=1;ambG.connect(master);
+  /* tension chord: low fifth-ish drone with a slow wobble */
+  tenG=ac.createGain();tenG.gain.value=0;const tl=ac.createBiquadFilter();tl.type='lowpass';tl.frequency.value=260;tl.connect(tenG);tenG.connect(ambG);
+  for(const [f,ty] of[[41.2,'sine'],[55.5,'triangle'],[82.8,'sine'],[87.3,'sine']]){const o=ac.createOscillator();o.type=ty;o.frequency.value=f;const lf=ac.createOscillator(),lg=ac.createGain();lf.frequency.value=.05+Math.random()*.08;lg.gain.value=f*.012;lf.connect(lg);lg.connect(o.frequency);const og=ac.createGain();og.gain.value=f>80?.35:.7;o.connect(og);og.connect(tl);o.start();lf.start()}
+  /* room tone + a distant fridge hum */
+  const rs=ac.createBufferSource();rs.buffer=A.nb;rs.loop=true;const rf=ac.createBiquadFilter();rf.type='lowpass';rf.frequency.value=420;roomG=ac.createGain();roomG.gain.value=.022;rs.connect(rf);rf.connect(roomG);roomG.connect(ambG);rs.start();
+  const fo=ac.createOscillator();fo.type='sine';fo.frequency.value=100;const fg=ac.createGain();fg.gain.value=.006;fo.connect(fg);fg.connect(ambG);fo.start();
+  ambTick()}
+const aN=(dur,f0,f1,g,type,q,p,at=0)=>{if(!ac)return;const s=ac.createBufferSource();s.buffer=A.nb;const f=ac.createBiquadFilter();f.type=type;f.Q.value=q;const t=ac.currentTime+at;f.frequency.setValueAtTime(f0,t);f.frequency.exponentialRampToValueAtTime(f1,t+dur);const ga=ac.createGain();ga.gain.setValueAtTime(g,t);ga.gain.exponentialRampToValueAtTime(.0001,t+dur);let o=ga;if(ac.createStereoPanner){const pn=ac.createStereoPanner();pn.pan.value=p;ga.connect(pn);o=pn}s.connect(f);f.connect(ga);o.connect(ambG);s.start(t,Math.random()*1.5,dur+.05)};
+const aT=(f0,f1,dur,g,type,p,lp,at=0)=>{if(!ac)return;const o=ac.createOscillator(),ga=ac.createGain(),t=ac.currentTime+at;o.type=type;o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(f1,t+dur);ga.gain.setValueAtTime(g,t);ga.gain.exponentialRampToValueAtTime(.0001,t+dur);let n=o;if(lp){const f=ac.createBiquadFilter();f.type='lowpass';f.frequency.value=lp;o.connect(f);n=f}n.connect(ga);let e=ga;if(ac.createStereoPanner){const pn=ac.createStereoPanner();pn.pan.value=p;ga.connect(pn);e=pn}e.connect(ambG);o.start(t);o.stop(t+dur+.05)};
+const AEV={
+ creak(g,p){aT(190,105,.9,.07*g,'sawtooth',p,520)},
+ clink(g,p){aT(2900,2700,.35,.05*g,'sine',p);aT(4300,4000,.25,.03*g,'sine',p,0,.03)},
+ far(g,p){aN(2.8,90,55,.28*g,'lowpass',.7,p)},
+ steps(g,p){const n=3+(Math.random()*3|0);for(let i=0;i<n;i++)aN(.11,430,170,.34*g*(1-i*.05),'lowpass',.7,p+(i-n/2)*.05,i*(.55+Math.random()*.15))},
+ chair(g,p){aN(.55,280,850,.1*g,'bandpass',3,p)},
+ knock(g,p){for(let i=0;i<3;i++){aT(120,55,.16,.22*g,'sine',p,300,i*.5);aN(.09,350,120,.18*g,'lowpass',.8,p,i*.5)}},
+ murmur(g,p){const n=5+(Math.random()*4|0);let t=0;for(let i=0;i<n;i++){const f=500+Math.random()*900;aN(.14,f,f*1.15,.07*g,'bandpass',4,p,t);t+=.16+Math.random()*.16}},
+ breath(g,p){aN(1.5,700,260,.1*g,'bandpass',.9,p);aN(1.7,260,520,.07*g,'bandpass',.9,p,1.7)}};
+function ambTick(){
+  const day=(/^d([1-5])_/.exec(state)||[])[1]|0,cfg=AMBD[day];
+  if(ac&&tenG){const lv=cfg?cfg.lv:0;tenG.gain.setTargetAtTime(lv,ac.currentTime,2.5);roomG.gain.setTargetAtTime(cfg?(day===5?.015:.022):.012,ac.currentTime,2)}
+  AMBT-=1;if(cfg&&AMBT<=0){AMBT=cfg.gap[0]+Math.random()*(cfg.gap[1]-cfg.gap[0]);
+    const k=cfg.ev[Math.random()*cfg.ev.length|0],p=(Math.random()<.5?-1:1)*(.45+Math.random()*.5);try{AEV[k](cfg.g,p)}catch(_){}}
+  setTimeout(ambTick,1000)}
+const AMB={duck(ms){if(!ac||!ambG)return;const t=ac.currentTime;ambG.gain.cancelScheduledValues(t);ambG.gain.setTargetAtTime(.08,t,.05);ambG.gain.setTargetAtTime(1,t+ms/1000,1.2)},
+  ev(k){if(AEV[k])AEV[k](1,Math.random()<.5?-.6:.6)}};
 
 /* ---------- lights ---------- */
 let lightF=0,lightsOn=false,TIME='night',AB=.02,AK=.4,SK=26,HK=16,LK=8;
@@ -852,12 +890,12 @@ function frame(t){requestAnimationFrame(frame);const raw=t-last;if(raw<30)return
   update(dt);renderer.render(scene,camera)}
 
 /* ---------- hook for the later days (day2.js ...) ---------- */
-const G={person,THREE,scene,camera,P,EYE,A,CINE,D,WPS,atuk,CROWD,HOME,QUEUE,FEET,shutter,radio,BULB,STREAM,ALK,stain,cupsD,tick:[],day2:null,day3:null,day4:null,day5:null,stools,fan,
+const G={AMB,person,THREE,scene,camera,P,EYE,A,CINE,D,WPS,atuk,CROWD,HOME,QUEUE,FEET,shutter,radio,BULB,STREAM,ALK,stain,cupsD,tick:[],day2:null,day3:null,day4:null,day5:null,stools,fan,
   $,sleep,say,sp,cineIn,cineOut,camTo,yawTo,csleep,tween,handAct,pose,objT,setClock,setTime,applyLights,bulbSet,flicker,tapOn,tapOff,lids,startAlarm,stopAlarm,drawClock,
   showCrowd,drawBoard,day1Props,shutBlock,chWipe,chCups,ctex,isLand,atukLeave,M,B,box,
   get state(){return state},set state(v){state=v},get busy(){return busy},set busy(v){busy=v},
   setLights(v){lightsOn=v},setBlur(v){cv.style.transition='filter 1.4s';cv.style.filter=v?'blur(8px)':''}};
-const V=new URL(import.meta.url).search,BUILD='202611272735';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+const V=new URL(import.meta.url).search,BUILD='202611272820';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));
