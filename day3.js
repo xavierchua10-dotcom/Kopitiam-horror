@@ -294,7 +294,7 @@ async function atukRule(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
 WPS.d3_lock={x:.3,z:5.3,r:.6,go:1,fn:lockUp};
 async function lockUp(){if(G.busy||CINE.on||D.walking)return;G.busy=true;await cineIn();
   await camTo(.3,5.2,yawTo(0,3.9),.1,900);
-  handAct('lift',2000);A.scrape();await tween(k=>{shutter.position.y=3.6-2.4*k;P.pitch=.1-.25*k},1800);shutBlock(true);
+  handAct('lift',2000);A.shutter();await tween(k=>{shutter.position.y=3.6-2.4*k;P.pitch=.1-.25*k},1800);shutBlock(true);
   A.click();handAct('reach',1200);await say('You pull the padlock through. Click.',2200);
   /* the quiet before it: dim light, a heartbeat, a footstep behind you */
   applyLights(.4);await csleep(1300);
@@ -323,7 +323,7 @@ async function homeNight(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
   handAct('knock',2300);for(let i=0;i<3;i++){A.knock();await csleep(650)}
   await csleep(600);A.tone(170,110,.7,.05,'sawtooth');
   atuk.visible=true;atuk.position.set(6.1,0,15.85);atuk.rotation.y=0;pose(atuk,0,'stand');
-  await tween(k=>{dg.rotation.y=-1.25*k},900);
+  A.door();await tween(k=>{dg.rotation.y=-1.25*k},900);
   await say(sp('ATUK','Three knock. Okay. Masuk. Tidur.'),2400);
   await camTo(6.1,15.4,Math.PI,0,900);
   atuk.visible=false;await camTo(6.1,16.3,Math.PI,0,700);

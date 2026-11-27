@@ -352,7 +352,7 @@ async function bedroom(){
   await say(sp('YOU','They are still in there. They are still in the fire.'),2800);
   await Promise.all([tween(k=>{EYE.y=.75+.85*k},1000),camTo(13.1,17.7,Math.PI,0,1100)]);
   A.click();handAct('reach',1100);await csleep(500);A.click();
-  if(dg2){await tween(k=>{dg2.rotation.y=1.45*k},800);A.tone(110,80,.3,.15,'sine')}
+  if(dg2){A.door();await tween(k=>{dg2.rotation.y=1.45*k},800);A.tone(110,80,.3,.15,'sine')}
   beepSoft=false;
   /* out into the dark: you walk, nobody chases you now */
   applyLights(.1);G.haze.style.background='radial-gradient(ellipse at 50% 55%,rgba(255,110,40,.1) 0%,rgba(110,18,10,.6) 100%)';

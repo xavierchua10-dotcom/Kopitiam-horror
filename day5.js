@@ -98,11 +98,11 @@ async function atukLast(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
   await say(sp('ATUK','One more. He has been standing outside since morning.'),3000);
   await say(sp('ATUK','He is afraid to knock.'),2400);
   await camTo(P.x,P.z,yawTo(0,4),0,900);
-  shutter.position.y=1.2;shutBlock(true);A.scrape&&A.scrape();await csleep(900);
+  shutter.position.y=1.2;shutBlock(true);(A.shutter||A.scrape)();await csleep(900);
   for(let i=0;i<3;i++){A.tone(130,100,.18,.28,'sine');await csleep(1200)}
   await say(sp('ATUK','Let him in, cucu. It is okay.'),2800);
   await pace(0.3,2.5,1.6);await camTo(P.x,P.z,yawTo(0,4),0,500);
-  await tween(k=>{shutter.position.y=1.2+2.4*k},1900);A.scrape&&A.scrape();shutBlock(false);
+  await tween(k=>{shutter.position.y=1.2+2.4*k},1900);(A.shutter||A.scrape)();shutBlock(false);
   const F=G.FIG;F.position.set(.1,0,5.4);F.rotation.y=Math.PI;F.visible=true;
   await say('Dusk. A man stands in the doorway with his head down.',3000);
   await tween(k=>{F.position.z=5.4-1.7*k},2400);

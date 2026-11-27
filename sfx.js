@@ -1,7 +1,7 @@
 /* Real recorded sounds (sfx/*.mp3) layered on top of the synthesized ones.
    Everything here is optional: if a file is missing or audio is off, the game falls back to the old sounds. */
 export default function install(G){
-  const NAMES=['step_1','step_2','step_3','step_4','step_5','step_6','loop_ac','loop_static','loop_rain','tap_drip','screech_drag','slosh','bag',
+  const NAMES=['knock_1','knock_2','knock_3','knock_4','switch','clink','door_squeak','jiggle','shutter_motor','loop_fluor','loop_fridge','clock','chop','drawer_squeak','metal_scrape','step_1','step_2','step_3','step_4','step_5','step_6','loop_ac','loop_static','loop_rain','tap_drip','screech_drag','slosh','bag',
     'house_creak','mech_moan','creepy_3','creepy_5','breath_slow','breath_fast','yell_far','drone_doom','bell_low',
     'piano_stinger_dissonent','piano_stinger_dissonent_2','stinger','slow_stinger','metal_resonance','metal_twang',
     'monster_growl_1','monster_growl_5','monster_roar_2','monster_roar_4','monster_grunt_long','monster_breath',
@@ -47,7 +47,7 @@ export default function install(G){
   G.SFX={play,loop,has:n=>!!buf[n]};
 
   /* stingers: real piano hits instead of the thin synth chord (old one stays as fallback) */
-  const A=G.A,sting0=A.sting,rumble0=A.rumble,step0=A.step,scrape0=A.scrape,static0=A.static;let si=0,lastStep=0;
+  const A=G.A,sting0=A.sting,rumble0=A.rumble,step0=A.step,scrape0=A.scrape,static0=A.static,knock0=A.knock,click0=A.click,clink0=A.clink,door0=A.door,shutter0=A.shutter,jiggle0=A.jiggle,humv0=A.humv;let si=0,lastStep=0;
   const ST=['piano_stinger_dissonent','stinger','piano_stinger_dissonent_2','slow_stinger'];
   A.sting=()=>{const n=ST[si++%ST.length];
     if(!buf[n]){sting0();return}
@@ -57,6 +57,18 @@ export default function install(G){
   A.step=()=>{if(!buf.step_1){step0();return}let k;do{k=1+(Math.random()*6|0)}while(k===lastStep);lastStep=k;
     play('step_'+k,{g:.34+Math.random()*.14,rate:.93+Math.random()*.14,wet:.1})};
   A.scrape=()=>{if(buf.screech_drag)play('screech_drag',{g:.55,rate:.9+Math.random()*.2,wet:.25});else scrape0()};
+  /* house and office sounds: real knocks, doors, light switch, shutter motor, handle jiggle, fluorescent buzz */
+  let kl=0;
+  A.knock=()=>{if(!buf.knock_1){knock0();return}let k;do{k=1+(Math.random()*4|0)}while(k===kl);kl=k;A.tone(110,55,.12,.12);play('knock_'+k,{g:.9,rate:.95+Math.random()*.1,wet:.2})};
+  A.click=()=>{if(!buf.switch){click0();return}play('switch',{g:.3,rate:.9+Math.random()*.25,wet:0})};
+  A.clink=()=>{if(!buf.clink){clink0();return}play('clink',{g:.45,rate:.9+Math.random()*.3,wet:.15})};
+  A.door=()=>{if(!buf.door_squeak){door0();return}play('door_squeak',{g:.7,rate:.95+Math.random()*.1,wet:.25})};
+  A.shutter=()=>{if(!buf.shutter_motor){shutter0();return}play('shutter_motor',{g:.8,wet:.25})};
+  A.jiggle=()=>{if(!buf.jiggle){jiggle0();return}play('jiggle',{g:.7,wet:.2})};
+  let humL=null;
+  A.humv=v=>{if(!buf.loop_fluor){humv0&&humv0(v);return}
+    if(!humL){humL=loop('loop_fluor',{g:0,fade:.3});humv0&&humv0(0)}
+    humL.g.gain.setTargetAtTime(v*12,G.ac.currentTime,.1)};
   let stL=null,stV=0;
   A.static=v=>{if(!buf.loop_static){static0(v);return}
     if(v>0&&!stL)stL=loop('loop_static',{g:0,fade:.1});
@@ -89,11 +101,19 @@ export default function install(G){
   /* a real room tone (air-con hum) under every day, in place of the synthetic hiss */
   let toneL=null;const tn=setInterval(()=>{if(toneL||!buf.loop_ac)return;G.roomMul=.15;toneL=loop('loop_ac',{g:.0,fade:2,amb:true})},1000);
   setInterval(()=>{if(!toneL)return;const day=(/^d([1-5])_/.exec(G.state)||[])[1]|0,v=[.25,.5,.6,.75,.9,.35][day];toneL.g.gain.setTargetAtTime(v,G.ac.currentTime,2)},1000);
+  E.chop=mk(['chop'],{g:.35,lp:3000,wet:.35});
+  E.drawer=mk(['drawer_squeak'],{g:.3,lp:2600,wet:.3});
+  E.metalscr=mk(['metal_scrape'],{g:.28,lp:3000,wet:.3});
+  /* places: the fridge hums in the shop and louder in the kitchen; the wall clock ticks inside your house */
+  let frL=null,ckL=null;setInterval(()=>{const ac=G.ac,P=G.P;if(!ac||!buf.loop_fridge||!buf.clock)return;
+    if(!frL){frL=loop('loop_fridge',{g:0,fade:1,amb:true});ckL=loop('clock',{g:0,fade:1})}
+    const shop=P.x>-5&&P.x<5&&P.z>-4&&P.z<4.2,kit=P.x>-2.6&&P.x<5.1&&P.z<=-4&&P.z>-7.2,home=P.x>3&&P.x<15&&P.z>15&&P.z<23;
+    frL.g.gain.setTargetAtTime(kit?.7:shop?.22:0,ac.currentTime,.6);ckL.g.gain.setTargetAtTime(home?.3:0,ac.currentTime,.6)},700);
   const D=G.AMBD;
-  D[1].ev.push('metal');
-  D[2].ev.push('metal','moan','scratch','bed','creepy');
-  D[3].ev.push('moan','deepmoan','laugh','zombie','scratch','bed','hiss','creepy','mech','doom');
-  D[4].ev.push('growl','zombie','moan','deepmoan','scream','drone','hiss','creepy','mech','doom','yell');
+  D[1].ev.push('metal','chop');
+  D[2].ev.push('metal','moan','scratch','bed','creepy','chop','drawer');
+  D[3].ev.push('moan','deepmoan','laugh','zombie','scratch','bed','hiss','creepy','mech','doom','chop','drawer','metalscr');
+  D[4].ev.push('growl','zombie','moan','deepmoan','scream','drone','hiss','creepy','mech','doom','yell','metalscr');
   D[5].ev.push('choir','harm','bell');
 
   /* the chase: something follows, and you hear it */

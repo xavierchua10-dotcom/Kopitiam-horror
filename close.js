@@ -108,7 +108,7 @@ async function cups(){
     await camTo(px,pz,yawTo(tx,tz),-.55,s?800:1000);
     for(const j of idx){const m=CUPS2[j],p0=m.position.clone();handAct('reach',800);
       await tween(k=>{m.position.set(p0.x+(px-p0.x)*k,p0.y+.4*k,p0.z+(pz-p0.z)*k);m.scale.setScalar(1+.6*k)},520);
-      A.tone(2600,2000,.07,.05);m.visible=false;await csleep(220)}
+      A.clink();m.visible=false;await csleep(220)}
     if(s===2){
       /* a long quiet, then you feel it */
       await csleep(700);G.AMB.duck(2600);

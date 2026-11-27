@@ -322,7 +322,7 @@ async function doorOut(){busy=true;await cineIn();const dg=window.__doorG;dg.rot
   const walk=(x,z,ms)=>{const x0=P.x,z0=P.z;let st=0;return tween(k=>{const e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;P.x=x0+(x-x0)*e;P.z=z0+(z-z0)*e;st++;EYE.y=1.6+Math.sin(performance.now()/110)*.03;if(st%16===0)A.step()},ms).then(()=>{EYE.y=1.6})};
   CINE.noclip=true;await camTo(6.0,15.75,0,0,500);
   handAct('reach',1500);await csleep(450);A.click();A.nz(.8,300,520,.1,'bandpass',4);
-  await tween(k=>{dg.rotation.y=-1.25*Math.min(1,k*1.15)},1000);
+  A.door();await tween(k=>{dg.rotation.y=-1.25*Math.min(1,k*1.15)},1000);
   await walk(6.1,14.5,1500);
   await camTo(6.1,14.5,Math.PI,0,750);handAct('reach',1500);await csleep(450);
   await tween(k=>{const e=k*k*(3-2*k);dg.rotation.y=-1.25*(1-e)},850);A.knock();A.nz(.18,160,60,.4,'lowpass');await csleep(500);
@@ -425,6 +425,7 @@ const A={
   click(){A.tone(1400,900,.05,.08,'square')},
   sting(){AMB.duck(3200);A.nz(.5,3000,500,.35,'highpass',.5);A.tone(90,30,.9,.5);A.tone(440,466,.35,.07,'sawtooth');A.tone(466,494,.35,.06,'sawtooth')},
   scrape(){A.nz(.9,250,900,.22,'bandpass',3)},
+  clink(){A.tone(2600,2000,.07,.05)},door(){A.tone(90,60,.25,.18,'sine')},shutter(){A.scrape()},jiggle(){A.click()},
   rumble(){A.nz(2.6,90,60,.5,'lowpass',.7);A.tone(48,40,2.6,.25)},
   static(v){if(statG)statG.gain.setTargetAtTime(v,ac.currentTime,.08)},
   humv(v){if(humG)humG.gain.setTargetAtTime(v,ac.currentTime,.05)},
@@ -520,8 +521,8 @@ async function cineLock(){if(busy||CINE.on||D.walking)return;busy=true;await cin
   await camTo(.3,5.2,yawTo(6.1,14),0,1200);
   state='d1_home';window.__doorG.rotation.y=0;setClock('6:10 PM');objT('Go home');busy=false;await cineOut()}
 async function shutterAct(){A.click();
-  if(state==='d1_open'){busy=true;A.scrape();shutBlock(false);atuk.visible=true;await tween(k=>{shutter.position.y=1.2+2.4*k},1700);state='d1_greet';setClock('7:02 AM');objT('Talk to Atuk');busy=false;queueIn();say('Warm air. Toast. The queue shuffles in behind you.',2800);return}
-  if(state==='d1_lock'){if(P.z<4.3){say('Lock up from the outside.',2200);return}busy=true;A.scrape();await tween(k=>{shutter.position.y=3.6-2.4*k},1700);shutBlock(true);A.click();await say('You pull the padlock through. Click.',2400);state='d1_home';window.__doorG.rotation.y=0;setClock('6:10 PM');objT('Go home');busy=false;return}
+  if(state==='d1_open'){busy=true;A.shutter();shutBlock(false);atuk.visible=true;await tween(k=>{shutter.position.y=1.2+2.4*k},1700);state='d1_greet';setClock('7:02 AM');objT('Talk to Atuk');busy=false;queueIn();say('Warm air. Toast. The queue shuffles in behind you.',2800);return}
+  if(state==='d1_lock'){if(P.z<4.3){say('Lock up from the outside.',2200);return}busy=true;A.shutter();await tween(k=>{shutter.position.y=3.6-2.4*k},1700);shutBlock(true);A.jiggle();await sleep(1200);A.click();await say('You pull the padlock through. Click.',2400);state='d1_home';window.__doorG.rotation.y=0;setClock('6:10 PM');objT('Go home');busy=false;return}
   busy=true;await say('It will not come down. Like something is holding it from outside.',2800);busy=false}
 /* ---- Day 1 ending cutscene: knock, Atuk opens, step in, the fourth knock ---- */
 const FEET=new THREE.Group();FEET.visible=false;scene.add(FEET);
@@ -665,7 +666,7 @@ async function chWipe(){
   await say('Wipe, wipe. Somebody always spills the teh.',2400)}
 async function chCups(){
   await camTo(-2.05,-1.8,yawTo(-3,-1.8),-.5,1000);
-  for(const m of cupsD){const p0=m.position.clone();handAct('reach',800);await tween(k=>{m.position.set(p0.x+(-2.25-p0.x)*k,p0.y+.4*k,p0.z+(-1.8-p0.z)*k);m.scale.setScalar(1+.6*k)},520);A.tone(2600,2000,.07,.05);m.visible=false;m.position.copy(p0);m.scale.setScalar(1);await csleep(260)}
+  for(const m of cupsD){const p0=m.position.clone();handAct('reach',800);await tween(k=>{m.position.set(p0.x+(-2.25-p0.x)*k,p0.y+.4*k,p0.z+(-1.8-p0.z)*k);m.scale.setScalar(1+.6*k)},520);A.clink();m.visible=false;m.position.copy(p0);m.scale.setScalar(1);await csleep(260)}
   await say('Three cups. Always the same table.',2400)}
 async function chKopi(){
   await camTo(-.95,-5.7,yawTo(-1.4,-6.4),-.5,1100);
@@ -903,7 +904,7 @@ const G={ZONES,AABB,AMB,person,THREE,scene,camera,P,EYE,A,CINE,D,WPS,atuk,CROWD,
   AEV,AMBD,get ac(){return ac},get master(){return master},get ambG(){return ambG},
   get state(){return state},set state(v){state=v},get busy(){return busy},set busy(v){busy=v},
   setLights(v){lightsOn=v},setBlur(v){cv.style.transition='filter 1.4s';cv.style.filter=v?'blur(8px)':''}};
-const V=new URL(import.meta.url).search,BUILD='202611273003';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+const V=new URL(import.meta.url).search,BUILD='202611273004';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));
