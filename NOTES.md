@@ -75,3 +75,6 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 ## Smooth city (Nov 27)
 - ctex() now renders canvas textures at 4x with linear/mipmap filtering, plaster grain, wall-bottom dirt + streaks; textured asphalt road + stone curbs; lighter scanlines, smoothed canvas upscaling (html.sm). Title has "Smooth city / Basic" switch (localStorage lo_smooth, reloads page). Default ON unless navigator.deviceMemory<=2. Texture memory ~16MB vs ~1MB.
 - GOTCHA: when patching one-line functions with python, check the replacement text is complete (multi-line) and never use s.index('return t}') across functions.
+
+## Hotfix (Nov 27)
+- Interact prompt was always visible (CSS display:flex!important from modern UI overrode JS none). Removed !important; JS now toggles 'flex'/'none'.
