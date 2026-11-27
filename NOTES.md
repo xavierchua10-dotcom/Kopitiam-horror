@@ -124,3 +124,6 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 
 ## House lamps
 - Hanging cone-shade lamps with a warm bulb + glow in the dining room, Atuk's room, your room and the back hall. House ceiling no longer shows a bright hotspot (unlit ceiling that dims with the lights); the light now reads as coming from the bulb.
+
+## Lamp/ceiling balance
+- Lamp glow smaller and softer; house ceiling darker than the walls; house light stronger; small ambient lift when lights are on.
