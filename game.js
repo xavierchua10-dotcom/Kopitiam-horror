@@ -800,6 +800,7 @@ import('./day2.js').then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded
 resize();
 async function goFull(){try{const d=document.documentElement;if(!document.fullscreenElement&&d.requestFullscreen)await d.requestFullscreen({navigationUI:'hide'})}catch(_){}try{await screen.orientation.lock('landscape')}catch(_){}}
 async function begin(){goFull();$('title').style.display='none';initAudio();if(ac&&ac.state==='suspended')ac.resume();
+  if(/[?&]day2/.test(location.search)&&G.day2)return G.day2();
   if(!NIGHT)return beginDay1();setTime('night');
   P.x=0;P.z=3;P.yaw=0;P.pitch=0;P.tx=null;applyLights(0);objT('');
   $('fade').style.transition='opacity 1.6s';$('fade').style.opacity=1;await sleep(300);
