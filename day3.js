@@ -39,23 +39,58 @@ const FIG=new THREE.Group();FIG.position.set(-6,0,10.3);FIG.visible=false;scene.
 /* the little things that are wrong with each customer (they show up from Day 3) */
 const sph=(r,m,x,y,z,p,sx=1,sy=1,sz=1)=>{const o=new THREE.Mesh(new THREE.SphereGeometry(r,8,6),m);o.position.set(x,y,z);o.scale.set(sx,sy,sz);p.add(o);return o};
 let detDone=false;
+
+/* ---- blood / burn texture painting ---- */
+const mkT=(w,h,draw)=>{const c=document.createElement('canvas');c.width=w;c.height=h;draw(c.getContext('2d'),w,h);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t};
+const rnd=(a,b)=>a+Math.random()*(b-a);
+const blob=(g,x,y,r,cols)=>{for(let k=0;k<cols.length;k++){g.fillStyle=cols[k];const rr=r*(1-k*.22);g.beginPath();for(let i=0;i<=12;i++){const an=i/12*Math.PI*2,rad=rr*rnd(.7,1.15);i?g.lineTo(x+Math.cos(an)*rad*1.1,y+Math.sin(an)*rad):g.moveTo(x+Math.cos(an)*rad*1.1,y+Math.sin(an)*rad)}g.closePath();g.fill()}};
+const drips=(g,x,y,n,spread,len,wd)=>{for(let i=0;i<n;i++){const dx=x+rnd(-spread,spread),l=rnd(len*.4,len),w=rnd(wd*.6,wd);g.fillStyle='#4a0806';g.fillRect(dx-w/2,y,w,l);g.fillStyle='#8a100c';g.fillRect(dx-w/2+.5,y,Math.max(1,w-1.5),l);g.fillStyle='#4a0806';g.beginPath();g.arc(dx,y+l,w*.8,0,7);g.fill();g.fillStyle='#c2281c';g.fillRect(dx-w/2+.5,y+2,1,l*.6)}};
+const BL=['#3c0605','#6e0b09','#a8160e'];
+/* wrap-around texture for a body shell: front is at u=0 (drawn at both ends) */
+const shellTex=(w,h,draw)=>mkT(w,h,(g,W,H)=>{for(const ox of[0,W])draw(g,ox,W,H)});
+const shell=(parent,rt,rb,h,y,sz,tex,sx=1)=>{const m=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,14,1,true),new THREE.MeshLambertMaterial({map:tex,transparent:true,alphaTest:.04,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2,side:THREE.DoubleSide}));m.position.y=y;m.scale.z=sz;m.scale.x=sx;parent.add(m);return m};
+const capS=(parent,r,y,tex,sx=1,sy=1,sz=1)=>{const m=new THREE.Mesh(new THREE.SphereGeometry(r,10,8),new THREE.MeshLambertMaterial({map:tex,transparent:true,alphaTest:.04,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2}));m.position.y=y;m.scale.set(sx,sy,sz);parent.add(m);return m};
+/* paint straight onto a person's face texture so it sticks to the skin */
+const faceCv=hd=>{const m=hd.children[0].material.map;return[m.image.getContext('2d'),m]};
+const FP=(hd,fn)=>{const[g,m]=faceCv(hd);fn(g);m.needsUpdate=true};
+const faceGash=(g,x,y,w)=>{g.fillStyle='#3c0605';g.fillRect(x,y,w,2);g.fillStyle='#a8160e';g.fillRect(x+1,y,w-2,1);g.fillStyle='#e04a3a';g.fillRect(x+2,y,2,1)};
+const faceDrip=(g,x,y,l,w=2)=>{g.fillStyle='#4a0806';g.fillRect(x,y,w,l);g.fillStyle='#b01810';g.fillRect(x,y,1,l-1);g.fillStyle='#4a0806';g.fillRect(x-1,y+l,w+2,2);g.fillStyle='#c2281c';g.fillRect(x,y+l,1,1)};
+const faceSoot=(g,x,y,w,h,a=.55)=>{g.fillStyle=`rgba(18,14,12,${a})`;g.fillRect(x,y,w,h);g.fillStyle=`rgba(18,14,12,${a*.6})`;g.fillRect(x-1,y+1,w+2,h-2)};
+const faceBlister=(g,x,y)=>{g.fillStyle='#d9705a';g.fillRect(x,y,4,3);g.fillStyle='#f0b0a0';g.fillRect(x+1,y,2,1);g.fillStyle='#7a2a20';g.fillRect(x,y+3,4,1)};
+const raw=(w,h)=>shellTex(w,h,(g,ox,W,H)=>{g.fillStyle='#c9604a';g.fillRect(ox-W*.3,0,W*.6,H);for(let i=0;i<14;i++)blob(g,ox+rnd(-W*.28,W*.28),rnd(0,H),rnd(5,12),['#3a1410','#7a2a20']);for(let i=0;i<7;i++){const x=ox+rnd(-W*.25,W*.25),y=rnd(4,H-4);g.fillStyle='#e8a090';g.beginPath();g.arc(x,y,rnd(3,5),0,7);g.fill();g.fillStyle='rgba(255,255,255,.55)';g.fillRect(x-1,y-2,2,1)}drips(g,ox,H*.55,4,W*.18,H*.4,3)});
+const splat=(w,h,n,r0,dr)=>shellTex(w,h,(g,ox,W,H)=>{blob(g,ox+rnd(-W*.05,W*.05),H*.38,r0,BL);for(let i=0;i<n;i++)blob(g,ox+rnd(-W*.22,W*.22),rnd(H*.1,H*.85),rnd(3,r0*.55),BL);drips(g,ox,H*.45,dr,W*.2,H*.5,4);for(let i=0;i<30;i++){g.fillStyle=BL[1];g.beginPath();g.arc(ox+rnd(-W*.3,W*.3),rnd(0,H),rnd(.6,1.8),0,7);g.fill()}});
+const soot=(w,h)=>shellTex(w,h,(g,ox,W,H)=>{for(let i=0;i<10;i++)blob(g,ox+rnd(-W*.25,W*.25),rnd(0,H),rnd(6,16),['rgba(16,13,11,.75)','rgba(16,13,11,.55)'])});
 function details(){if(detDone)return;detDone=true;
-  const red=M(0xa22d22,{emissive:0x300806}),dark=M(0x3a0f0c),soot=M(0x24201c);
-  /* Mak Cik Salmah: a burn up the arm */
-  {const u=CROWD[1].userData;sph(.085,red,0,-.14,.02,u.aL.fo,1,2.4,.9);sph(.08,red,0,-.26,0,u.aL.fo,1.1,1.1,1.1);sph(.09,dark,.02,-.05,.03,u.aL.up,1,2,.9);sph(.06,red,0,-.14,.02,u.aR.fo,1,1.6,.8)}
-  /* Ah Seng: a watch, soot on his shirt */
-  {const u=CROWD[0].userData,fo=u.aL.fo,band=new THREE.Mesh(new THREE.CylinderGeometry(.068,.068,.045,10),M(0x9a9a9a));band.position.y=-.2;fo.add(band);
-   const face=new THREE.Mesh(new THREE.BoxGeometry(.05,.012,.05),new THREE.MeshBasicMaterial({color:0xe8e4d4}));face.position.set(0,-.2,.072);fo.add(face);
-   sph(.12,soot,.06,1.22,.12,u.body,1,1.3,.35);sph(.07,soot,-.1,1.35,.14,u.body,1,1,.4)}
-  /* Raj: only one shoe, a scraped foot */
-  {const u=CROWD[2].userData,sh=u.L.sh,shoe=sh.children[2];shoe.visible=false;
-   sph(.072,M(0x8a5836),0,-.41,.05,sh,1,.6,1.8);sph(.05,red,.02,-.41,.09,sh,1,.5,1.2);sph(.1,soot,-.04,1.2,.14,u.body,1,1.2,.35)}
-  /* Mei Ling: a dark stain on her top, soot on her hands */
-  {const u=CROWD[4].userData;sph(.14,red,.09,1.22,.12,u.body,1,1.4,.32);sph(.07,dark,.14,1.1,.14,u.body,1,1,.3);sph(.065,soot,0,-.26,0,u.aR.fo)}
-  /* Pak Hassan: the same newspaper page, smudged */
-  {const t=ctex(60,80,c=>{c.fillStyle='#d9d2bd';c.fillRect(0,0,60,80);c.fillStyle='#2a2824';c.fillRect(4,5,52,9);c.fillStyle='#555';for(let y=20;y<74;y+=4)c.fillRect(5,y,50,1.5);
-     c.fillStyle='#222';c.font='bold 8px sans-serif';c.fillText('7',27,78);c.fillStyle='rgba(30,25,20,.55)';c.beginPath();c.ellipse(30,44,20,14,.3,0,7);c.fill();c.fillStyle='rgba(120,20,16,.5)';c.beginPath();c.ellipse(40,52,9,7,0,0,7);c.fill()}),
-   pm=new THREE.Mesh(new THREE.PlaneGeometry(.36,.48),new THREE.MeshLambertMaterial({map:t}));pm.rotation.x=-Math.PI/2;pm.rotation.z=.12;pm.position.set(-1.7,.785,.0);scene.add(pm)}
+  const U=i=>CROWD[i].userData;
+  /* Mak Cik Salmah: raw blistered burn from hand to elbow, charred sleeve, scorched face */
+  {const u=U(1);for(const arm of[u.aL,u.aR]){shell(arm.fo,.071,.06,.24,-.12,1,raw(64,48));capS(arm.fo,.078,-.26,raw(48,48))}
+   shell(u.aL.up,.086,.07,.26,-.13,1,soot(64,40));shell(u.body,.249,.224,.56,1.17,.72,soot(96,48));
+   FP(u.head,g=>{faceSoot(g,4,7,10,6);faceSoot(g,18,15,8,5,.45);faceBlister(g,20,12);faceBlister(g,6,16);faceBlister(g,14,9);g.fillStyle='#8a2a20';g.fillRect(3,17,6,3);faceDrip(g,22,17,5)})}
+  /* Ah Seng: split forehead, blood sheeting down his face and shirt, cracked watch */
+  {const u=U(0),fo=u.aL.fo,band=new THREE.Mesh(new THREE.CylinderGeometry(.068,.068,.045,10),M(0x9a9a9a));band.position.y=-.2;fo.add(band);
+   const wf=new THREE.Mesh(new THREE.BoxGeometry(.05,.012,.05),new THREE.MeshBasicMaterial({color:0xe8e4d4}));wf.position.set(0,-.2,.072);fo.add(wf);
+   shell(fo,.071,.06,.24,-.12,1,splat(64,48,6,10,3));capS(fo,.078,-.26,splat(48,48,3,9,2));
+   shell(u.body,.249,.224,.56,1.17,.72,splat(96,64,10,16,6));
+   FP(u.head,g=>{faceGash(g,6,6,11);g.fillStyle='#7a0d0a';g.fillRect(8,8,9,2);faceDrip(g,8,9,15,3);faceDrip(g,12,9,10);faceDrip(g,15,9,7);g.fillStyle='rgba(120,12,9,.8)';g.fillRect(6,11,4,8);faceSoot(g,19,14,7,6,.4)})}
+  /* Raj: shoe gone, foot torn and bloody, shin skinned */
+  {const u=U(2),sh=u.L.sh,shoe=sh.children[2];shoe.visible=false;
+   shell(sh,.085,.069,.4,-.2,1,raw(64,64));capS(sh,.082,-.41,splat(48,48,4,10,3),1.1,.62,1.9);
+   shell(u.R.sh,.085,.069,.4,-.2,1,splat(64,64,4,12,4));shell(u.body,.249,.224,.56,1.17,.72,soot(96,48));
+   FP(u.head,g=>{faceSoot(g,5,8,9,5);g.fillStyle='#8a2a20';g.fillRect(17,14,7,2);g.fillStyle='#4a0806';g.fillRect(18,15,5,1);faceDrip(g,21,16,6,2);faceSoot(g,2,15,7,8,.4)})}
+  /* Mei Ling: soaked top, blood from hairline through her face, bloody hands */
+  {const u=U(4);shell(u.body,.249,.224,.56,1.17,.72,splat(96,64,14,24,9));
+   for(const arm of[u.aL,u.aR]){shell(arm.fo,.071,.06,.24,-.12,1,splat(64,48,7,12,4));capS(arm.fo,.078,-.26,splat(48,48,4,10,2))}
+   FP(u.head,g=>{g.fillStyle='#4a0806';g.fillRect(17,5,7,4);g.fillStyle='#a8160e';g.fillRect(18,5,5,3);faceDrip(g,19,8,16,3);faceDrip(g,23,8,9);faceDrip(g,15,9,6);g.fillStyle='rgba(110,12,9,.7)';g.fillRect(19,16,6,6);faceDrip(g,18,21,6)})}
+  /* Pak Hassan: bruised eye, blood from nose, a bloody hand over the newspaper */
+  {const t=mkT(60,80,(g)=>{g.fillStyle='#d9d2bd';g.fillRect(0,0,60,80);g.fillStyle='#2a2824';g.fillRect(4,5,52,9);g.fillStyle='#555';for(let y=20;y<74;y+=4)g.fillRect(5,y,50,1.5);
+     g.fillStyle='#222';g.font='bold 8px sans-serif';g.fillText('7',27,78);g.fillStyle='rgba(30,25,20,.6)';g.beginPath();g.ellipse(30,44,22,15,.3,0,7);g.fill();
+     blob(g,34,50,13,BL);g.fillStyle='#4a0806';for(const [x,w,y,l] of [[20,5,52,13],[26,5,49,16],[32,5,50,15],[38,5,52,13]]){g.fillRect(x,y,w,l);g.beginPath();g.arc(x+2,y,3,0,7);g.fill()}g.fillStyle='#4a0806';g.beginPath();g.ellipse(30,68,11,7,0,0,7);g.fill();drips(g,34,56,5,10,18,2)}),
+   pm=new THREE.Mesh(new THREE.PlaneGeometry(.36,.48),new THREE.MeshLambertMaterial({map:t}));pm.rotation.x=-Math.PI/2;pm.rotation.z=.12;pm.position.set(-1.7,.785,.0);scene.add(pm);
+   const u=U(3);shell(u.aR.fo,.071,.06,.24,-.12,1,splat(64,48,6,10,3));capS(u.aR.fo,.078,-.26,splat(48,48,3,9,2));shell(u.body,.249,.224,.56,1.17,.72,splat(96,64,9,15,5));
+   FP(u.head,g=>{g.fillStyle='rgba(70,40,90,.75)';g.fillRect(4,10,9,6);g.fillStyle='rgba(40,20,50,.6)';g.fillRect(5,11,7,3);g.fillStyle='#4a0806';g.fillRect(14,15,3,6);g.fillStyle='#a8160e';g.fillRect(14,15,2,5);faceDrip(g,15,20,4,2);g.fillStyle='#4a0806';g.fillRect(14,21,5,2)})}
+  /* floor: irregular dark pools with a wet shine, and a drip trail */
+  const poolT=r=>mkT(96,96,(g)=>{blob(g,48,48,r*1.9,['#2a0403','#4a0806','#6e0b09']);for(let i=0;i<5;i++)blob(g,48+rnd(-30,30),48+rnd(-30,30),rnd(6,14),['#3c0605','#5a0908']);g.fillStyle='rgba(255,170,150,.35)';g.fillRect(40,38,16,3)});
+  for(const [x,z,r] of [[-3,-1.0,.5],[-3,.4,.55],[-1.7,-.5,.45],[-1.7,1.1,.5],[-3,-2.6,.4]]){const p=new THREE.Mesh(new THREE.PlaneGeometry(r*2,r*2),new THREE.MeshLambertMaterial({map:poolT(14),transparent:true,alphaTest:.04,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2}));p.rotation.x=-Math.PI/2;p.rotation.z=Math.random()*6;p.position.set(x,.014,z);scene.add(p)}
 }
 
 /* ---------- opening: same alarm, with smoke ---------- */
@@ -86,13 +121,16 @@ async function greet(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
   await pace(2.95,3.05);
   await camTo(P.x,P.z,yawTo(-3,-1),-.02,1100);
   await say('Nobody is talking. The shop is very quiet.',2600);
+  await say('And they are hurt. All of them.',2400);
   await camTo(P.x,P.z,yawTo(atuk.position.x,atuk.position.z),.02,1000);
   await say(sp('ATUK','Ah, you came. ...Eh, what day today ah?'),2800);
   await say(sp('YOU','Wednesday, Atuk.'),1800);
   await csleep(900);
   await say(sp('ATUK','Wednesday. Okay. ...Wednesday.'),2400);
-  await say(sp('YOU','Atuk, do you smell smoke?'),2000);
-  await say(sp('ATUK','Dapur. Always the kitchen. Go, see the customers.'),2800);
+  await say(sp('YOU','Atuk... the customers. They are bleeding.'),2400);
+  await csleep(700);
+  await say(sp('ATUK','Bleeding? ...Dapur. Always the kitchen. Smoke from the kitchen.'),3000);
+  await say(sp('ATUK','Go. Serve them.'),1800);
   await camTo(P.x,P.z,0,0,700);
   G.state='d3_look';setClock('7:20 AM');ci=0;objT(LK[0].obj);G.busy=false;await cineOut()}
 
@@ -100,11 +138,11 @@ async function greet(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
 let ci=0;
 const Y=t=>say(sp('YOU',t),2200);
 const LK=[
- {obj:'Ask Mak Cik Salmah',m:[-2.2,-2.6],c:1,pit:-.45,clk:'8:05 AM',run:async c=>{await Y('Mak Cik... your hand. Are you okay?');await say('"Teh tarik, adik. Panas-panas."',2600,c);await say('She slides her hand under the table. A shiny red mark, up to the wrist.',3000)}},
- {obj:'Ask Ah Seng',m:[-2.15,-.85],c:0,pit:-.55,clk:'8:40 AM',run:async c=>{await Y('Ah Seng, your watch stopped.');await say('"Teh-C peng."',2200,c);await say('The hands are frozen at 12:41.',2600)}},
- {obj:'Ask Raj',m:[-3.95,.4],c:2,pit:-.7,clk:'9:15 AM',run:async c=>{await Y('Raj. Where is your other shoe?');await say('"Kopi-O kurang manis, boss."',2400,c);await say('One shoe. Only ever one shoe.',2400)}},
- {obj:'Ask Mei Ling',m:[-.9,1.15],c:4,pit:-.3,clk:'9:50 AM',run:async c=>{await Y('Mei Ling, how is your daughter?');await say('"Her birthday is next week. I must buy a cake..."',3000,c);await say('"Milo dinosaur."',1800,c);await say('She said "next week" yesterday too.',2600)}},
- {obj:'Ask Pak Hassan',m:[-.9,-.5],c:3,pit:-.5,clk:'10:30 AM',run:async c=>{await Y('Pak Hassan, that page again?');await say('"Kopi. Roti bakar."',2200,c);await say('Page seven. The print is smudged, like it got wet.',3000)}}];
+ {obj:'Ask Mak Cik Salmah',m:[-2.2,-2.6],c:1,pit:-.45,clk:'8:05 AM',run:async c=>{await Y('Mak Cik... your arm. It is all burnt. Are you okay?');await say('"Teh tarik, adik. Panas-panas."',2600,c);await say('She smiles, and slides her arm under the table. Like nothing is wrong.',3000)}},
+ {obj:'Ask Ah Seng',m:[-2.15,-.85],c:0,pit:-.55,clk:'8:40 AM',run:async c=>{await Y('Ah Seng... your head. You are bleeding. Do you need a doctor?');await say('"Teh-C peng."',2200,c);await say('He keeps smiling. His watch is frozen at 12:41.',2800)}},
+ {obj:'Ask Raj',m:[-3.95,.4],c:2,pit:-.7,clk:'9:15 AM',run:async c=>{await Y('Raj... your foot. Where is your shoe? You are bleeding.');await say('"Kopi-O kurang manis, boss."',2400,c);await say('He does not look down.',2200)}},
+ {obj:'Ask Mei Ling',m:[-.9,1.15],c:4,pit:-.3,clk:'9:50 AM',run:async c=>{await Y('Mei Ling... there is blood all over you. What happened?');await say('"Her birthday is next week. I must buy a cake..."',3000,c);await say('"Milo dinosaur."',1800,c);await say('She is not answering you. She only talks about her daughter.',2800)}},
+ {obj:'Ask Pak Hassan',m:[-.9,-.5],c:3,pit:-.5,clk:'10:30 AM',run:async c=>{await Y('Pak Hassan... your hand. The paper is soaked in blood.');await say('"Kopi. Roti bakar."',2200,c);await say('Page seven again. He reads it like nothing is wrong.',2800);await say(sp('YOU',"They can't feel any of it. And only I can see."),2800)}}];
 WPS.d3_look={get x(){return LK[Math.min(ci,LK.length-1)].m[0]},get z(){return LK[Math.min(ci,LK.length-1)].m[1]},r:.6,go:1,get fn(){return lookRun}};
 async function lookRun(){if(G.busy||CINE.on)return;G.busy=true;const k=LK[ci],c=CROWD[k.c];A.click();await cineIn();
   await camTo(k.m[0],k.m[1],yawTo(c.position.x,c.position.z),0,900);

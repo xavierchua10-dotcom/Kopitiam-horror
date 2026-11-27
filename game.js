@@ -154,6 +154,7 @@ function pose(g,t,mode){const u=g.userData,s=mode==='walk'?Math.sin(t):0;
   u.body.position.y=mode==='walk'?Math.abs(Math.cos(t))*.03:0;u.body.rotation.z=s*.03;u.body.rotation.y=s*.07}
 const CROWD=[person(-3,-1.0,0,0x3b5a7a,0x1a1a1a,0xc9a27e,{sit:1,sleeve:1,f:{smile:1}}),person(-3,-2.6,Math.PI,0x7a3b3b,0xb9b2c8,0xd8b08a,{sit:1,tudung:1,sarong:0x5a2a2a,f:{wrinkle:1,sides:1,brow:'#777',lash:1,lips:1,mouth:'#9a4a4a'}}),person(-3,.4,Math.PI,0x4a6a3b,0x111111,0x8a5836,{sit:1,shorts:1}),person(-1.7,-.5,Math.PI,0x6a5a3b,0x111111,0xc9a27e,{sit:1,f:{wrinkle:1}}),person(-1.7,1.1,0,0x5a3b6a,0x3a2a1a,0xc9a27e,{sit:1,hairUp:1,long:1,sarong:0x2f2a3d,f:{smile:1,sides:1,lash:1,lips:1,mouth:'#c0485a'}})];
 const atuk=person(3.9,3.5,1.0,0xf1efe6,0xe6e6e6,0xb89572,{vest:1,bot:0x6b6f76,shoe:0x6a4a2a,f:{glasses:1,wrinkle:1,sides:1,brow:'#d8d8d8',mouth:'#6a3a2a'}});
+const NAMEOF=new Map(CROWD.map((c,i)=>[c,['AH SENG','MAK CIK','RAJ','PAK HASSAN','MEI LING'][i]]));
 const NPCS=CROWD.concat([atuk]);[118,98,135,108,185].forEach((f,i)=>CROWD[i].userData.f0=f);atuk.userData.f0=92;
 const HOME=CROWD.map(c=>[c.position.x,c.position.z,c.rotation.y]);
 /* the customers outside ARE the crowd: they queue, walk in, and sit */
@@ -406,7 +407,7 @@ function npcTick(dt){for(const g of NPCS){if(!g.visible)continue;const u=g.userD
   u.head.rotation.y+=(tgt-u.head.rotation.y)*Math.min(1,dt*5);u.head.rotation.x=tgt?.06:0;
   let m=0;const tk=u.talk;if(tk){const t=(performance.now()-tk.t0)/1000;if(t>tk.end+.2)u.talk=null;else for(const [st,dd,a] of tk.syl){if(t>=st&&t<=st+dd){m=Math.sin((t-st)/dd*Math.PI)*a;break}}}
   u.mouth.visible=m>.08;u.mouth.scale.y=.08+m;u.mouth.scale.x=1.5-m*.3}}
-async function say(t,ms=2600,who){const s=$('sub');{const w=t.startsWith('ATUK:')?atuk:who;if(w&&w.visible)speak(w,Math.max(.8,Math.min(ms/1000-.4,t.length*.06)),w.userData.f0,Math.max(.15,Math.min(1,2.2/(1+Math.hypot(P.x-w.position.x,P.z-w.position.z)))))}const mm=/^([A-Z]{2,8}): (.*)$/.exec(t);if(mm)s.innerHTML='<b>'+mm[1]+'</b>'+mm[2];else s.textContent=t;s.dataset.k=t;s.classList.add('on');await(CINE.on?csleep(ms):sleep(ms));if(s.dataset.k===t)s.classList.remove('on')}
+async function say(t,ms=2600,who){const s=$('sub');{const w=t.startsWith('ATUK:')?atuk:who;if(w&&w.visible)speak(w,Math.max(.8,Math.min(ms/1000-.4,t.length*.06)),w.userData.f0,Math.max(.15,Math.min(1,2.2/(1+Math.hypot(P.x-w.position.x,P.z-w.position.z)))))}const mm=/^([A-Z][A-Z ]{1,11}): (.*)$/.exec(t),nm=who&&NAMEOF.get(who);if(mm)s.innerHTML='<b>'+mm[1]+'</b>'+mm[2];else if(nm)s.innerHTML='<b>'+nm+'</b>'+t;else s.textContent=t;s.dataset.k=t;s.classList.add('on');await(CINE.on?csleep(ms):sleep(ms));if(s.dataset.k===t)s.classList.remove('on')}
 const ITS=[];const lab=o=>typeof o.label==='function'?o.label():o.label;
 function it(id,pos,label,enabled,act,meshes){const o={id,pos:new THREE.Vector3(...pos),label,enabled,act};for(const m of meshes)m.traverse(n=>{if(n.isMesh)n.userData.it=o});ITS.push(o);return o}
 it('radio',[4.15,1.2,-.2],'Turn off the radio',()=>state==='lit1',radioAct,[radio]);
