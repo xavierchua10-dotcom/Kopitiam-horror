@@ -117,3 +117,7 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 
 ## Atuk walks to his room
 - In the ending, Atuk walks through the living room, the gap to the back hall, and in through his bedroom doorway (no teleport); camera follows him while he's in the dining room.
+
+## Tidy-up: house
+- House ceiling is now warm off-white instead of dark navy; the house light follows you room by room (dining, Atuk's room, your room, back hall) and is a bit brighter.
+- Added door leaves (standing ajar) to Atuk's room, your room, and the kopitiam bathroom.

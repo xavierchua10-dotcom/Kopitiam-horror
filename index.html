@@ -377,7 +377,9 @@ hw(4.9,3,7.2,1.5,17.45,Math.PI/2);hw(1.9,3,7.2,1.5,22.05,Math.PI/2);hw(1.2,.8,7.
 hw(4.4,3,11.2,1.5,17.2,Math.PI/2);
 hw(1.4,3,7.9,1.5,19.4,0);hw(3,3,11.1,1.5,19.4,0);hw(1.4,3,14.3,1.5,19.4,0);hw(1,.8,9.1,2.6,19.4,0);hw(1,.8,13.1,2.6,19.4,0);
 for(const dx of[8.6,9.6,12.6,13.6])box(.08,2.2,.12,M(0x5a3a28),dx,1.1,19.4);box(1.2,.08,.12,M(0x5a3a28),9.1,2.2,19.4);box(1.2,.08,.12,M(0x5a3a28),13.1,2.2,19.4);
-fl(3,15,15,23,chk('#6b5a44','#5e4e3a',24,16));cl(3,15,15,23,M(0x2a2d3a),2.97);
+function doorLeaf(hx,hz,th,w){const g=new THREE.Group();g.position.set(hx,0,hz);g.rotation.y=th;scene.add(g);box(w,2.1,.05,M(0x6a4630),w/2,1.05,0,g);box(.05,.12,.09,M(0xc9a24a),w-.1,1.0,0,g);return g}
+doorLeaf(8.6,19.4,1.45,1.0);doorLeaf(12.6,19.4,1.45,1.0);doorLeaf(-7,2.0,-2.95,1.0);
+fl(3,15,15,23,chk('#6b5a44','#5e4e3a',24,16));cl(3,15,15,23,M(0xcfc8b8),2.97);
 {const g=new THREE.Group();g.position.set(5.5,0,15);g.rotation.y=-1.25;scene.add(g);box(1.2,2.1,.06,M(0x5a3a28),.6,1.05,0,g);g.traverse(n=>{});window.__doorG=g}
 const doorMesh=window.__doorG.children[0];
 box(2,.45,.8,M(0x4a3b52),5.5,.22,21.5);box(2,.5,.2,M(0x4a3b52),5.5,.7,21.9);AABB.push([4.5,6.5,21.1,22.3]);
@@ -797,7 +799,7 @@ function update(dt){
   camera.position.set(P.x,EYE.y+(moving?Math.sin(P.bob)*.035:0),P.z);camera.rotation.y=P.yaw;camera.rotation.x=P.pitch;
   {let zx=0,zy=2.5,zz=0,zk=0;
    if(P.z>4.2&&P.z<14.8&&(P.z>14.2?!(P.x>3&&P.x<15.2):true)){let lx=LAMPS[0];for(const l of LAMPS)if(Math.abs(l-P.x)<Math.abs(lx-P.x))lx=l;zx=lx;zy=3.5;zz=10.5;zk=SK}
-   else if(P.z>=14.8&&P.x>3&&P.x<15.2){zx=9;zy=2.6;zz=19;zk=HK}
+   else if(P.z>=14.8&&P.x>3&&P.x<15.2){zk=HK*1.15;zy=2.6;if(P.x<7.2){zx=5.2;zz=19}else if(P.z<19.4){zx=P.x<11.2?9.1:13.1;zz=17.2}else{zx=11;zz=21.2}}
    else if(P.z<-4.2&&P.x>-2.7){zx=1.25;zz=-5.5;zk=7}
    else if(P.x<-6.8){zx=-8.25;zz=2.5;zk=6}
    LZ.position.set(zx,zy,zz);if(zk!==ZK){ZK=zk}LZ.intensity=lightF*ZK}
