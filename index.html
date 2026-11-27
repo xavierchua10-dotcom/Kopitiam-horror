@@ -434,7 +434,7 @@ ZONES.push([-1.7,1.7,3.5,4.45],[-24.5,24.5,4.4,14.3],[5.65,6.55,14.2,15.4],[3.35
  /* lit upstairs window (warm) */
  const lw=new THREE.Mesh(new THREE.PlaneGeometry(.8,.65),B(0xf2d48a));lw.position.set(9,4.55,14.93);lw.rotation.y=Math.PI;scene.add(lw)}
 /* ---- waypoint: walk-to marker ---- */
-const WPS={d1_go:{x:.9,z:5.5,r:.6,go:1,fn:d1Knock},d1_greet:{x:.9,z:2.6,r:.7,go:1,fn:cineAtuk},d1_report:{x:.9,z:2.6,r:.7,go:1,fn:cineAtuk},d1_back:{x:.9,z:2.6,r:.7,go:1,fn:cineAtuk},d1_rule:{x:.9,z:2.6,r:.7,go:1,fn:cineAtuk},d1_bath:{x:-8.2,z:2.5,r:.6,go:1,fn:cineBath},d1_lock:{x:.3,z:5.3,r:.6,go:1,fn:cineLock},d1_home:{x:6.1,z:14.0,r:.6,go:1,fn:cineHome}};
+const WPS={d1_go:{x:.9,z:5.5,r:.6,go:1,fn:d1Knock},d1_greet:{x:2.8,z:3.05,r:.6,go:1,fn:cineAtuk},d1_report:{x:2.8,z:3.05,r:.6,go:1,fn:cineAtuk},d1_back:{x:2.8,z:3.05,r:.6,go:1,fn:cineAtuk},d1_rule:{x:2.8,z:3.05,r:.6,go:1,fn:cineAtuk},d1_bath:{x:-8.2,z:2.5,r:.6,go:1,fn:cineBath},d1_lock:{x:.3,z:5.3,r:.6,go:1,fn:cineLock},d1_home:{x:6.1,z:14.0,r:.6,go:1,fn:cineHome}};
 const WP={x:0,z:0,r:.6};
 const WPG=new THREE.Group();WPG.position.set(WP.x,0,WP.z);scene.add(WPG);
 {const ring=new THREE.Mesh(new THREE.RingGeometry(WP.r-.05,WP.r,40),new THREE.MeshBasicMaterial({color:0xE0A526,transparent:true,opacity:.6,depthWrite:false,fog:false,side:THREE.DoubleSide}));ring.rotation.x=-Math.PI/2;ring.position.y=.04;WPG.add(ring);
@@ -573,7 +573,7 @@ function camTo(x,z,yaw,pitch,ms){return new Promise(r=>{const x0=P.x,z0=P.z,p0=P
 const yawTo=(tx,tz)=>Math.atan2(-(tx-P.x),-(tz-P.z));
 async function cineAtuk(){if(busy||CINE.on)return;busy=true;const was=state;await cineIn();
   {const tx=2.95,tz=3.05,x0=P.x,z0=P.z,L=Math.hypot(tx-x0,tz-z0),ms=Math.max(700,L/1.7*1000);let st=0;
-   await tween(k=>{const e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;P.x=x0+(tx-x0)*e;P.z=z0+(tz-z0)*e;st+=1;EYE.y=1.6+Math.sin(performance.now()/110)*.035*Math.min(1,Math.min(k,1-k)*8);if(st%16===0)A.step();
+   if(L>.9)await tween(k=>{const e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;P.x=x0+(tx-x0)*e;P.z=z0+(tz-z0)*e;st+=1;EYE.y=1.6+Math.sin(performance.now()/110)*.035*Math.min(1,Math.min(k,1-k)*8);if(st%16===0)A.step();
      const want=yawTo(atuk.position.x,atuk.position.z);let dy=Math.atan2(Math.sin(want-P.yaw),Math.cos(want-P.yaw));P.yaw+=dy*.12;P.pitch+=(.02-P.pitch)*.1},ms);EYE.y=1.6;
    await camTo(tx,tz,yawTo(atuk.position.x,atuk.position.z),.02,350)}
   await atukAct();
