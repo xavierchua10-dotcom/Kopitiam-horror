@@ -61,3 +61,6 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 ## Street v3 (Nov 27)
 - Shophouses have upper floors (windows, AC units, laundry, parapet, water tanks) and the shop row runs x -65..65. Far side of the road: generated non-overlapping painted row (fixes z-fighting glitch seen on phone) + tall back skyline, hills, utility poles with wires, parked cars (with simple collision), zebra crossing. Camera near plane .12.
 - Gotcha: coplanar overlapping boxes flicker on phone GPUs; never overlap building faces.
+
+## House v2 (Nov 27)
+- Player's house now two-storey: cream upper floor with windows + balcony door, terracotta hip roof + eave, balcony with railing/plants, porch roof + pillars (collision), gate plants, "No.7" plate, warm lit upstairs window (visible at dusk). Exterior only; interior/ZONES unchanged.

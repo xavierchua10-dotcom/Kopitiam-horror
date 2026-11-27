@@ -325,6 +325,28 @@ box(2.2,.4,1.2,M(0x6a6f8a),13.9,.2,17);box(.3,.1,.8,M(0xd8d8d8),14.8,.45,17);AAB
 box(1.2,.06,.8,M(0x6b5a3a),12,.75,21.2);for(const dx of[-.5,.5])for(const dz of[-.3,.3])box(.06,.75,.06,M(0x3a301f),12+dx,.37,21.2+dz);box(.7,1.8,.7,M(0xc8ccd0),14.5,.9,19.6);AABB.push([11.35,12.65,20.75,21.65],[14.1,15,19.2,20]);
 ZONES.push([-1.7,1.7,3.5,4.45],[-24.5,24.5,4.4,14.3],[5.65,6.55,14.2,15.4],[3.35,8.65,15.35,22.65],[8.5,9.5,16.15,16.85],[8.5,9.5,20.15,20.85],[9.35,14.65,15.35,18.65],[9.35,14.65,19.35,22.65]);
 
+/* ---- house exterior: upper floor, hip roof, balcony, porch, garden ---- */
+{const paint='#f6e3a1';
+ const front=M(0xffffff,{map:ctex(48,13,c=>{c.fillStyle=paint;c.fillRect(0,0,48,13);c.fillStyle='rgba(0,0,0,.1)';c.fillRect(0,11,48,2);c.fillStyle='#fff';c.fillRect(0,0,48,1);
+   for(const wx of[6,34]){c.fillStyle='#fff';c.fillRect(wx-1,2,10,9);c.fillStyle='#2b3947';c.fillRect(wx,3,8,7);c.fillStyle='rgba(255,255,255,.25)';c.fillRect(wx,6,8,1);c.fillStyle='#fff';c.fillRect(wx+3,3,2,7);c.fillStyle='#b5651d';c.fillRect(wx-2,2,1,9);c.fillRect(wx+9,2,1,9)}
+   c.fillStyle='#fff';c.fillRect(19,1,10,11);c.fillStyle='#e8c35a';c.fillRect(20,2,8,10);c.fillStyle='rgba(120,70,20,.5)';c.fillRect(23,2,2,10);c.fillStyle='#fff';c.fillRect(19,1,10,1)})});
+ const sideM=M(0xf6e3a1),topM=M(0xd9c98a);
+ const up=new THREE.Mesh(new THREE.BoxGeometry(12.1,3.2,8.1),[sideM,sideM,topM,topM,sideM,front]);up.position.set(9,4.6,19);scene.add(up);
+ const rg=new THREE.ConeGeometry(1,2.3,4);rg.rotateY(Math.PI/4);
+ const roof=new THREE.Mesh(rg,M(0xffffff,{map:ctex(16,16,c=>{c.fillStyle='#b5532f';c.fillRect(0,0,16,16);c.fillStyle='#8f3d20';for(let y=0;y<16;y+=4)c.fillRect(0,y,16,1);for(let x=0;x<16;x+=4)c.fillRect(x,0,1,16)},8,2)}));
+ roof.scale.set(7.4/.7071,1,5.4/.7071);roof.position.set(9,7.35,19);scene.add(roof);
+ box(14.2,.25,10.2,M(0x8f3d20),9,6.25,19);
+ /* balcony + railing */
+ box(4.6,.18,1.0,M(0xd9c98a),9,3.1,14.55);for(let i=0;i<=8;i++)box(.06,.7,.06,M(0xffffff),6.95+i*.55,3.5,14.1);box(4.6,.06,.08,M(0xffffff),9,3.85,14.1);
+ for(const [px,col] of[[7.4,0xff6f91],[10.6,0xffb703]]){const pt=new THREE.Mesh(new THREE.CylinderGeometry(.15,.11,.22,7),M(0xb85a3a));pt.position.set(px,4.0,14.2);scene.add(pt);const b=new THREE.Mesh(new THREE.SphereGeometry(.2,6,5),M(0x3da34f));b.position.set(px,4.25,14.2);scene.add(b);const f=new THREE.Mesh(new THREE.SphereGeometry(.07,5,4),B(col));f.position.set(px+.08,4.4,14.28);scene.add(f)}
+ /* porch over the door + pillars */
+ box(3.2,.14,1.3,M(0x8f3d20),6.1,2.85,14.45);for(const px of[4.6,7.6])box(.18,2.8,.18,M(0xffffff),px,1.4,13.9);AABB.push([4.45,4.75,13.75,14.05],[7.45,7.75,13.75,14.05]);
+ /* low gate wall + plants + number plate */
+ for(const px of[3.4,8.8,10.6,12.4,14.2]){const pt=new THREE.Mesh(new THREE.CylinderGeometry(.28,.2,.4,8),M(0xb85a3a));pt.position.set(px,.2,14.6);scene.add(pt);for(const [dx,dy,r] of[[0,.75,.36],[.16,.6,.26]]){const l=new THREE.Mesh(new THREE.SphereGeometry(r,7,5),M(0x3da34f));l.position.set(px+dx,dy,14.6);scene.add(l)}}
+ const plate=new THREE.Mesh(new THREE.PlaneGeometry(.5,.3),B(0xffffff));plate.position.set(7.35,1.7,14.93);plate.rotation.y=Math.PI;scene.add(plate);
+ const pt2=new THREE.Mesh(new THREE.PlaneGeometry(.46,.26),new THREE.MeshBasicMaterial({map:ctex(46,26,c=>{c.fillStyle='#f5f5f0';c.fillRect(0,0,46,26);c.fillStyle='#8f3d20';c.font='bold 18px monospace';c.textAlign='center';c.fillText('No.7',23,19)})}));pt2.position.set(7.35,1.7,14.92);pt2.rotation.y=Math.PI;scene.add(pt2);
+ /* lit upstairs window (warm) */
+ const lw=new THREE.Mesh(new THREE.PlaneGeometry(.8,.65),B(0xf2d48a));lw.position.set(9,4.55,14.93);lw.rotation.y=Math.PI;scene.add(lw)}
 /* ---------- audio ---------- */
 let ac=null,master,hum,humG,statG,droneG;
 function initAudio(){
