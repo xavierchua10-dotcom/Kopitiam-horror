@@ -86,22 +86,22 @@ async function serveRun(){if(G.busy||CINE.on)return;G.busy=true;const k=LAST[ci]
   await tween(t=>{fadeP(c,1-t)},2600);c.visible=false;A.tone(660,330,1.2,.08,'sine');
   await csleep(900);
   ci++;setClock(k.clk);
-  if(ci>=LAST.length){G.state='d5_door';setTime('dusk');applyLights(.7);setClock('5:40 PM');objT('Talk to Atuk')}else objT(LAST[ci].obj);
+  if(ci>=LAST.length){G.state='d5_door';setTime('dusk');applyLights(.7);setClock('5:40 PM');
+    /* the shop empties. the shutter comes down by itself, and someone knocks. Atuk is already standing by it. */
+    CA.position.set(1.5,0,3.1);CA.rotation.y=Math.PI;
+    await csleep(900);(A.shutter||A.scrape)();await tween(k=>{shutter.position.y=3.6-2.4*k},1800);shutBlock(true);
+    await csleep(1000);for(let i=0;i<3;i++){A.knock();await csleep(1200)}
+    objT('Answer the knock')}else objT(LAST[ci].obj);
   G.busy=false;await cineOut()}
 
 /* ---------- Atuk, then the last knock ---------- */
-WPS.d5_door={x:2.8,z:3.05,r:.7,go:1,fn:atukLast};
+WPS.d5_door={x:.3,z:2.4,r:.8,go:1,fn:atukLast};
 async function atukLast(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
-  await pace(2.95,3.05);await camTo(P.x,P.z,yawTo(CA.position.x,CA.position.z),.02,900);
-  await say(sp('ATUK','You did well, cucu. Atuk is proud.'),2800);
-  await say(sp('YOU','Atuk... who is left?'),2000);
-  await say(sp('ATUK','One more. He has been standing outside since morning.'),3000);
-  await say(sp('ATUK','He is afraid to knock.'),2400);
-  await camTo(P.x,P.z,yawTo(0,4),0,900);
-  shutter.position.y=1.2;shutBlock(true);(A.shutter||A.scrape)();await csleep(900);
-  for(let i=0;i<3;i++){A.tone(130,100,.18,.28,'sine');await csleep(1200)}
+  await camTo(P.x,P.z,yawTo(CA.position.x,CA.position.z),.02,800);
+  await say(sp('YOU','Atuk... who is it?'),2000);
+  await say(sp('ATUK','He has been standing outside since morning. He knocks so softly. He is afraid.'),3600);
   await say(sp('ATUK','Let him in, cucu. It is okay.'),2800);
-  await pace(0.3,2.5,1.6);await camTo(P.x,P.z,yawTo(0,4),0,500);
+  await camTo(P.x,P.z,yawTo(0,4),0,700);
   await tween(k=>{shutter.position.y=1.2+2.4*k},1900);(A.shutter||A.scrape)();shutBlock(false);
   const F=G.FIG;F.position.set(.1,0,5.4);F.rotation.y=Math.PI;F.visible=true;
   await say('Dusk. A man stands in the doorway with his head down.',3000);
@@ -116,8 +116,9 @@ async function atukLast(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
   await tween(k=>{fadeP(F,1-k)},3000);F.visible=false;
   await say(sp('DRIVER','Terima kasih.'),2400);
   /* Atuk's goodbye */
-  await pace(2.8,3.0,1.8);await camTo(P.x,P.z,yawTo(CA.position.x,CA.position.z),.02,1100);
+  await camTo(P.x,P.z,yawTo(CA.position.x,CA.position.z),.02,1100);
   await say(sp('ATUK','That was the last one.'),2400);
+  await say(sp('ATUK','You did well, cucu. Atuk is proud.'),2800);
   await say(sp('YOU','Atuk... I do not want to go.'),2600);
   await say(sp('ATUK','I know, cucu. But your mama is waiting. Somebody is holding your hand.'),3600);
   await say(sp('ATUK','Squeeze it. Atuk will be fine.'),3000);

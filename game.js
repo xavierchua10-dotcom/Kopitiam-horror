@@ -434,11 +434,11 @@ const A={
 /* ---------- ambience: layered room sound that gets heavier each day ---------- */
 let ambG=null,tenG=null,roomG=null,AMBT=0;
 const AMBD=[null,
- {lv:.02,gap:[14,26],g:.5,ev:['creak','clink','far']},
- {lv:.05,gap:[11,20],g:.7,ev:['creak','clink','steps','chair','far']},
- {lv:.08,gap:[9,17],g:.9,ev:['creak','steps','chair','murmur','knock','far','clink']},
- {lv:.12,gap:[7,13],g:1.1,ev:['creak','steps','steps','murmur','knock','breath','chair']},
- {lv:.035,gap:[20,34],g:.4,ev:['clink','far','chair']}];
+ {lv:.012,gap:[14,26],g:.5,ev:['creak','clink','far']},
+ {lv:.03,gap:[11,20],g:.7,ev:['creak','clink','steps','chair','far']},
+ {lv:.05,gap:[9,17],g:.9,ev:['creak','steps','chair','murmur','knock','far','clink']},
+ {lv:.07,gap:[7,13],g:1.1,ev:['creak','steps','steps','murmur','knock','breath','chair']},
+ {lv:.02,gap:[20,34],g:.4,ev:['clink','far','chair']}];
 function ambInit(){
   ambG=ac.createGain();ambG.gain.value=1;ambG.connect(master);
   /* tension chord: low fifth-ish drone with a slow wobble */
@@ -904,7 +904,7 @@ const G={ZONES,AABB,AMB,person,THREE,scene,camera,P,EYE,A,CINE,D,WPS,atuk,CROWD,
   AEV,AMBD,get ac(){return ac},get master(){return master},get ambG(){return ambG},
   get state(){return state},set state(v){state=v},get busy(){return busy},set busy(v){busy=v},
   setLights(v){lightsOn=v},setBlur(v){cv.style.transition='filter 1.4s';cv.style.filter=v?'blur(8px)':''}};
-const V=new URL(import.meta.url).search,BUILD='202611273004';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+const V=new URL(import.meta.url).search,BUILD='202611273005';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));

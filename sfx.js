@@ -68,7 +68,7 @@ export default function install(G){
   let humL=null;
   A.humv=v=>{if(!buf.loop_fluor){humv0&&humv0(v);return}
     if(!humL){humL=loop('loop_fluor',{g:0,fade:.3});humv0&&humv0(0)}
-    humL.g.gain.setTargetAtTime(v*12,G.ac.currentTime,.1)};
+    humL.g.gain.setTargetAtTime(v*5,G.ac.currentTime,.1)};
   let stL=null,stV=0;
   A.static=v=>{if(!buf.loop_static){static0(v);return}
     if(v>0&&!stL)stL=loop('loop_static',{g:0,fade:.1});
@@ -100,7 +100,7 @@ export default function install(G){
   E.bell=mk(['bell_low'],{g:.28,lp:3000,wet:.6});
   /* a real room tone (air-con hum) under every day, in place of the synthetic hiss */
   let toneL=null;const tn=setInterval(()=>{if(toneL||!buf.loop_ac)return;G.roomMul=.15;toneL=loop('loop_ac',{g:.0,fade:2,amb:true})},1000);
-  setInterval(()=>{if(!toneL)return;const day=(/^d([1-5])_/.exec(G.state)||[])[1]|0,v=[.25,.5,.6,.75,.9,.35][day];toneL.g.gain.setTargetAtTime(v,G.ac.currentTime,2)},1000);
+  setInterval(()=>{if(!toneL)return;const day=(/^d([1-5])_/.exec(G.state)||[])[1]|0,v=[.08,.12,.14,.17,.19,.09][day];toneL.g.gain.setTargetAtTime(v,G.ac.currentTime,2)},1000);
   E.chop=mk(['chop'],{g:.35,lp:3000,wet:.35});
   E.drawer=mk(['drawer_squeak'],{g:.3,lp:2600,wet:.3});
   E.metalscr=mk(['metal_scrape'],{g:.28,lp:3000,wet:.3});
@@ -108,7 +108,7 @@ export default function install(G){
   let frL=null,ckL=null;setInterval(()=>{const ac=G.ac,P=G.P;if(!ac||!buf.loop_fridge||!buf.clock)return;
     if(!frL){frL=loop('loop_fridge',{g:0,fade:1,amb:true});ckL=loop('clock',{g:0,fade:1})}
     const shop=P.x>-5&&P.x<5&&P.z>-4&&P.z<4.2,kit=P.x>-2.6&&P.x<5.1&&P.z<=-4&&P.z>-7.2,home=P.x>3&&P.x<15&&P.z>15&&P.z<23;
-    frL.g.gain.setTargetAtTime(kit?.7:shop?.22:0,ac.currentTime,.6);ckL.g.gain.setTargetAtTime(home?.3:0,ac.currentTime,.6)},700);
+    frL.g.gain.setTargetAtTime(kit?.28:shop?.07:0,ac.currentTime,.6);ckL.g.gain.setTargetAtTime(home?.3:0,ac.currentTime,.6)},700);
   const D=G.AMBD;
   D[1].ev.push('metal','chop');
   D[2].ev.push('metal','moan','scratch','bed','creepy','chop','drawer');
