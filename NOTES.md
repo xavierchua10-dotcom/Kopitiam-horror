@@ -98,3 +98,6 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 
 ## Wake-up opening cutscene
 - Day 1 now opens in bed at 6:30 AM: eyelid overlay blinks with blur clearing, alarm clock on bedside table rings and rattles, you slap it (snooze), eyes close, clock jumps to 6:55, you grab the clock to read it ("I'm late!"), then sit up and get control. `?skipwake` skips it. Tap skips dialogue lines.
+
+## No button for Atuk talks
+- Talking to Atuk (greet/report/back/rule) has no interact button anymore; walking into the marker ring plays the cutscene only.
