@@ -26,6 +26,7 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;touch-action:none
 .card p{margin:0;max-width:300px;line-height:1.6;color:#b9b2d6;font-size:15px}
 .card button{margin-top:16px;padding:12px 30px;border:1px solid #F2B531;background:transparent;color:#efeaff;border-radius:10px;font-size:17px}
 #end{display:none}
+#arrow{position:fixed;width:0;height:0;border-left:11px solid transparent;border-right:11px solid transparent;border-bottom:22px solid #F2B531;display:none;pointer-events:none;filter:drop-shadow(0 0 4px #000)}
 #gq{display:flex;gap:6px;align-items:center;font-size:13px;color:#8f88ad;margin-top:6px}
 #gq button{margin:0;padding:6px 12px;font-size:13px;border:1px solid #4a4566;border-radius:8px;color:#b9b2d6}
 #gq button.on{border-color:#F2B531;color:#efeaff}
@@ -47,7 +48,7 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;touch-action:none
 <div id="sub"></div>
 <div id="hint">Tap the floor to walk · drag to look</div>
 <div id="stick"><div id="knob"></div></div>
-<div id="prompt"></div>
+<div id="prompt"></div><div id="arrow"></div>
 <div id="fade"></div>
 <div id="dcard"></div>
 <div class="card" id="title"><h1>LAST ORDER</h1><p>A kopitiam. Five days.<br>Headphones recommended.<br>Best in landscape, two thumbs.</p><div id="gq"><span>Graphics</span><button data-r="1">Sharp</button><button data-r=".7">Normal</button><button data-r=".5">Light</button></div><button id="begin">Tap to begin</button></div>
@@ -301,7 +302,7 @@ function lightsOffNow(){lightsOn=false;applyLights(0)}
 
 /* ---------- state + story ---------- */
 let state='title',busy=false,scareDone=false,lookT=0,walkT=0;
-const P={x:0,z:3,yaw:0,pitch:0,tx:null,tz:null,bob:0};
+const P={x:0,z:3,yaw:0,pitch:0,tx:null,tz:null,bob:0,fy:null};
 const objT=s=>{$('obj').textContent=s};
 const VOW=[[730,1090],[530,1840],[270,2290],[570,840],[300,870]];
 function speak(g,dur,f0,vol=1){const u=g.userData,rate=g===atuk?3.4:4.4,n=Math.max(2,Math.round(dur*rate)),seg=dur/n,syl=[];
@@ -416,7 +417,7 @@ cv.addEventListener('pointerdown',e=>{if(state==='title'||state==='end')return;
 cv.addEventListener('pointermove',e=>{
   if(stk&&e.pointerId===stk.id){let dx=e.clientX-stk.ox,dy=e.clientY-stk.oy;const l=Math.hypot(dx,dy);if(l>SR){dx*=SR/l;dy*=SR/l}stk.vx=dx/SR;stk.vy=dy/SR;knobEl.style.transform='translate('+dx+'px,'+dy+'px)';return}
   if(!look||e.pointerId!==look.id)return;const dx=e.clientX-look.lx,dy=e.clientY-look.ly;look.lx=e.clientX;look.ly=e.clientY;
-  if(!look.drag&&Math.hypot(e.clientX-look.x,e.clientY-look.y)>10){look.drag=true;P.tx=null}
+  if(!look.drag&&Math.hypot(e.clientX-look.x,e.clientY-look.y)>10){look.drag=true;P.tx=null;P.fy=null}
   if(look.drag){P.yaw-=dx*.0062;P.pitch=Math.max(-.85,Math.min(.85,P.pitch-dy*.0062))}});
 const up=e=>{if(stk&&e.pointerId===stk.id){stk=null;stickEl.style.display='none';return}
   if(!look||e.pointerId!==look.id)return;const p=look;look=null;if(!p.drag&&performance.now()-p.t<400)tap(e.clientX,e.clientY)};
@@ -426,13 +427,23 @@ function tap(x,y){if(state==='title'||state==='end')return;
   ray.setFromCamera(new THREE.Vector2(x/innerWidth*2-1,-(y/innerHeight)*2+1),camera);
   const hits=ray.intersectObjects(scene.children.filter(o=>o===floor||o.userData.it||o.isGroup&&o!==fan&&o!==fig||o===shutter||o===ledge||o===cup||o===slip),true);
   for(const h of hits){const o=h.object.userData.it;
-    if(o){const d=Math.hypot(P.x-o.pos.x,P.z-o.pos.z);if(o.enabled()&&d<2.7&&!busy){o.act();return}if(d>=2.7&&!isLand()){const dx=o.pos.x-P.x,dz=o.pos.z-P.z,L=Math.hypot(dx,dz);P.tx=o.pos.x-dx/L*1.6;P.tz=o.pos.z-dz/L*1.6;return}return}
+    if(o){const d=Math.hypot(P.x-o.pos.x,P.z-o.pos.z);if(o.enabled()&&d<3.4&&!busy){go(o);return}if(d>=3.4&&!isLand()){const dx=o.pos.x-P.x,dz=o.pos.z-P.z,L=Math.hypot(dx,dz);P.tx=o.pos.x-dx/L*1.6;P.tz=o.pos.z-dz/L*1.6;return}return}
     if(h.object===floor){if(isLand())return;P.tx=h.point.x;P.tz=h.point.z;return}}}
-addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=1;if(e.key==='e'||e.key==='Enter'){const c=cur;if(c&&!busy)c.act()}});
+addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=1;if(e.key==='e'||e.key==='Enter'){const c=cur;if(c&&!busy)go(c)}});
 const prompt=$('prompt');let cur=null;
 prompt.addEventListener('pointerdown',e=>{e.stopPropagation()});
-prompt.addEventListener('click',e=>{e.stopPropagation();if(cur&&!busy)cur.act()});
+prompt.addEventListener('click',e=>{e.stopPropagation();if(cur&&!busy)go(cur)});
 
+function go(o){const dx=o.pos.x-P.x,dz=o.pos.z-P.z;if(Math.hypot(dx,dz)>.3)P.fy=Math.atan2(-dx,-dz);o.act()}
+/* markers */
+const MK={};const mkTex=ctex(32,32,c=>{c.fillStyle='#F2B531';c.strokeStyle='#000';c.lineWidth=3;c.beginPath();c.moveTo(16,2);c.lineTo(28,16);c.lineTo(16,30);c.lineTo(4,16);c.closePath();c.fill();c.stroke();c.fillStyle='rgba(255,255,255,.55)';c.fillRect(13,8,6,6)});mkTex.minFilter=mkTex.magFilter=THREE.LinearFilter;
+function markers(t){const arrow=$('arrow');let tgt=null,td=1e9;
+  for(const o of ITS){const on=o.enabled()&&o.id!=='atuk'||o.enabled();let m=MK[o.id];if(!m){m=MK[o.id]=new THREE.Sprite(new THREE.SpriteMaterial({map:mkTex,depthTest:false,transparent:true,fog:false}));m.renderOrder=20;m.visible=false;scene.add(m)}
+    const d=Math.hypot(o.pos.x-P.x,o.pos.z-P.z);m.visible=!!(on&&d>2.2&&d<14);if(on&&d<td&&d>2.2){td=d;tgt=o}
+    if(m.visible){m.position.set(o.pos.x,o.pos.y+.55+Math.sin(t/260)*.05,o.pos.z);const sc=.2+d*.045;m.scale.set(sc,sc,1)}}
+  if(tgt){const v=tgt.pos.clone().project(camera);let x=v.x,y=v.y;const behind=v.z>1;if(behind){x=-x;y=-y}
+    if(!behind&&Math.abs(x)<.92&&Math.abs(y)<.85){arrow.style.display='none'}else{const a=Math.atan2(y,x);let ex=Math.cos(a),ey=Math.sin(a);const k=Math.max(Math.abs(ex)/.9,Math.abs(ey)/.8);ex/=k;ey/=k;arrow.style.display='block';arrow.style.left=(innerWidth*(ex+1)/2-11)+'px';arrow.style.top=(innerHeight*(1-ey)/2-11)+'px';arrow.style.transform='rotate('+(Math.PI/2-a)*57.3+'deg)'}}
+  else arrow.style.display='none'}
 /* ---------- loop ---------- */
 function collide(){let bd=1e9,bx=P.x,bz=P.z;for(const [a,b,c,d] of ZONES){const x=Math.max(a,Math.min(b,P.x)),z=Math.max(c,Math.min(d,P.z)),q=(x-P.x)**2+(z-P.z)**2;if(q<bd){bd=q;bx=x;bz=z}}P.x=bx;P.z=bz;const r=.32;
   for(const [a,b,c,d] of AABB){if(P.x>a-r&&P.x<b+r&&P.z>c-r&&P.z<d+r){const l=P.x-(a-r),rr=(b+r)-P.x,t=P.z-(c-r),bt=(d+r)-P.z,m=Math.min(l,rr,t,bt);if(m===l)P.x=a-r;else if(m===rr)P.x=b+r;else if(m===t)P.z=c-r;else P.z=d+r}}}
@@ -457,12 +468,13 @@ function update(dt){
    else if(P.x<-6.8){zx=-8.25;zz=2.5;zk=6}
    LZ.position.set(zx,zy,zz);if(zk!==ZK){ZK=zk}LZ.intensity=lightF*ZK}
   fan.rotation.y+=dt*(lightsOn?2.2:.4);
-  d1tick(dt);npcTick(dt);
+  d1tick(dt);npcTick(dt);markers(performance.now());
+  if(P.fy!==null){let df=P.fy-P.yaw;df=Math.atan2(Math.sin(df),Math.cos(df));if(Math.abs(df)<.02)P.fy=null;else P.yaw+=df*Math.min(1,dt*6)}
   led.visible=state==='dark'?(Math.floor(performance.now()/450)%2===0):false;
   if(lightsOn&&!busy&&TIME==='night'){flickT-=dt;if(flickT<0){flickT=3+Math.random()*6;if(Math.random()<.5)flicker([.35,1],60)}}
   /* prompt */
   let best=null,bd=9;const fw=new THREE.Vector3(-Math.sin(P.yaw),0,-Math.cos(P.yaw));
-  if(!busy)for(const o of ITS){if(!o.enabled())continue;const dx=o.pos.x-P.x,dz=o.pos.z-P.z,d=Math.hypot(dx,dz);if(d<2.7&&(dx*fw.x+dz*fw.z)/d>.45&&d<bd){bd=d;best=o}}
+  if(!busy)for(const o of ITS){if(!o.enabled())continue;const dx=o.pos.x-P.x,dz=o.pos.z-P.z,d=Math.hypot(dx,dz);if(d<3.4&&(dx*fw.x+dz*fw.z)/d>.1&&d<bd){bd=d;best=o}}
   if(best!==cur){cur=best;prompt.style.display=cur?'block':'none'}
   if(cur){const l=lab(cur);if(prompt.textContent!==l)prompt.textContent=l}
   /* scare trigger: look at the figure, or get close */

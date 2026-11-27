@@ -45,3 +45,8 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 
 ## Talking NPCs (Nov 27)
 - NPCs now turn their head to you within ~4.5m, mouths open/close in time with a synthesized mumble voice (speak()). Atuk's voice f0 92Hz, customers 98-185Hz. Voice gets quieter with distance. Plan if wanted later: swap in recorded lines per subtitle (file per line), keep speak() as fallback.
+
+## Friendlier interactions (Nov 27)
+- Yellow diamond markers float over whatever you can do right now (only enabled interactables, hidden within 2.2m and beyond 14m); edge arrow points to the nearest when off-screen.
+- Prompt button reaches 3.4m with a looser facing angle; pressing it (or tapping the object) turns your view toward the object.
+- Gotcha: three.js needs sprite.visible to be a real boolean (visible=0 still renders).
