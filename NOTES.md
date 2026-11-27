@@ -127,3 +127,6 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 
 ## Lamp/ceiling balance
 - Lamp glow smaller and softer; house ceiling darker than the walls; house light stronger; small ambient lift when lights are on.
+
+## House light by time of day
+- House light and ceiling now follow day/dusk/night: bright in the morning, warm and dim in the evening, dark and cold at night with the lamp as the warm spot. Ambient lift only in the day.
