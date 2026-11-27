@@ -35,7 +35,13 @@ const tvSet=m=>{tvMode=m;drawTV()};function tvSet0(){tvMode='off';drawTV()}
 
 /* the figure across the road */
 const FIG=new THREE.Group();FIG.position.set(-6,0,10.3);FIG.visible=false;scene.add(FIG);
-{const dk=M(0x040506);box(.17,.85,.2,dk,-.1,.43,0,FIG);box(.17,.85,.2,dk,.1,.43,0,FIG);box(.46,.7,.26,dk,0,1.2,0,FIG);box(.13,.7,.14,dk,-.3,1.15,0,FIG);box(.13,.7,.14,dk,.3,1.15,0,FIG);box(.24,.26,.24,dk,0,1.72,0,FIG)}
+{const dk=M(0x050608,{emissive:0x07080b});box(.17,.85,.2,dk,-.1,.43,0,FIG);box(.17,.85,.2,dk,.1,.43,0,FIG);
+ box(.48,.7,.28,dk,0,1.16,.03,FIG);box(.13,.78,.14,dk,-.31,1.08,.05,FIG);box(.13,.78,.14,dk,.31,1.08,.05,FIG);
+ const hd=new THREE.Group();hd.position.set(0,1.66,.1);hd.rotation.x=.28;FIG.add(hd);box(.25,.28,.25,dk,0,0,0,hd);
+ const wm=new THREE.MeshBasicMaterial({color:0xf2f0e6,fog:false});box(.06,.045,.02,wm,-.065,.03,.13,hd);box(.06,.045,.02,wm,.065,.03,.13,hd);
+ box(.03,.03,.02,new THREE.MeshBasicMaterial({color:0x050505,fog:false}),-.065,.03,.14,hd);box(.03,.03,.02,new THREE.MeshBasicMaterial({color:0x050505,fog:false}),.065,.03,.14,hd);
+ box(.09,.05,.02,new THREE.MeshBasicMaterial({color:0x1a0505,fog:false}),0,-.08,.13,hd)}
+G.tick.push(()=>{if(FIG.visible){const t=performance.now()/1000;FIG.rotation.z=Math.sin(t*38)*.018;FIG.rotation.x=.04+Math.sin(t*5)*.02}});
 
 
 /* the little things that are wrong with each customer (they show up from Day 3) */
@@ -216,18 +222,22 @@ async function lockUp(){if(G.busy||CINE.on||D.walking)return;G.busy=true;await c
   await camTo(.3,5.2,yawTo(0,3.9),.1,900);
   handAct('lift',2000);A.scrape();await tween(k=>{shutter.position.y=3.6-2.4*k;P.pitch=.1-.25*k},1800);shutBlock(true);
   A.click();handAct('reach',1200);await say('You pull the padlock through. Click.',2200);
-  await csleep(500);
-  await camTo(.3,5.2,yawTo(6.1,14),0,1000);
-  await csleep(400);
-  /* you turn back toward the shop... and it is right there, in the road */
-  await camTo(.3,5.2,yawTo(0,3.9),0,500);
-  FIG.position.set(-.1,0,8.3);FIG.visible=true;A.sting();applyLights(0);
-  await camTo(.3,5.2,yawTo(-.1,8.3),.02,260);
-  await tween(k=>{P.pitch=.02+Math.sin(k*40)*.03*(1-k)},300);
-  await csleep(1500);
-  $('fade').style.transition='opacity .08s';$('fade').style.opacity=1;await sleep(260);FIG.visible=false;applyLights(1);$('fade').style.opacity=0;
-  await csleep(900);
-  await say('Gone.',1600);
+  /* the quiet before it: dim light, a heartbeat, a footstep behind you */
+  applyLights(.4);await csleep(1300);
+  await camTo(.3,5.2,yawTo(6.1,14),0,1500);
+  for(let i=0;i<2;i++){A.tone(52,44,.22,.22,'sine');await csleep(380);A.tone(52,44,.22,.22,'sine');await csleep(1000)}
+  A.step();await csleep(600);A.step();await csleep(1100);
+  /* you spin round: he is right there, face to face */
+  FIG.position.set(.3,0,4.05);FIG.rotation.y=0;FIG.visible=true;
+  await camTo(.3,5.2,yawTo(.3,4.05),.12,260);
+  A.sting();A.nz(.6,1200,200,.4,'lowpass');applyLights(0);
+  await tween(k=>{P.pitch=.12+Math.sin(k*46)*.05*(1-k);P.yaw+=Math.sin(k*60)*.004*(1-k)},520);
+  await csleep(1100);
+  await say('"...maaf..."',2200);
+  for(let i=0;i<3;i++){A.tone(170+Math.random()*40,140,.5,.06,'sine');await csleep(420)}
+  $('fade').style.transition='opacity .06s';$('fade').style.opacity=1;await sleep(240);FIG.visible=false;applyLights(1);$('fade').style.opacity=0;
+  await csleep(1000);
+  await say(sp('YOU','...He was crying.'),2200);
   await camTo(.3,5.2,yawTo(6.1,14),0,1100);
   G.state='d3_home';window.__doorG.rotation.y=0;setClock('6:10 PM');objT('Go home');G.busy=false;await cineOut()}
 WPS.d3_home={x:6.1,z:14.0,r:.6,go:1,fn:homeNight};
