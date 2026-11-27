@@ -172,3 +172,4 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 - 202611272640: Family altar (天官赐福, candles, burning joss sticks, offerings) in the house facing the front door; sofa moved west; big wall clock moved to the east living-room wall.
 - 202611272735: clock above sideboard photo; soft real coffee-stain texture; bathroom wall z-fight fixed (glitter); balcony/tree greenery no longer shows inside rooms; Atuk's bed in the corner; door cutscene (open, step out, close behind) at start of Day 2-5.
 - 202611272820: Ambience system: tension drone + room tone that scale per day (d5 calm), random unseen events (creak, cup clink, footsteps, chair, far knock, murmur, breath) panned L/R, silence dip after every sting.
+- 202611272905: Day 4 fire rebuilt: flipbook flame frames (particle-drawn), side tongue, glow, rising embers, smoke per fire.

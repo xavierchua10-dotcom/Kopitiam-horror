@@ -63,11 +63,37 @@ function buildRed(){if(built)return;built=true;
 G.unwreck=()=>{RED.visible=false;setWreck(false)};
 
 /* ================= fire sprites for the street ================= */
-const FIRE=[];
-function mkFire(){if(FIRE.length)return;const c=document.createElement('canvas');c.width=c.height=64;const g=c.getContext('2d'),gr=g.createRadialGradient(32,40,2,32,36,30);gr.addColorStop(0,'rgba(255,240,170,1)');gr.addColorStop(.35,'rgba(255,150,40,.85)');gr.addColorStop(1,'rgba(255,60,10,0)');g.fillStyle=gr;g.fillRect(0,0,64,64);
-  const tx=new THREE.CanvasTexture(c);
-  for(let i=0;i<16;i++){const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tx,transparent:true,depthWrite:false,fog:false,blending:THREE.AdditiveBlending}));sp.visible=false;sp.userData.ph=Math.random()*6;scene.add(sp);FIRE.push(sp)}}
-G.tick.push(()=>{const t=performance.now()/1000;for(const f of FIRE){if(!f.visible)continue;const s=1+Math.sin(t*9+f.userData.ph)*.15+Math.sin(t*23+f.userData.ph)*.1;f.scale.set(1.9*s,3.0*s,1);f.position.y=1.5+Math.sin(t*7+f.userData.ph)*.1}});
+const FIRE=[];let FFR=null,FGL,FSM,FEM;
+/* real-looking fire: flipbook flames drawn from tiny particles + glow, embers and smoke that follow each flame */
+function flameFrame(seed){const W=96,H=170,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');x.globalCompositeOperation='lighter';
+  let sd=seed*9301+49297;const r=()=>{sd=(sd*9301+49297)%233280;return sd/233280};const sway=(r()-.5)*14;
+  for(let i=0;i<240;i++){const u=Math.pow(r(),1.15),ph=r()*6,y=H-10-u*(H-26),wob=Math.sin(u*5.5+seed*1.7+ph*.2)*u*13+sway*u*u,spread=(1-u)*(1-u*.35)*20,px=W/2+wob+(r()+r()+r()-1.5)*spread*.9,rad=(1-u*.82)*13+2;
+    const col=u<.18?[255,250,215]:u<.4?[255,214,110]:u<.65?[255,140,30]:[225,60,12],a=(1-u)*(1-u)*.5+.03,gr=x.createRadialGradient(px,y,0,px,y,rad);
+    gr.addColorStop(0,`rgba(${col},${a})`);gr.addColorStop(1,`rgba(${col[0]},${Math.max(30,col[1]-70)},10,0)`);x.fillStyle=gr;x.beginPath();x.arc(px,y,rad,0,7);x.fill()}
+  for(let k=0;k<3;k++){const bx=W/2+(r()-.5)*22,top=30+r()*40,gr=x.createLinearGradient(0,H-20,0,top);gr.addColorStop(0,'rgba(255,200,80,0)');gr.addColorStop(.3,'rgba(255,170,50,.35)');gr.addColorStop(1,'rgba(255,90,20,0)');x.fillStyle=gr;x.beginPath();x.moveTo(bx-8,H-22);x.quadraticCurveTo(bx+(r()-.5)*14,(H+top)/2,bx+(r()-.5)*6,top);x.quadraticCurveTo(bx+(r()-.5)*16,(H+top)/2,bx+8,H-22);x.fill()}
+  const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t}
+function radTex(n,stops){const c=document.createElement('canvas');c.width=c.height=n;const x=c.getContext('2d'),gr=x.createRadialGradient(n/2,n/2,0,n/2,n/2,n/2);stops.forEach(([o,col])=>gr.addColorStop(o,col));x.fillStyle=gr;x.fillRect(0,0,n,n);return new THREE.CanvasTexture(c)}
+const fMat=(map,add,op)=>new THREE.SpriteMaterial({map,transparent:true,depthWrite:false,fog:false,opacity:op,blending:add?THREE.AdditiveBlending:THREE.NormalBlending});
+function mkFire(){if(FIRE.length)return;
+  FFR=[];for(let i=0;i<8;i++)FFR.push(flameFrame(i+3));
+  FGL=radTex(64,[[0,'rgba(255,150,50,.55)'],[.5,'rgba(255,90,20,.18)'],[1,'rgba(255,60,10,0)']]);
+  FSM=radTex(64,[[0,'rgba(30,26,24,.7)'],[1,'rgba(30,26,24,0)']]);
+  FEM=radTex(16,[[0,'rgba(255,230,150,1)'],[1,'rgba(255,100,20,0)']]);
+  for(let i=0;i<16;i++){const sp=new THREE.Sprite(fMat(FFR[0],true,1));sp.visible=false;const ph=Math.random()*6;
+    const side=new THREE.Sprite(fMat(FFR[1],true,1)),gl=new THREE.Sprite(fMat(FGL,true,.85)),em=[],sm=[];
+    for(let k=0;k<3;k++)em.push(new THREE.Sprite(fMat(FEM,true,1)));
+    for(let k=0;k<(i%2?0:2);k++)sm.push(new THREE.Sprite(fMat(FSM,false,.4)));
+    const comp=[side,gl,...em,...sm];comp.forEach(o=>{o.visible=false;scene.add(o)});
+    sp.userData={ph,side,gl,em,sm,comp};scene.add(sp);FIRE.push(sp)}}
+G.tick.push(()=>{if(!FFR)return;const t=performance.now()/1000;for(const f of FIRE){const u=f.userData;
+  if(!f.visible){if(u.on){u.comp.forEach(o=>o.visible=false);u.on=false}continue}
+  u.on=true;u.comp.forEach(o=>o.visible=true);const ph=u.ph,s=1+Math.sin(t*9+ph)*.1+Math.sin(t*21+ph)*.06,h=2.6*s*(1+Math.sin(t*5+ph)*.05),w=1.5*s;
+  f.material.map=FFR[((t*11+ph*3)|0)%8];f.scale.set(w,h,1);
+  const bx=f.position.x,by=f.position.y-h*.5,bz=f.position.z;
+  u.side.material.map=FFR[((t*9+ph*5)|0)%8];u.side.scale.set(w*.6,h*.6,1);u.side.position.set(bx+.38+Math.sin(t*3+ph)*.05,by+h*.3,bz+.04);
+  u.gl.material.opacity=.7+Math.sin(t*13+ph)*.12+Math.sin(t*29+ph*2)*.08;u.gl.scale.set(3.0,2.5,1);u.gl.position.set(bx,by+h*.5,bz+.1);
+  u.em.forEach((e,k)=>{const q=((t*(.3+k*.18)+ph+k*.37)%1);e.position.set(bx+(k-1)*.35*(1+q)+Math.sin(t*3+ph*5+k)*.2*q,by+.6+q*2.6,bz+.1);e.material.opacity=1-q;const z=.08*(1-q*.6);e.scale.set(z,z,1)});
+  u.sm.forEach((m,k)=>{const q=((t*.12+k*.5+ph*.1)%1);m.position.set(bx+Math.sin(t*.6+k*3)*.3*q+.1*q,by+h+.1+q*2.2,bz-.1);m.scale.set(1.2+q*2.2,1.2+q*2.2,1);m.material.opacity=Math.sin(q*Math.PI)*.4})}});
 
 /* ================= opening ================= */
 let beep=false,atukMats=[];
