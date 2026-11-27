@@ -95,3 +95,6 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 
 ## Home layout v2 (Nov 27)
 - Dining/living x3..7.2 (smaller): dining table with tabletop clock + chairs, sofa, phone, wall clock above sofa. Atuk's room x7.2..11.2 and My room x11.2..15 (z15..19.4) beside the front door, each with a doorway frame onto the back hall (z19.4..23: table, fridge) which connects to the dining room via an opening in the x=7.2 wall. ZONES/AABBs rewritten; start position (13,17.4) is in My room.
+
+## Wake-up opening cutscene
+- Day 1 now opens in bed at 6:30 AM: eyelid overlay blinks with blur clearing, alarm clock on bedside table rings and rattles, you slap it (snooze), eyes close, clock jumps to 6:55, you grab the clock to read it ("I'm late!"), then sit up and get control. `?skipwake` skips it. Tap skips dialogue lines.

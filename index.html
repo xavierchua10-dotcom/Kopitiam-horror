@@ -80,9 +80,11 @@ body{font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 body.cine #cbt,body.cine #cbb{height:12%}
 body.cine #top,body.cine #prompt,body.cine #arrow,body.cine #hint{visibility:hidden!important}
 body.cine #sub{bottom:calc(12% + 12px)!important;z-index:8}
+.lid{position:fixed;left:0;right:0;height:0;background:#0a0705;z-index:7;pointer-events:none}#lidT{top:0}#lidB{bottom:0}
+#lidT.soft{box-shadow:0 14px 30px 8px rgba(10,7,5,.92)}#lidB.soft{box-shadow:0 -14px 30px 8px rgba(10,7,5,.92)}
 </style></head><body>
 <canvas id="c"></canvas>
-<div id="fx"></div><div id="cbt"></div><div id="cbb"></div>
+<div id="fx"></div><div id="cbt"></div><div id="cbb"></div><div id="lidT" class="lid"></div><div id="lidB" class="lid"></div>
 <div id="top"><span class="clock" id="clk">3:07 AM</span><span id="obj"></span></div>
 <div id="sub"></div>
 <div id="hint">Tap the floor to walk · drag to look</div>
@@ -577,12 +579,48 @@ async function d1Knock(){busy=true;state='d1_knock';await cineIn();
   await camTo(P.x,P.z,0,.03,500);
   state='d1_greet';setClock('7:02 AM');objT('Go inside');queueIn();await say('Warm air. Toast. The queue shuffles in behind you.',2600);
   await cineOut();busy=false}
+/* ---- wake-up opening: alarm, blinking, snooze, grab the clock ---- */
+box(.5,.5,.4,M(0x5a3a28),14.4,.25,15.85);AABB.push([14.15,14.65,15.65,16.05]);
+const ckc=document.createElement('canvas');ckc.width=ckc.height=128;const ckx=ckc.getContext('2d'),ckT=new THREE.CanvasTexture(ckc);ckT.colorSpace=THREE.SRGBColorSpace;
+function drawClock(h,m){const c=ckx;c.clearRect(0,0,128,128);c.fillStyle='#f3efe2';c.beginPath();c.arc(64,64,62,0,7);c.fill();c.strokeStyle='#222';c.lineWidth=4;c.stroke();c.fillStyle='#222';
+  for(let i=0;i<12;i++){const a=i/12*Math.PI*2;c.fillRect(64+Math.sin(a)*52-3,64-Math.cos(a)*52-3,6,6)}
+  const hand=(a,l,w,col)=>{c.strokeStyle=col;c.lineWidth=w;c.lineCap='round';c.beginPath();c.moveTo(64,64);c.lineTo(64+Math.sin(a)*l,64-Math.cos(a)*l);c.stroke()};
+  hand((h%12+m/60)*Math.PI/6,30,7,'#222');hand(m*Math.PI/30,46,4.5,'#222');hand(Math.PI*.9,40,2,'#c4352a');c.fillStyle='#222';c.beginPath();c.arc(64,64,5,0,7);c.fill();ckT.needsUpdate=true}
+drawClock(6,30);
+const ALK=new THREE.Group();ALK.position.set(14.4,.6,15.85);scene.add(ALK);
+{const bd=new THREE.Mesh(new THREE.CylinderGeometry(.095,.095,.07,16),M(0xc23b2e));bd.rotation.x=Math.PI/2;ALK.add(bd);
+ const fc=new THREE.Mesh(new THREE.CircleGeometry(.082,20),new THREE.MeshBasicMaterial({map:ckT}));fc.position.z=.037;ALK.add(fc);
+ for(const dx of[-.06,.06]){const bl=new THREE.Mesh(new THREE.SphereGeometry(.036,8,6),M(0xd8d8d8));bl.position.set(dx,.098,0);bl.scale.y=.7;ALK.add(bl)}
+ for(const dx of[-.06,.06]){const ft=new THREE.Mesh(new THREE.CylinderGeometry(.012,.012,.04,5),M(0x333333));ft.position.set(dx,-.1,0);ALK.add(ft)}}
+let alarmTI=0,rattleTI=0;
+function startAlarm(){stopAlarm();let k=0;const ring=()=>{for(let i=0;i<4;i++)setTimeout(()=>{A.tone(2300,2300,.07,.14,'square')},i*160)};ring();alarmTI=setInterval(ring,1100);
+  rattleTI=setInterval(()=>{k++;ALK.rotation.z=Math.sin(k*2.4)*.07;ALK.position.y=.6+(k%2?.004:0)},33)}
+function stopAlarm(){clearInterval(alarmTI);clearInterval(rattleTI);alarmTI=rattleTI=0;ALK.rotation.z=0;ALK.position.y=.6}
+const lidT=$('lidT'),lidB=$('lidB');
+async function lids(open,ms){const h=(1-open)*50;for(const l of[lidT,lidB]){l.style.transition='height '+ms+'ms ease';l.style.height=h+'%';l.classList.toggle('soft',open>0&&open<1)}await sleep(ms)}
+async function wakeUp(){
+  CINE.noclip=true;EYE.y=.62;P.x=14.5;P.z=17.0;P.yaw=0;P.pitch=1.1;P.tx=null;P.fy=null;
+  lids(0,0);cv.style.filter='blur(8px)';await cineIn();
+  $('fade').style.transition='opacity 1.2s';$('fade').style.opacity=0;startAlarm();await sleep(1800);
+  await lids(.16,520);await sleep(260);await lids(0,240);await sleep(380);await lids(.5,620);await sleep(160);await lids(0,200);await sleep(300);
+  cv.style.transition='filter 1.4s';cv.style.filter='blur(0px)';await lids(1,900);
+  await say(sp('YOU','Mmm... what is that noise...'),2000);
+  await camTo(14.5,17.0,0,-.02,1100);
+  await say(sp('YOU','Five more minutes...'),1600);
+  handAct('knock',900);await sleep(480);A.click();stopAlarm();ALK.position.z=15.82;await sleep(300);ALK.position.z=15.85;await sleep(700);
+  await lids(0,650);setClock('6:55 AM');drawClock(6,55);await sleep(1600);
+  await lids(.3,500);await lids(0,160);await lids(1,700);
+  handAct('reach',2300);const p0=ALK.position.clone();await tween(k=>{ALK.position.set(p0.x+(14.5-p0.x)*k,p0.y+(.74-p0.y)*k,p0.z+(16.55-p0.z)*k);ALK.scale.setScalar(1+.6*k)},800);
+  await say(sp('YOU','6:55?!'),1500);await say(sp('YOU',"Atuk opens at seven... I'm late!"),2400);
+  await tween(k=>{ALK.position.set(14.5+(p0.x-14.5)*k,.74+(p0.y-.74)*k,16.55+(p0.z-16.55)*k);ALK.scale.setScalar(1.6-.6*k)},500);
+  await Promise.all([tween(k=>{EYE.y=.62+(1.6-.62)*k},1300),camTo(13.1,18.2,Math.PI,0,1300)]);
+  EYE.y=1.6;CINE.noclip=false;await cineOut();cv.style.transition='';cv.style.filter=''}
 async function beginDay1(){
-  setTime('day');lightsOn=true;applyLights(1);objT('');setClock('6:55 AM');
+  setTime('day');lightsOn=true;applyLights(1);objT('');setClock('6:30 AM');
   shutter.position.y=1.2;shutBlock(true);showCrowd(false);D.crowd=false;QUEUE.forEach((q,i)=>{q.visible=true;q.position.set([-1.7,-2.7,-3.5][i],0,[5.5,5.1,5.8][i]);q.rotation.y=[.15,-.1,.2][i];pose(q,0,'stand')});drawBoard(1);day1Props(true);
   P.x=13;P.z=17.4;P.yaw=Math.PI/2;P.pitch=0;P.tx=null;
-  state='d1_intro';const dc=$('dcard');dc.innerHTML='DAY 1<small>6:55 AM</small>';dc.style.opacity=1;await sleep(2600);dc.style.opacity=0;
-  $('fade').style.transition='opacity 1.6s';$('fade').style.opacity=0;
+  state='d1_intro';const dc=$('dcard');dc.innerHTML='DAY 1<small>6:30 AM</small>';dc.style.opacity=1;await sleep(2600);dc.style.opacity=0;
+  if(/[?&]skipwake/.test(location.search)){setClock('6:55 AM');$('fade').style.transition='opacity 1.6s';$('fade').style.opacity=0;P.x=13.1;P.z=18.2;P.yaw=Math.PI}else await wakeUp();
   state='d1_go';objT('Go to the kopitiam');$('hint').textContent=isLand()?'Left thumb: move · Right thumb: look':'Tap the floor to walk · drag to look';$('hint').classList.add('on');setTimeout(()=>$('hint').classList.remove('on'),8000);
   setTimeout(()=>{if(state==='d1_go')say("Atuk's bed is empty. He always opens the shop early.",3200)},1500)}
 const CHAT=[["Petrol naik lagi, you tau?","Semalam punya bola, tak tengok ke?"],["Roti bakar sini memang best.","Dulu satu roti bakar, lima puluh sen je."],["Panas betul hari ni.","Kopi sini sama macam dulu-dulu."],["Adik, rajin betul. Seorang je jaga ke?","Kopi sini sama macam dulu."],["Boss, cepat sikit boleh? Nak pergi kerja.","Eh, gula habis ke?"]];
@@ -669,7 +707,8 @@ function markers(t){const arrow=$('arrow');let tgt=null,td=1e9;
     if(!behind&&Math.abs(x)<.92&&Math.abs(y)<.85){arrow.style.display='none'}else{const a=Math.atan2(y,x);let ex=Math.cos(a),ey=Math.sin(a);const k=Math.max(Math.abs(ex)/.9,Math.abs(ey)/.8);ex/=k;ey/=k;arrow.style.display='block';arrow.style.left=(innerWidth*(ex+1)/2-11)+'px';arrow.style.top=(innerHeight*(1-ey)/2-11)+'px';arrow.style.transform='rotate('+(Math.PI/2-a)*57.3+'deg)'}}
   else arrow.style.display='none'}
 /* ---------- loop ---------- */
-function collide(){let bd=1e9,bx=P.x,bz=P.z;for(const [a,b,c,d] of ZONES){const x=Math.max(a,Math.min(b,P.x)),z=Math.max(c,Math.min(d,P.z)),q=(x-P.x)**2+(z-P.z)**2;if(q<bd){bd=q;bx=x;bz=z}}P.x=bx;P.z=bz;const r=.32;
+const EYE={y:1.6};
+function collide(){if(CINE.noclip)return;let bd=1e9,bx=P.x,bz=P.z;for(const [a,b,c,d] of ZONES){const x=Math.max(a,Math.min(b,P.x)),z=Math.max(c,Math.min(d,P.z)),q=(x-P.x)**2+(z-P.z)**2;if(q<bd){bd=q;bx=x;bz=z}}P.x=bx;P.z=bz;const r=.32;
   for(const [a,b,c,d] of AABB){if(P.x>a-r&&P.x<b+r&&P.z>c-r&&P.z<d+r){const l=P.x-(a-r),rr=(b+r)-P.x,t=P.z-(c-r),bt=(d+r)-P.z,m=Math.min(l,rr,t,bt);if(m===l)P.x=a-r;else if(m===rr)P.x=b+r;else if(m===t)P.z=c-r;else P.z=d+r}}}
 let last=0,acc=0,flickT=3;
 function update(dt){
@@ -684,7 +723,7 @@ function update(dt){
    if(mag>.01&&state!=='end'){P.tx=null;const fx=-Math.sin(P.yaw),fz=-Math.cos(P.yaw),rx=Math.cos(P.yaw),rz=-Math.sin(P.yaw),sp=2.1*dt*mag,l=Math.hypot(jx,jy);const ox=P.x,oz=P.z;
      P.x+=((-jy/l)*fx+(jx/l)*rx)*sp;P.z+=((-jy/l)*fz+(jx/l)*rz)*sp;collide();moving=Math.hypot(P.x-ox,P.z-oz)>sp*.15}}
   if(moving){P.bob+=dt*9;walkT+=dt;if(walkT>.52){walkT=0;A.step()}}
-  camera.position.set(P.x,1.6+(moving?Math.sin(P.bob)*.035:0),P.z);camera.rotation.y=P.yaw;camera.rotation.x=P.pitch;
+  camera.position.set(P.x,EYE.y+(moving?Math.sin(P.bob)*.035:0),P.z);camera.rotation.y=P.yaw;camera.rotation.x=P.pitch;
   {let zx=0,zy=2.5,zz=0,zk=0;
    if(P.z>4.2&&P.z<14.8&&(P.z>14.2?!(P.x>3&&P.x<15.2):true)){let lx=LAMPS[0];for(const l of LAMPS)if(Math.abs(l-P.x)<Math.abs(lx-P.x))lx=l;zx=lx;zy=3.5;zz=10.5;zk=SK}
    else if(P.z>=14.8&&P.x>3&&P.x<15.2){zx=9;zy=2.6;zz=19;zk=HK}
