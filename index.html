@@ -610,22 +610,72 @@ function tween(fn,ms){return new Promise(r=>{const t0=performance.now();(functio
 /* props */
 const stain=new THREE.Mesh(new THREE.PlaneGeometry(.8,.45),new THREE.MeshBasicMaterial({color:0x2a1c0c,transparent:true,opacity:.75}));stain.rotation.x=-Math.PI/2;stain.position.set(2.8,.785,-1.8);scene.add(stain);
 const cupsD=[[-3.2,-1.7],[-2.75,-1.95],[-3.0,-1.55]].map(([x,z])=>{const m=new THREE.Mesh(new THREE.CylinderGeometry(.06,.05,.09,6),M(0xe4e0d2));m.position.set(x,.83,z);scene.add(m);return m});
-const jar=new THREE.Mesh(new THREE.CylinderGeometry(.09,.09,.2,7),M(0xcfe0e8));jar.position.set(4.2,1.15,.3);scene.add(jar);
+const jar=new THREE.Mesh(new THREE.CylinderGeometry(.09,.09,.2,7),M(0xcfe0e8,{transparent:true,opacity:.42}));jar.position.set(4.2,1.15,.3);scene.add(jar);
 const jarTop=new THREE.Mesh(new THREE.CylinderGeometry(.075,.075,.02,7),M(0x555a60));jarTop.position.set(4.2,1.26,.3);scene.add(jarTop);
 const noteM=new THREE.Mesh(new THREE.PlaneGeometry(.34,.46),M(0xffffff,{map:ctex(34,46,c=>{c.fillStyle='#e8dfb8';c.fillRect(0,0,34,46);c.fillStyle='#3a3020';for(let y=6;y<44;y+=6)c.fillRect(4,y,26-((y*7)%9),1);c.fillRect(4,3,18,2)}),side:THREE.DoubleSide}));noteM.position.set(-4.96,1.5,-2.2);noteM.rotation.y=Math.PI/2;scene.add(noteM);
-function day1Props(on){stain.visible=on;cupsD.forEach(m=>m.visible=on);jar.visible=on;jarTop.visible=on;noteM.visible=on}
+const SUG=(()=>{const g=new THREE.CylinderGeometry(.078,.078,.18,7);g.translate(0,.09,0);const m=new THREE.Mesh(g,M(0xf4efe0));m.position.set(4.2,1.05,.3);m.scale.y=.2;scene.add(m);return m})();
+function day1Props(on){if(on){SUG.scale.y=.2;jarTop.position.set(4.2,1.26,.3);stain.material.opacity=.75}SUG.visible=on;stain.visible=on;cupsD.forEach(m=>m.visible=on);jar.visible=on;jarTop.visible=on;noteM.visible=on}
 day1Props(!NIGHT);
-const refreshObj=()=>objT(D.kopi&&!D.serve?'Serve the kopi · '+D.n+'/4':'Chores '+D.n+'/4');
+const refreshObj=()=>objT(CH[Math.min(ci,CH.length-1)].obj);
 const CLK=['7:20 AM','8:05 AM','9:10 AM','10:05 AM'];
-async function chore(key,line,fx,count=true){busy=true;A.click();fx&&fx();D[key]=1;
-  if(count){D.n++;setClock(CLK[D.n-1])}
-  if(D.n>=4){state='d1_report';objT('Tell Atuk')}else refreshObj();
-  await say(line,2400);busy=false}
-it('wipe',[2.8,1.0,-1.8],'Wipe the table',()=>state==='d1_chores'&&!D.wipe,()=>chore('wipe','Wipe, wipe. Somebody always spills the teh.',()=>{A.nz(.5,900,500,.12);stain.visible=false}),[]);
-it('cups',[-3,1.0,-1.8],'Clear the cups',()=>state==='d1_chores'&&!D.cups,()=>chore('cups','Three cups. Always the same table.',()=>{A.tone(2600,2000,.07,.05);cupsD.forEach(m=>m.visible=false)}),[]);
-it('kopi',[-1.4,1.2,-6.65],'Make kopi',()=>state==='d1_chores'&&!D.kopi,()=>chore('kopi','Pour, pull, pour. Kopi-O, less sugar.',()=>{A.nz(.8,600,300,.1)},false),[]);
-it('serve',[-3,1.1,.4],'Serve the kopi',()=>state==='d1_chores'&&D.kopi&&!D.serve,()=>chore('serve','"Kopi-O kurang manis, ya?" He nods without looking up.',()=>{A.tone(2400,1800,.06,.05)}),[CROWD[2]]);
-it('sugar',[4.2,1.2,.3],'Refill the sugar',()=>state==='d1_chores'&&!D.sugar,()=>chore('sugar','The jar was nearly empty. It never runs out, somehow.',()=>{A.nz(.6,2500,1500,.08);jarTop.position.y=1.34}),[jar]);
+/* ---- chores = automatic close-up mini playthroughs ---- */
+const CH=[
+ {k:'sugar',x:3.1,z:.3,obj:'Refill the sugar',fn:()=>runChore(0)},
+ {k:'wipe',x:2.8,z:-.8,obj:'Wipe the table',fn:()=>runChore(1)},
+ {k:'cups',x:-2.0,z:-1.8,obj:'Clear the cups',fn:()=>runChore(2)},
+ {k:'kopi',x:-1.4,z:-5.7,obj:'Make the kopi',fn:()=>runChore(3)},
+ {k:'serve',x:-2.0,z:1.2,obj:'Serve the kopi',fn:()=>runChore(4)}];
+let ci=0;
+WPS.d1_chores={get x(){return CH[ci].x},get z(){return CH[ci].z},r:.6,go:1,get fn(){return CH[ci].fn}};
+const BAG=new THREE.Group();BAG.visible=false;scene.add(BAG);box(.14,.2,.07,M(0xe0d2a8),0,0,0,BAG);box(.15,.05,.075,M(0xb8452e),0,.06,0,BAG);
+const GRAN=[];for(let i=0;i<18;i++){const g=new THREE.Mesh(new THREE.BoxGeometry(.012,.012,.012),B(0xffffff));g.visible=false;scene.add(g);GRAN.push(g)}
+const KC=new THREE.Group();KC.position.set(-1.4,.95,-6.36);KC.scale.setScalar(1.4);KC.visible=false;scene.add(KC);
+const KLIQ=(()=>{const g=new THREE.CylinderGeometry(.052,.044,.085,8);g.translate(0,.0425,0);const m=new THREE.Mesh(g,M(0x4a2a14));m.position.y=.003;m.scale.y=.01;KC.add(m);return m})();
+{const c=new THREE.Mesh(new THREE.CylinderGeometry(.06,.05,.09,8),M(0xe4e0d2,{transparent:true,opacity:.9}));c.position.y=.045;KC.add(c)}
+box(.035,.035,.1,M(0xb9bec4),-1.4,1.12,-6.42);
+const KST=new THREE.Mesh(new THREE.BoxGeometry(.022,1,.022),B(0x3a2010));KST.visible=false;scene.add(KST);
+function kStream(on,top=1.1,bot=1.0){KST.visible=on;if(on){KST.scale.y=Math.max(.01,top-bot);KST.position.set(-1.4,(top+bot)/2,-6.37)}}
+async function chSugar(){
+  await camTo(3.45,.3,yawTo(4.2,.3),-.5,1000);
+  A.click();await tween(k=>{jarTop.position.set(4.2+.28*k,1.26-.2*k,.3+.15*k)},350);
+  BAG.visible=true;await tween(k=>{BAG.position.set(4.12,1.75-.3*k,.3);BAG.rotation.z=1.0*k},650);
+  handAct('reach',3000);A.nz(2.3,2600,1800,.05,'highpass');
+  const t0=performance.now();let gi=0;
+  await tween(k=>{SUG.scale.y=.2+.8*k;BAG.position.y=1.45+Math.sin(k*20)*.01;
+    if((performance.now()-t0)/70>gi){const g=GRAN[gi%GRAN.length];g.visible=true;g.userData.t=performance.now();g.userData.x=4.2+(Math.random()-.5)*.03;gi++}
+    for(const g of GRAN)if(g.visible){const a=(performance.now()-g.userData.t)/260;if(a>=1){g.visible=false}else g.position.set(g.userData.x,1.4-.2*a*a-.0*a,.3)}},2300);
+  GRAN.forEach(g=>g.visible=false);
+  await tween(k=>{BAG.position.y=1.45+.3*k;BAG.rotation.z=1.0*(1-k)},450);BAG.visible=false;
+  await tween(k=>{jarTop.position.set(4.48-.28*k,1.06+.2*k,.45-.15*k)},350);A.click();
+  await say('The jar was nearly empty. It never runs out, somehow.',2400)}
+async function chWipe(){
+  await camTo(2.8,-.75,0,-.75,1000);
+  handAct('wipe',3800);const t0=performance.now();let nx=0;
+  await tween(k=>{stain.material.opacity=.75*Math.max(0,1-k*1.15);P.yaw=Math.sin(k*20)*.06;if((performance.now()-t0)/430>nx){nx++;A.nz(.3,900,500,.1)}},3500);
+  stain.visible=false;P.yaw=0;
+  await say('Wipe, wipe. Somebody always spills the teh.',2400)}
+async function chCups(){
+  await camTo(-2.05,-1.8,yawTo(-3,-1.8),-.5,1000);
+  for(const m of cupsD){const p0=m.position.clone();handAct('reach',800);await tween(k=>{m.position.set(p0.x+(-2.25-p0.x)*k,p0.y+.4*k,p0.z+(-1.8-p0.z)*k);m.scale.setScalar(1+.6*k)},520);A.tone(2600,2000,.07,.05);m.visible=false;m.position.copy(p0);m.scale.setScalar(1);await csleep(260)}
+  await say('Three cups. Always the same table.',2400)}
+async function chKopi(){
+  await camTo(-.95,-5.7,yawTo(-1.4,-6.4),-.5,1100);
+  KC.visible=true;KLIQ.scale.y=.01;await csleep(300);
+  handAct('reach',3200);A.nz(2.8,700,400,.07,'bandpass');kStream(true,1.1,1.04);
+  await tween(k=>{KLIQ.scale.y=.01+.99*k;kStream(true,1.1,.96+.0875*k)},2800);
+  kStream(false);A.click();await csleep(300);
+  await say('Pour, pull, pour. Kopi-O, less sugar.',2400);
+  KC.visible=false;handAct('serve',600000)}
+async function chServe(){
+  await camTo(-2.0,1.2,yawTo(-3,.95),-.3,1000);
+  KC.position.set(-3.0,.78,.95);KC.visible=true;handAct('serve',1);A.tone(2400,1800,.06,.05);await csleep(500);
+  await camTo(-2.0,1.2,yawTo(-3,.4),.05,700);
+  await say('"Kopi-O kurang manis, ya?" He nods without looking up.',2800)}
+async function runChore(i){if(busy||CINE.on||i!==ci)return;busy=true;A.click();await cineIn();
+  await [chSugar,chWipe,chCups,chKopi,chServe][i]();
+  const key=CH[i].k;D[key]=1;if(key!=='kopi'){D.n++;setClock(CLK[D.n-1])}
+  ci++;if(ci>=CH.length){state='d1_report';objT('Tell Atuk')}else objT(CH[ci].obj);
+  await camTo(P.x,P.z,P.yaw,0,500);busy=false;await cineOut()}
 it('bath',[-8.25,1.4,2.5],'Check the light',()=>false,bathAct,[]);
 it('note',[-4.9,1.5,-2.2],'Read the note',()=>state==='d1_lock',noteAct,[noteM]);
 it('atuk',[3.9,1.2,3.5],'Talk to Atuk',()=>false,cineAtuk,[atuk]);
@@ -697,7 +747,7 @@ async function wakeUp(){
   await Promise.all([tween(k=>{EYE.y=.62+(1.6-.62)*k},1300),camTo(13.1,18.2,Math.PI,0,1300)]);
   EYE.y=1.6;CINE.noclip=false;await cineOut();cv.style.transition='';cv.style.filter=''}
 async function beginDay1(){
-  setTime('day');lightsOn=true;applyLights(1);objT('');bulbSet(1);tapOff();setClock('6:30 AM');
+  setTime('day');lightsOn=true;applyLights(1);objT('');bulbSet(1);tapOff();ci=0;KC.visible=false;setClock('6:30 AM');
   shutter.position.y=1.2;shutBlock(true);showCrowd(false);D.crowd=false;QUEUE.forEach((q,i)=>{q.visible=true;q.position.set(QPOS[i][0],0,QPOS[i][1]);q.rotation.y=QPOS[i][2];pose(q,0,'stand')});drawBoard(1);day1Props(true);
   P.x=13;P.z=17.4;P.yaw=Math.PI/2;P.pitch=0;P.tx=null;
   state='d1_intro';const dc=$('dcard');dc.innerHTML='DAY 1<small>6:30 AM</small>';dc.style.opacity=1;await sleep(2600);dc.style.opacity=0;
@@ -759,7 +809,7 @@ const _v=new THREE.Vector3(),_u=new THREE.Vector3(0,0,-1),_d=new THREE.Vector3()
 function aim(a,side,tx,ty,tz){a.g.position.set(side*.3,-.55,-.05);_d.set(tx-side*.3,ty+.55,tz+.05);const L=_d.length();_d.normalize();a.g.quaternion.setFromUnitVectors(_u,_d);a.up.scale.set(.85,.85,Math.max(.6,L/.78))}
 function setHands(mode,t,ht){HR.cloth.visible=HL.cloth.visible=HR.cup.visible=HL.cup.visible=false;HR.hd.scale.set(1,.7,1.35);
   aim(HL,-1,-.3,-.45,-.5);aim(HR,1,.3,-.45,-.5);
-  if(mode==='wipe'){aim(HR,1,Math.sin(t)*.18,-.4,-.62);HR.cloth.visible=true}
+  if(mode==='wipe'){aim(HR,1,Math.sin(t)*.22,-.2,-.55);HR.cloth.visible=true}
   else if(mode==='reach'){const k=Math.sin(Math.min(1,ht/.8)*Math.PI);aim(HR,1,.14,-.32+k*.06,-.5-k*.18)}
   else if(mode==='kopi'){aim(HR,1,.14,-.3,-.52);HR.cup.visible=true;aim(HL,-1,-.12,-.36,-.5)}
   else if(mode==='serve'){aim(HR,1,.2,-.26,-.64);HR.cup.visible=true}

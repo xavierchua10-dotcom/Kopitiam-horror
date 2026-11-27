@@ -134,3 +134,6 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 ## Atuk's station + auto-walk to talk
 - Atuk's small table moved to the south end of the big counter (3.9,2.9), stools removed, Atuk stands behind it (3.9,3.5) facing the shop - no more leg/stool overlap.
 - Talk markers moved to (0.9,2.6); walking into one now auto-walks you (with footsteps + bob) to Atuk, then the talk cutscene starts.
+
+## Chores = automatic close-up mini playthroughs
+- Chores run in order with a marker each: Refill sugar -> Wipe table -> Clear cups -> Make kopi -> Serve kopi. Walking into the marker plays an automatic close-up (bag pours sugar and the jar fills; cloth wipes the stain away; cups lifted one by one; kopi pours into a cup; you carry the cup and set it down). No buttons. Tap skips lines.
