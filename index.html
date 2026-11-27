@@ -184,14 +184,16 @@ function person(x,z,rot,shirt,hair=0x222222,skin=0xc9a27e,o={}){const g=new THRE
   nsph(.17,new THREE.MeshLambertMaterial({map:faceTex(Object.assign({skin:'#'+skin.toString(16).padStart(6,'0'),hair:'#'+hair.toString(16).padStart(6,'0'),brow:'#111'},o.f||{}))}),0,0,0,head,1,1.08,1,12,9);
   nsph(.03,sk,0,-.01,.17,head,1,1,1.2,5,4);for(const q of[-1,1])nsph(.035,sk,q*.168,-.01,0,head,.5,1,.8,5,4);
   nsph(.18,hm,0,.045,-.03,head,1,.86,1.03,12,7);nsph(.15,hm,0,-.02,-.07,head,1,1,.9,8,6);if(o.hairUp)nsph(.1,hm,0,.16,0,head,1,.6,1,7,5);
-  g.userData={L,R,aL,aR,body,head,sit:!!o.sit};pose(g,0,o.sit?'sit':'stand');g.visible=false;return g}
+  const mouth=nsph(.04,NM(0x3a0f0c),0,-.075,.158,head,1.5,.08,.5,6,4);mouth.visible=false;
+  g.userData={L,R,aL,aR,body,head,mouth,f0:120,talk:null,sit:!!o.sit};pose(g,0,o.sit?'sit':'stand');g.visible=false;return g}
 function pose(g,t,mode){const u=g.userData,s=mode==='walk'?Math.sin(t):0;
   if(mode==='sit'){u.L.th.rotation.x=u.R.th.rotation.x=-1.5;u.L.sh.rotation.x=u.R.sh.rotation.x=1.5;u.aL.up.rotation.x=u.aR.up.rotation.x=-.5;u.aL.fo.rotation.x=u.aR.fo.rotation.x=-1.0;u.body.position.y=-.34;u.body.rotation.set(0,0,0);return}
   u.L.th.rotation.x=s*.65;u.R.th.rotation.x=-s*.65;u.L.sh.rotation.x=Math.max(0,-s)*.7;u.R.sh.rotation.x=Math.max(0,s)*.7;
   u.aL.up.rotation.x=-s*.55;u.aR.up.rotation.x=s*.55;u.aL.fo.rotation.x=-.15-Math.max(0,s)*.5;u.aR.fo.rotation.x=-.15-Math.max(0,-s)*.5;
-  u.body.position.y=mode==='walk'?Math.abs(Math.cos(t))*.03:0;u.body.rotation.z=s*.03;u.body.rotation.y=s*.07;u.head.rotation.y=-s*.06}
+  u.body.position.y=mode==='walk'?Math.abs(Math.cos(t))*.03:0;u.body.rotation.z=s*.03;u.body.rotation.y=s*.07}
 const CROWD=[person(-3,-1.0,0,0x3b5a7a,0x1a1a1a,0xc9a27e,{sit:1,sleeve:1,f:{smile:1}}),person(-3,-2.6,Math.PI,0x7a3b3b,0x8a8a8a,0xd8b08a,{sit:1,f:{wrinkle:1,sides:1,brow:'#777'}}),person(-3,.4,Math.PI,0x4a6a3b,0x111111,0xb58a66,{sit:1,shorts:1}),person(-1.7,-.5,Math.PI,0x6a5a3b,0x111111,0xc9a27e,{sit:1,f:{wrinkle:1}}),person(-1.7,1.1,0,0x5a3b6a,0x3a2a1a,0xc9a27e,{sit:1,hairUp:1,f:{smile:1,sides:1}})];
 const atuk=person(2.2,3.6,0,0xf1efe6,0xe6e6e6,0xb89572,{vest:1,bot:0x6b6f76,shoe:0x6a4a2a,f:{glasses:1,wrinkle:1,sides:1,brow:'#d8d8d8',mouth:'#6a3a2a'}});
+const NPCS=CROWD.concat([atuk]);[118,98,135,108,185].forEach((f,i)=>CROWD[i].userData.f0=f);atuk.userData.f0=92;
 function showCrowd(v){CROWD.forEach(c=>c.visible=v);atuk.visible=v}
 const ZONES=[[-4.65,4.65,-3.65,3.6],[-2.2,4.65,-6.65,-4.35],[3.45,4.15,-4.4,-3.6],[-7.15,-4.35,2.15,2.85],[-9.15,-7.15,1.35,3.65]];
 
@@ -301,7 +303,20 @@ function lightsOffNow(){lightsOn=false;applyLights(0)}
 let state='title',busy=false,scareDone=false,lookT=0,walkT=0;
 const P={x:0,z:3,yaw:0,pitch:0,tx:null,tz:null,bob:0};
 const objT=s=>{$('obj').textContent=s};
-async function say(t,ms=2600){const s=$('sub');s.textContent=t;s.classList.add('on');await sleep(ms);if(s.textContent===t)s.classList.remove('on')}
+const VOW=[[730,1090],[530,1840],[270,2290],[570,840],[300,870]];
+function speak(g,dur,f0,vol=1){const u=g.userData,rate=g===atuk?3.4:4.4,n=Math.max(2,Math.round(dur*rate)),seg=dur/n,syl=[];
+  for(let k=0;k<n;k++)syl.push([k*seg+Math.random()*seg*.12,seg*(.55+Math.random()*.25),.55+Math.random()*.45]);
+  u.talk={t0:performance.now(),syl,end:dur};if(!ac)return;const t0=ac.currentTime+.02;
+  for(const [st,d,a] of syl){const v=VOW[Math.random()*5|0],f=f0*(1+(Math.random()-.5)*.25)*(1-.1*st/dur);
+    const o=ac.createOscillator(),o2=ac.createOscillator(),ga=ac.createGain(),mix=ac.createGain();o.type=o2.type='sawtooth';o.frequency.value=f;o2.frequency.value=f*1.012;mix.gain.value=.5;o.connect(mix);o2.connect(mix);
+    [[v[0],1],[v[1],.5]].forEach(([fc,w])=>{const b=ac.createBiquadFilter();b.type='bandpass';b.frequency.value=fc;b.Q.value=fc/110;const gg=ac.createGain();gg.gain.value=w;mix.connect(b);b.connect(gg);gg.connect(ga)});
+    const T=t0+st,pk=.45*a*vol;ga.gain.setValueAtTime(0,T);ga.gain.linearRampToValueAtTime(pk,T+d*.25);ga.gain.linearRampToValueAtTime(0,T+d);ga.connect(master);o.start(T);o2.start(T);o.stop(T+d+.05);o2.stop(T+d+.05)}}
+function npcTick(dt){for(const g of NPCS){if(!g.visible)continue;const u=g.userData,dx=P.x-g.position.x,dz=P.z-g.position.z,d=Math.hypot(dx,dz);
+  let tgt=0;if(d<4.5){let a=Math.atan2(dx,dz)-(g.rotation.y+Math.PI);a=Math.atan2(Math.sin(a),Math.cos(a));if(Math.abs(a)<1.9)tgt=Math.max(-1.05,Math.min(1.05,a))}
+  u.head.rotation.y+=(tgt-u.head.rotation.y)*Math.min(1,dt*5);u.head.rotation.x=tgt?.06:0;
+  let m=0;const tk=u.talk;if(tk){const t=(performance.now()-tk.t0)/1000;if(t>tk.end+.2)u.talk=null;else for(const [st,dd,a] of tk.syl){if(t>=st&&t<=st+dd){m=Math.sin((t-st)/dd*Math.PI)*a;break}}}
+  u.mouth.visible=m>.08;u.mouth.scale.y=.08+m;u.mouth.scale.x=1.5-m*.3}}
+async function say(t,ms=2600,who){const s=$('sub');{const w=t.startsWith('ATUK:')?atuk:who;if(w&&w.visible)speak(w,Math.max(.8,Math.min(ms/1000-.4,t.length*.06)),w.userData.f0,Math.max(.15,Math.min(1,2.2/(1+Math.hypot(P.x-w.position.x,P.z-w.position.z)))))}s.textContent=t;s.classList.add('on');await sleep(ms);if(s.textContent===t)s.classList.remove('on')}
 const ITS=[];const lab=o=>typeof o.label==='function'?o.label():o.label;
 function it(id,pos,label,enabled,act,meshes){const o={id,pos:new THREE.Vector3(...pos),label,enabled,act};for(const m of meshes)m.traverse(n=>{if(n.isMesh)n.userData.it=o});ITS.push(o);return o}
 it('radio',[4.15,1.2,-.2],'Turn off the radio',()=>state==='lit1',radioAct,[radio]);
@@ -388,7 +403,7 @@ let chatT=4,ambT=1;
 function d1tick(dt){
   if(state==='d1_go'&&!busy&&P.z<8&&P.z>4.3&&Math.abs(P.x)<5)d1Knock();
   if(CHATST.includes(state)){chatT-=dt;
-    if(chatT<0&&!busy&&!$('sub').classList.contains('on')){let bi=-1,bd2=2.6;CROWD.forEach((c,i)=>{const d=Math.hypot(c.position.x-P.x,c.position.z-P.z);if(d<bd2){bd2=d;bi=i}});if(bi>=0){chatT=8+Math.random()*6;say('"'+CHAT[bi][Math.random()*2|0]+'"',2600)}}
+    if(chatT<0&&!busy&&!$('sub').classList.contains('on')){let bi=-1,bd2=2.6;CROWD.forEach((c,i)=>{const d=Math.hypot(c.position.x-P.x,c.position.z-P.z);if(d<bd2){bd2=d;bi=i}});if(bi>=0){chatT=8+Math.random()*6;say('"'+CHAT[bi][Math.random()*2|0]+'"',2600,CROWD[bi])}}
     ambT-=dt;if(ambT<0){ambT=1+Math.random()*1.8;const v=P.z<4?1:.25;A.nz(.4,300+Math.random()*300,600+Math.random()*400,.03*v,'bandpass',1.2);if(Math.random()<.4)A.tone(2400,1800,.06,.025*v)}}}
 
 /* ---------- input ---------- */
@@ -442,7 +457,7 @@ function update(dt){
    else if(P.x<-6.8){zx=-8.25;zz=2.5;zk=6}
    LZ.position.set(zx,zy,zz);if(zk!==ZK){ZK=zk}LZ.intensity=lightF*ZK}
   fan.rotation.y+=dt*(lightsOn?2.2:.4);
-  d1tick(dt);
+  d1tick(dt);npcTick(dt);
   led.visible=state==='dark'?(Math.floor(performance.now()/450)%2===0):false;
   if(lightsOn&&!busy&&TIME==='night'){flickT-=dt;if(flickT<0){flickT=3+Math.random()*6;if(Math.random()<.5)flicker([.35,1],60)}}
   /* prompt */
