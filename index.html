@@ -76,9 +76,13 @@ body{font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 #prompt:before{display:none}
 #prompt:after{content:"";flex:none;width:58px;height:58px;border-radius:50%;background:#F2B531 var(--ic) center/32px no-repeat;box-shadow:0 0 0 5px rgba(242,181,49,.18),0 6px 18px rgba(0,0,0,.45);animation:hp 1.6s ease-in-out infinite}
 @keyframes hp{0%,100%{box-shadow:0 0 0 4px rgba(242,181,49,.2),0 6px 18px rgba(0,0,0,.45)}50%{box-shadow:0 0 0 11px rgba(242,181,49,0),0 6px 18px rgba(0,0,0,.45)}}
+#cbt,#cbb{position:fixed;left:0;right:0;height:0;background:#000;z-index:6;transition:height .45s ease;pointer-events:none}#cbt{top:0}#cbb{bottom:0}
+body.cine #cbt,body.cine #cbb{height:12%}
+body.cine #top,body.cine #prompt,body.cine #arrow,body.cine #hint{visibility:hidden!important}
+body.cine #sub{bottom:calc(12% + 12px)!important;z-index:8}
 </style></head><body>
 <canvas id="c"></canvas>
-<div id="fx"></div>
+<div id="fx"></div><div id="cbt"></div><div id="cbb"></div>
 <div id="top"><span class="clock" id="clk">3:07 AM</span><span id="obj"></span></div>
 <div id="sub"></div>
 <div id="hint">Tap the floor to walk · drag to look</div>
@@ -390,7 +394,7 @@ ZONES.push([-1.7,1.7,3.5,4.45],[-24.5,24.5,4.4,14.3],[5.65,6.55,14.2,15.4],[3.35
  /* lit upstairs window (warm) */
  const lw=new THREE.Mesh(new THREE.PlaneGeometry(.8,.65),B(0xf2d48a));lw.position.set(9,4.55,14.93);lw.rotation.y=Math.PI;scene.add(lw)}
 /* ---- waypoint: walk-to marker ---- */
-const WPS={d1_go:{x:.9,z:5.5,r:.6,go:1},d1_bath:{x:-8.2,z:2.5,r:.6},d1_lock:{x:.3,z:5.3,r:.6},d1_home:{x:6.1,z:14.0,r:.6}};
+const WPS={d1_go:{x:.9,z:5.5,r:.6,go:1,fn:d1Knock},d1_greet:{x:.4,z:2.4,r:.7,go:1,fn:cineAtuk},d1_report:{x:.4,z:2.4,r:.7,go:1,fn:cineAtuk},d1_back:{x:.4,z:2.4,r:.7,go:1,fn:cineAtuk},d1_rule:{x:.4,z:2.4,r:.7,go:1,fn:cineAtuk},d1_bath:{x:-8.2,z:2.5,r:.6},d1_lock:{x:.3,z:5.3,r:.6},d1_home:{x:6.1,z:14.0,r:.6}};
 const WP={x:0,z:0,r:.6};
 const WPG=new THREE.Group();WPG.position.set(WP.x,0,WP.z);scene.add(WPG);
 {const ring=new THREE.Mesh(new THREE.RingGeometry(WP.r-.05,WP.r,40),new THREE.MeshBasicMaterial({color:0xE0A526,transparent:true,opacity:.6,depthWrite:false,fog:false,side:THREE.DoubleSide}));ring.rotation.x=-Math.PI/2;ring.position.y=.04;WPG.add(ring);
@@ -399,7 +403,7 @@ const WPG=new THREE.Group();WPG.position.set(WP.x,0,WP.z);scene.add(WPG);
  const beam=new THREE.Mesh(new THREE.CylinderGeometry(.09,.09,2.6,10,1,true),new THREE.MeshBasicMaterial({map:bt,transparent:true,opacity:.3,depthWrite:false,fog:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide}));beam.position.y=1.3;WPG.add(beam);
  const chev=new THREE.Mesh(new THREE.ConeGeometry(.13,.22,4),new THREE.MeshBasicMaterial({color:0xF2B531,transparent:true,opacity:.8,fog:false}));chev.rotation.x=Math.PI;chev.position.y=1.7;WPG.add(chev);
  WPG.userData={ring,disc,beam,chev}}
-function wpTick(){const w=WPS[state];if(!w||busy){WPG.visible=false;if(!w&&$('obj').textContent!==OBJB)$('obj').textContent=OBJB;return}
+function wpTick(){const w=WPS[state];if(CINE.on){WPG.visible=false;return}if(!w||busy){WPG.visible=false;if(!w&&$('obj').textContent!==OBJB)$('obj').textContent=OBJB;return}
   const d=Math.hypot(P.x-w.x,P.z-w.z);WP.x=w.x;WP.z=w.z;WP.r=w.r;WPG.position.set(w.x,0,w.z);WPG.visible=w.go||d>w.r;
   const t=performance.now()/1000,k=1+Math.sin(t*3)*.04;WPG.userData.ring.scale.set(k,k,1);WPG.userData.beam.material.opacity=.26+Math.sin(t*2)*.06;WPG.userData.chev.position.y=1.7+Math.sin(t*3)*.08;WPG.userData.chev.rotation.y=t*1.5;
   const txt=OBJB&&WPG.visible?OBJB+'  ·  '+Math.max(0,Math.round(d-w.r))+' m':OBJB;if($('obj').textContent!==txt)$('obj').textContent=txt}
@@ -455,7 +459,7 @@ function npcTick(dt){for(const g of NPCS){if(!g.visible)continue;const u=g.userD
   u.head.rotation.y+=(tgt-u.head.rotation.y)*Math.min(1,dt*5);u.head.rotation.x=tgt?.06:0;
   let m=0;const tk=u.talk;if(tk){const t=(performance.now()-tk.t0)/1000;if(t>tk.end+.2)u.talk=null;else for(const [st,dd,a] of tk.syl){if(t>=st&&t<=st+dd){m=Math.sin((t-st)/dd*Math.PI)*a;break}}}
   u.mouth.visible=m>.08;u.mouth.scale.y=.08+m;u.mouth.scale.x=1.5-m*.3}}
-async function say(t,ms=2600,who){const s=$('sub');{const w=t.startsWith('ATUK:')?atuk:who;if(w&&w.visible)speak(w,Math.max(.8,Math.min(ms/1000-.4,t.length*.06)),w.userData.f0,Math.max(.15,Math.min(1,2.2/(1+Math.hypot(P.x-w.position.x,P.z-w.position.z)))))}const mm=/^([A-Z]{2,8}): (.*)$/.exec(t);if(mm)s.innerHTML='<b>'+mm[1]+'</b>'+mm[2];else s.textContent=t;s.dataset.k=t;s.classList.add('on');await sleep(ms);if(s.dataset.k===t)s.classList.remove('on')}
+async function say(t,ms=2600,who){const s=$('sub');{const w=t.startsWith('ATUK:')?atuk:who;if(w&&w.visible)speak(w,Math.max(.8,Math.min(ms/1000-.4,t.length*.06)),w.userData.f0,Math.max(.15,Math.min(1,2.2/(1+Math.hypot(P.x-w.position.x,P.z-w.position.z)))))}const mm=/^([A-Z]{2,8}): (.*)$/.exec(t);if(mm)s.innerHTML='<b>'+mm[1]+'</b>'+mm[2];else s.textContent=t;s.dataset.k=t;s.classList.add('on');await(CINE.on?csleep(ms):sleep(ms));if(s.dataset.k===t)s.classList.remove('on')}
 const ITS=[];const lab=o=>typeof o.label==='function'?o.label():o.label;
 function it(id,pos,label,enabled,act,meshes){const o={id,pos:new THREE.Vector3(...pos),label,enabled,act};for(const m of meshes)m.traverse(n=>{if(n.isMesh)n.userData.it=o});ITS.push(o);return o}
 it('radio',[4.15,1.2,-.2],'Turn off the radio',()=>state==='lit1',radioAct,[radio]);
@@ -485,6 +489,20 @@ async function houseAct(){
 const NIGHT=/[?&]night/.test(location.search);
 const D={crowd:false,n:0,wipe:0,cups:0,kopi:0,serve:0,sugar:0,bath:0,walking:false};
 const clk=$('clk'),setClock=t=>{clk.textContent=t};
+/* ---- cinematic cutscenes: bars, auto camera, tap to skip a line ---- */
+const CINE={on:false,skipR:null,skip(){const r=this.skipR;if(r){this.skipR=null;r()}}};
+function csleep(ms){return new Promise(r=>{const t=setTimeout(()=>{CINE.skipR=null;r()},ms);CINE.skipR=()=>{clearTimeout(t);r()}})}
+async function cineIn(){stk=null;look=null;stickEl.style.display='none';P.tx=null;P.fy=null;CINE.on=true;document.body.classList.add('cine');await sleep(480)}
+async function cineOut(){document.body.classList.remove('cine');await sleep(480);CINE.on=false}
+function camTo(x,z,yaw,pitch,ms){return new Promise(r=>{const x0=P.x,z0=P.z,p0=P.pitch,y0=P.yaw;let dy=yaw-y0;dy=Math.atan2(Math.sin(dy),Math.cos(dy));const t0=performance.now();(function f(){const k=Math.min(1,(performance.now()-t0)/ms),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;P.x=x0+(x-x0)*e;P.z=z0+(z-z0)*e;P.yaw=y0+dy*e;P.pitch=p0+(pitch-p0)*e;k<1?requestAnimationFrame(f):r()})()})}
+const yawTo=(tx,tz)=>Math.atan2(-(tx-P.x),-(tz-P.z));
+async function cineAtuk(){if(busy||CINE.on)return;busy=true;const was=state;await cineIn();
+  const ax=atuk.position.x,az=atuk.position.z;let dx=P.x-ax,dz=P.z-az;const L=Math.hypot(dx,dz)||1;dx/=L;dz/=L;const cx=ax+dx*1.7,cz=az+dz*1.7;
+  await camTo(cx,cz,Math.atan2(-(ax-cx),-(az-cz)),.02,900);
+  await atukAct();
+  if(was==='d1_greet'){await camTo(P.x,P.z,yawTo(-3,-1),-.03,1000);await csleep(700);await camTo(P.x,P.z,0,.0,900)}
+  else if(was==='d1_rule'){await camTo(P.x,P.z,yawTo(.9,5),.0,800);await csleep(1800)}
+  await cineOut()}
 const sp=(w,t)=>w+': '+t;
 const SHB=[-2,2,3.8,4.1];
 function shutBlock(on){const i=AABB.indexOf(SHB);if(on&&i<0)AABB.push(SHB);if(!on&&i>=0)AABB.splice(i,1)}
@@ -510,10 +528,10 @@ it('serve',[-3,1.1,.4],'Serve the kopi',()=>state==='d1_chores'&&D.kopi&&!D.serv
 it('sugar',[4.2,1.2,.3],'Refill the sugar',()=>state==='d1_chores'&&!D.sugar,()=>chore('sugar','The jar was nearly empty. It never runs out, somehow.',()=>{A.nz(.6,2500,1500,.08);jarTop.position.y=1.34}),[jar]);
 it('bath',[-8.25,1.4,2.5],'Check the light',()=>state==='d1_bath',bathAct,[]);
 it('note',[-4.9,1.5,-2.2],'Read the note',()=>state==='d1_lock',noteAct,[noteM]);
-it('atuk',[2.2,1.2,3.6],'Talk to Atuk',()=>state==='d1_greet'||state==='d1_report'||state==='d1_back'||state==='d1_rule',atukAct,[atuk]);
+it('atuk',[2.2,1.2,3.6],'Talk to Atuk',()=>state==='d1_greet'||state==='d1_report'||state==='d1_back'||state==='d1_rule',cineAtuk,[atuk]);
 async function bathAct(){busy=true;A.click();flicker([.5,1,.35,1],80);await say('Click. The light holds.',1800);A.nz(1.4,3000,2000,.08,'highpass');await say("The tap is running. You didn't turn it on.",2800);A.click();await say('You turn it off.',1800);state='d1_back';setClock('10:20 AM');objT('Tell Atuk');busy=false}
 async function noteAct(){busy=true;A.click();await say("Taped to the wall. Atuk's handwriting.",2300);await say('1. Shutter down by 6.',1900);await say('2. Nobody comes in after dark.',2100);await say('3. Open only when Atuk knocks. Three times.',2700);await say('4. Kopi for everyone. Even the ones you do not see.',3000);busy=false}
-async function queueIn(){for(let i=0;i<QUEUE.length;i++){(async()=>{const q=QUEUE[i];await sleep(i*700);let cx=q.position.x,cz=q.position.z;for(const [tx,tz] of [[-.9+i*.1,4.7],[-.6,2.6]]){const dx=tx-cx,dz=tz-cz,L=Math.hypot(dx,dz),x0=cx,z0=cz;q.rotation.y=Math.atan2(-dx,-dz);await tween(k=>{q.position.set(x0+dx*k,0,z0+dz*k);pose(q,performance.now()/170,'walk')},L/1.8*1000);cx=tx;cz=tz}q.visible=false;pose(q,0,'stand')})()}}
+async function queueIn(){setTimeout(revealCrowd,2300);for(let i=0;i<QUEUE.length;i++){(async()=>{const q=QUEUE[i];await sleep(i*700);let cx=q.position.x,cz=q.position.z;for(const [tx,tz] of [[-.9+i*.1,4.7],[-.6,2.6]]){const dx=tx-cx,dz=tz-cz,L=Math.hypot(dx,dz),x0=cx,z0=cz;q.rotation.y=Math.atan2(-dx,-dz);await tween(k=>{q.position.set(x0+dx*k,0,z0+dz*k);pose(q,performance.now()/170,'walk')},L/1.8*1000);cx=tx;cz=tz}q.visible=false;pose(q,0,'stand')})()}}
 async function atukLeave(){D.walking=true;const path=[[1.0,3.6],[.9,5],[5.8,13.2],[6.1,16]];let cx=atuk.position.x,cz=atuk.position.z;
   for(const [tx,tz] of path){const dx=tx-cx,dz=tz-cz,L=Math.hypot(dx,dz);atuk.rotation.y=Math.atan2(-dx,-dz);const x0=cx,z0=cz;await tween(k=>{atuk.position.set(x0+dx*k,0,z0+dz*k);pose(atuk,performance.now()/170,'walk')},L/2.2*1000);cx=tx;cz=tz}
   atuk.visible=false;pose(atuk,0,'stand');D.walking=false}
@@ -528,9 +546,13 @@ async function toEvening(){busy=true;await say('The day goes by. Kopi, toast, th
   setTime('dusk');setClock('5:40 PM');P.x=.6;P.z=2.3;P.yaw=-2.14;P.pitch=0;P.tx=null;
   const dc=$('dcard');dc.innerHTML='EVENING<small>5:40 PM</small>';dc.style.opacity=1;await sleep(1800);dc.style.opacity=0;
   $('fade').style.opacity=0;state='d1_rule';objT('Talk to Atuk');busy=false}
-async function d1Knock(){busy=true;state='d1_knock';await say('The shutter is still down. Customers are waiting outside.',2400);await say('"Boss belum buka lagi ke?"',2300,QUEUE[0]);handAct('knock',2300);for(let i=0;i<3;i++){A.knock();await sleep(650)}
-  await say(sp('ATUK','Siapa tu?'),1700);await say(sp('YOU',"Atuk, it's me."),1800);await say(sp('ATUK','Three knock. Always three knock. That means is us.'),3000);await say(sp('ATUK',"Anybody else knock, don't open. Okay, angkat shutter. Customers waiting."),3400);
-  state='d1_open';objT('Open the shutter');busy=false}
+async function d1Knock(){busy=true;state='d1_knock';await cineIn();await camTo(.9,7.3,-.05,.07,1100);
+  await say('The shutter is still down. Customers are waiting outside.',2400);await say('"Boss belum buka lagi ke?"',2300,QUEUE[0]);handAct('knock',2300);for(let i=0;i<3;i++){A.knock();await sleep(650)}
+  await say(sp('ATUK','Siapa tu?'),1700);await say(sp('YOU',"Atuk, it's me."),1800);await say(sp('ATUK','Three knock. Always three knock. That means is us.'),3000);await say(sp('ATUK',"Anybody else knock, don't open. Okay, I open now. Customers waiting."),3400);
+  A.scrape();shutBlock(false);atuk.visible=true;
+  await Promise.all([tween(k=>{shutter.position.y=1.2+2.4*k},1700),camTo(P.x,P.z,0,.34,900).then(()=>camTo(P.x,P.z,0,.05,800))]);
+  state='d1_greet';setClock('7:02 AM');objT('Go inside');queueIn();await say('Warm air. Toast. The queue shuffles in behind you.',2600);
+  await cineOut();busy=false}
 async function beginDay1(){
   setTime('day');lightsOn=true;applyLights(1);objT('');setClock('6:55 AM');
   shutter.position.y=1.2;shutBlock(true);showCrowd(false);D.crowd=false;QUEUE.forEach((q,i)=>{q.visible=true;q.position.set([-1.7,-2.7,-3.5][i],0,[5.5,5.1,5.8][i]);q.rotation.y=[.15,-.1,.2][i];pose(q,0,'stand')});drawBoard(1);day1Props(true);
@@ -544,8 +566,7 @@ const CHATST=['d1_greet','d1_chores','d1_report','d1_bath','d1_back'];
 let chatT=4,ambT=1;
 function revealCrowd(){if(D.crowd)return;D.crowd=true;CROWD.forEach(c=>c.visible=true)}
 function d1tick(dt){
-  if(state==='d1_greet'&&P.z<4.6)revealCrowd();
-  if(state==='d1_go'&&!busy&&Math.hypot(P.x-WPS.d1_go.x,P.z-WPS.d1_go.z)<WPS.d1_go.r)d1Knock();
+  {const w=WPS[state];if(w&&w.fn&&!busy&&!CINE.on&&Math.hypot(P.x-w.x,P.z-w.z)<w.r)w.fn()}
   wpTick();
   if(CHATST.includes(state)){chatT-=dt;
     if(chatT<0&&!busy&&!$('sub').classList.contains('on')){let bi=-1,bd2=2.6;CROWD.forEach((c,i)=>{const d=Math.hypot(c.position.x-P.x,c.position.z-P.z);if(d<bd2){bd2=d;bi=i}});if(bi>=0){chatT=8+Math.random()*6;say('"'+CHAT[bi][Math.random()*2|0]+'"',2600,CROWD[bi])}}
@@ -555,7 +576,7 @@ function d1tick(dt){
 const ray=new THREE.Raycaster();let look=null,stk=null;
 const stickEl=$('stick'),knobEl=$('knob'),SR=52;
 const cap=(e)=>{try{cv.setPointerCapture(e.pointerId)}catch(_){}};
-cv.addEventListener('pointerdown',e=>{if(state==='title'||state==='end')return;
+cv.addEventListener('pointerdown',e=>{if(state==='title'||state==='end')return;if(CINE.on){CINE.skip();return}
   if(isLand()&&e.clientX<innerWidth*.45&&!stk){stk={id:e.pointerId,ox:e.clientX,oy:e.clientY,vx:0,vy:0};stickEl.style.left=e.clientX+'px';stickEl.style.top=e.clientY+'px';stickEl.style.display='block';knobEl.style.transform='';P.tx=null;cap(e);return}
   if(!look){look={id:e.pointerId,x:e.clientX,y:e.clientY,lx:e.clientX,ly:e.clientY,t:performance.now(),drag:false};cap(e)}});
 cv.addEventListener('pointermove',e=>{
@@ -618,7 +639,7 @@ const mkTexs={};function mkTexFor(k){if(mkTexs[k])return mkTexs[k];const d=ICONS
   if(d.p){c.strokeStyle='#F2B531';c.lineWidth=1.3;c.lineCap='round';c.stroke(new Path2D(d.p))}c.restore()});t.minFilter=t.magFilter=THREE.LinearFilter;return t}
 function markers(t){const arrow=$('arrow');let tgt=null,td=1e9;
   for(const o of ITS){const on=o.enabled()&&o.id!=='atuk'||o.enabled();let m=MK[o.id];if(!m){m=MK[o.id]=new THREE.Sprite(new THREE.SpriteMaterial({map:mkTexFor(icOf(o)),depthTest:false,transparent:true,fog:false}));m.renderOrder=20;m.visible=false;scene.add(m)}
-    const d=Math.hypot(o.pos.x-P.x,o.pos.z-P.z);m.visible=!!(on&&d>2.2&&d<14);if(on&&d<td&&d>2.2){td=d;tgt=o}
+    const d=Math.hypot(o.pos.x-P.x,o.pos.z-P.z);m.visible=!!(on&&d>2.2&&d<14&&!CINE.on);if(on&&d<td&&d>2.2){td=d;tgt=o}
     if(m.visible){m.position.set(o.pos.x,o.pos.y+.55+Math.sin(t/260)*.05,o.pos.z);const sc=.2+d*.045;m.scale.set(sc,sc,1)}}
   if(tgt){const v=tgt.pos.clone().project(camera);let x=v.x,y=v.y;const behind=v.z>1;if(behind){x=-x;y=-y}
     if(!behind&&Math.abs(x)<.92&&Math.abs(y)<.85){arrow.style.display='none'}else{const a=Math.atan2(y,x);let ex=Math.cos(a),ey=Math.sin(a);const k=Math.max(Math.abs(ex)/.9,Math.abs(ey)/.8);ex/=k;ey/=k;arrow.style.display='block';arrow.style.left=(innerWidth*(ex+1)/2-11)+'px';arrow.style.top=(innerHeight*(1-ey)/2-11)+'px';arrow.style.transform='rotate('+(Math.PI/2-a)*57.3+'deg)'}}

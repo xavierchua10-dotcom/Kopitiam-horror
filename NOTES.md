@@ -84,3 +84,8 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 
 ## Walk-to waypoint (Nov 27)
 - Ground ring (r .6, dim amber) + faint thin beam + small spinning arrow. Table WPS by state: d1_go (trigger: knock cutscene starts only when you step inside the ring in front of Atuk's shutter), d1_bath, d1_lock, d1_home (guidance only; hidden when you arrive). Objective box appends distance ("· 5 m"). OBJB holds base objective text; wpTick() runs from d1tick. Tests: d1.py now teleports to (0.9,5.5) for the knock.
+
+## Cinematic cutscenes (Nov 27)
+- CINE system: letterbox bars (#cbt/#cbb via body.cine), HUD/markers hidden, input locked (cineIn clears stick/look), camTo() eased auto camera, tap = skip current line (csleep), subtitles sit above bars.
+- Walk-to rings now trigger scenes (WPS[state].fn): d1_go -> d1Knock (knock, Atuk answers, shutter opens by itself, queue walks in, crowd revealed 2.3s later); d1_greet/report/back/rule ring inside shop -> cineAtuk (camera frames Atuk, atukAct lines, greet adds glance at customers, rule follows him toward the door). Atuk hand-button still works (calls cineAtuk).
+- Test: d1.py waits for state + !busy + no body.cine.
