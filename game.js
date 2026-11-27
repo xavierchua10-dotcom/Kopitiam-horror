@@ -115,6 +115,8 @@ function faceTex(o){const ct=document.createElement('canvas');ct.width=64;ct.hei
   c.fillStyle='#fff';c.fillRect(cx-6,11,4,2);c.fillRect(cx+2,11,4,2);c.fillStyle='#161616';c.fillRect(cx-5,11,2,2);c.fillRect(cx+3,11,2,2);
   if(o.glasses){c.fillStyle='#2a2a2a';c.fillRect(cx-8,10,7,1);c.fillRect(cx+1,10,7,1);c.fillRect(cx-8,14,7,1);c.fillRect(cx+1,14,7,1);c.fillRect(cx-8,10,1,5);c.fillRect(cx-2,10,1,5);c.fillRect(cx+1,10,1,5);c.fillRect(cx+7,10,1,5);c.fillRect(cx-1,11,2,1)}
   c.fillStyle='rgba(110,65,45,.5)';c.fillRect(cx-1,14,2,3);c.fillStyle=o.mouth||'#6a3028';c.fillRect(cx-3,20,6,1);if(o.smile){c.fillRect(cx-4,19,1,1);c.fillRect(cx+3,19,1,1)}
+  if(o.lash){c.fillStyle='#161616';c.fillRect(cx-7,10,6,1);c.fillRect(cx+1,10,6,1);c.fillRect(cx-8,11,1,1);c.fillRect(cx+7,11,1,1);c.fillRect(cx-8,10,1,1);c.fillRect(cx+7,10,1,1)}
+  if(o.lips){c.fillStyle=o.mouth||'#b0404a';c.fillRect(cx-3,19,6,3);c.fillStyle='rgba(255,255,255,.25)';c.fillRect(cx-1,19,2,1)}
   if(o.wrinkle){c.fillStyle='rgba(90,60,40,.45)';c.fillRect(cx-8,16,2,1);c.fillRect(cx+6,16,2,1);c.fillRect(cx-5,7,10,1)}
   c.fillStyle='rgba(200,110,90,.25)';c.fillRect(cx-8,16,3,2);c.fillRect(cx+5,16,3,2);
   const t=new THREE.CanvasTexture(ct);t.magFilter=t.minFilter=THREE.NearestFilter;t.colorSpace=THREE.SRGBColorSpace;return t}
@@ -141,6 +143,8 @@ function person(x,z,rot,shirt,hair=0x222222,skin=0xc9a27e,o={}){const g=new THRE
   nsph(.17,new THREE.MeshLambertMaterial({map:faceTex(Object.assign({skin:'#'+skin.toString(16).padStart(6,'0'),hair:'#'+hair.toString(16).padStart(6,'0'),brow:'#111'},o.f||{}))}),0,0,0,head,1,1.08,1,12,9);
   nsph(.03,sk,0,-.01,.17,head,1,1,1.2,5,4);for(const q of[-1,1])nsph(.035,sk,q*.168,-.01,0,head,.5,1,.8,5,4);
   nsph(.18,hm,0,.045,-.03,head,1,.86,1.03,12,7);nsph(.15,hm,0,-.02,-.07,head,1,1,.9,8,6);if(o.hairUp)nsph(.1,hm,0,.16,0,head,1,.6,1,7,5);
+  if(o.long)nsph(.19,hm,0,-.17,-.09,head,1,1.55,.8,10,8);
+  if(o.tudung){nsph(.2,hm,0,.03,-.05,head,1,.95,1.02,12,8);nsph(.2,hm,0,-.17,-.05,head,1,.62,.95,10,7)}
   const mouth=nsph(.04,NM(0x3a0f0c),0,-.075,.158,head,1.5,.08,.5,6,4);mouth.visible=false;
   g.userData={L,R,aL,aR,body,head,mouth,f0:120,talk:null,sit:!!o.sit};pose(g,0,o.sit?'sit':'stand');g.visible=false;return g}
 function pose(g,t,mode){const u=g.userData,s=mode==='walk'?Math.sin(t):0;
@@ -148,7 +152,7 @@ function pose(g,t,mode){const u=g.userData,s=mode==='walk'?Math.sin(t):0;
   u.L.th.rotation.x=s*.65;u.R.th.rotation.x=-s*.65;u.L.sh.rotation.x=Math.max(0,-s)*.7;u.R.sh.rotation.x=Math.max(0,s)*.7;
   u.aL.up.rotation.x=-s*.55;u.aR.up.rotation.x=s*.55;u.aL.fo.rotation.x=-.15-Math.max(0,s)*.5;u.aR.fo.rotation.x=-.15-Math.max(0,-s)*.5;
   u.body.position.y=mode==='walk'?Math.abs(Math.cos(t))*.03:0;u.body.rotation.z=s*.03;u.body.rotation.y=s*.07}
-const CROWD=[person(-3,-1.0,0,0x3b5a7a,0x1a1a1a,0xc9a27e,{sit:1,sleeve:1,f:{smile:1}}),person(-3,-2.6,Math.PI,0x7a3b3b,0x8a8a8a,0xd8b08a,{sit:1,f:{wrinkle:1,sides:1,brow:'#777'}}),person(-3,.4,Math.PI,0x4a6a3b,0x111111,0xb58a66,{sit:1,shorts:1}),person(-1.7,-.5,Math.PI,0x6a5a3b,0x111111,0xc9a27e,{sit:1,f:{wrinkle:1}}),person(-1.7,1.1,0,0x5a3b6a,0x3a2a1a,0xc9a27e,{sit:1,hairUp:1,f:{smile:1,sides:1}})];
+const CROWD=[person(-3,-1.0,0,0x3b5a7a,0x1a1a1a,0xc9a27e,{sit:1,sleeve:1,f:{smile:1}}),person(-3,-2.6,Math.PI,0x7a3b3b,0xb9b2c8,0xd8b08a,{sit:1,tudung:1,sarong:0x5a2a2a,f:{wrinkle:1,sides:1,brow:'#777',lash:1,lips:1,mouth:'#9a4a4a'}}),person(-3,.4,Math.PI,0x4a6a3b,0x111111,0x8a5836,{sit:1,shorts:1}),person(-1.7,-.5,Math.PI,0x6a5a3b,0x111111,0xc9a27e,{sit:1,f:{wrinkle:1}}),person(-1.7,1.1,0,0x5a3b6a,0x3a2a1a,0xc9a27e,{sit:1,hairUp:1,long:1,sarong:0x2f2a3d,f:{smile:1,sides:1,lash:1,lips:1,mouth:'#c0485a'}})];
 const atuk=person(3.9,3.5,1.0,0xf1efe6,0xe6e6e6,0xb89572,{vest:1,bot:0x6b6f76,shoe:0x6a4a2a,f:{glasses:1,wrinkle:1,sides:1,brow:'#d8d8d8',mouth:'#6a3a2a'}});
 const NPCS=CROWD.concat([atuk]);[118,98,135,108,185].forEach((f,i)=>CROWD[i].userData.f0=f);atuk.userData.f0=92;
 const HOME=CROWD.map(c=>[c.position.x,c.position.z,c.rotation.y]);

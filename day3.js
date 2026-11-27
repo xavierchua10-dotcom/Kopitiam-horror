@@ -2,7 +2,7 @@
 export default function install(G){
 const {THREE,scene,camera,P,EYE,A,CINE,D,WPS,atuk,CROWD,HOME,FEET,shutter,
   $,sleep,say,sp,cineIn,cineOut,camTo,yawTo,csleep,tween,handAct,pose,objT,setClock,setTime,applyLights,bulbSet,flicker,tapOff,lids,startAlarm,stopAlarm,drawClock,
-  showCrowd,drawBoard,day1Props,shutBlock,atukLeave,M,B,box}=G;
+  showCrowd,drawBoard,day1Props,shutBlock,atukLeave,M,B,box,ctex}=G;
 
 const pace=(x,z,sp_=1.7)=>{const x0=P.x,z0=P.z,L=Math.hypot(x-x0,z-z0);if(L<.9)return Promise.resolve();let st=0;
   return tween(k=>{const e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;P.x=x0+(x-x0)*e;P.z=z0+(z-z0)*e;st++;EYE.y=1.6+Math.sin(performance.now()/110)*.035*Math.min(1,Math.min(k,1-k)*8);if(st%16===0)A.step()},Math.max(700,L/sp_*1000)).then(()=>{EYE.y=1.6})};
@@ -13,7 +13,7 @@ const haze=document.createElement('div');haze.style.cssText='position:fixed;inse
 
 /* the TV on the east wall */
 const tvC=document.createElement('canvas');tvC.width=96;tvC.height=60;const tvX=tvC.getContext('2d'),tvT=new THREE.CanvasTexture(tvC);tvT.colorSpace=THREE.SRGBColorSpace;tvT.magFilter=THREE.NearestFilter;
-const TV=new THREE.Group();TV.position.set(4.93,2.1,.5);TV.scale.set(1,1.35,1.35);TV.visible=false;scene.add(TV);
+const TV=new THREE.Group();TV.position.set(4.93,2.1,.5);TV.scale.set(1,1.35,1.35);scene.add(TV);
 box(.08,.5,.78,M(0x1a1a1e),0,0,0,TV);
 {const scr=new THREE.Mesh(new THREE.PlaneGeometry(.68,.42),new THREE.MeshBasicMaterial({map:tvT,fog:false}));scr.rotation.y=-Math.PI/2;scr.position.x=-.045;TV.add(scr)}
 let tvMode='off',tvLast=0;
@@ -27,18 +27,42 @@ function drawTV(){const c=tvX;
     for(let i=0;i<d.length;i+=4){if(Math.random()<amt){const v=60+Math.random()*190|0;d[i]=d[i+1]=d[i+2]=v}}
     c.putImageData(im,0,0)}
   tvT.needsUpdate=true}
-G.tick.push(()=>{if(!TV.visible||tvMode==='off')return;const n=performance.now();if(n-tvLast>90){tvLast=n;drawTV()}});
-const tvSet=m=>{tvMode=m;drawTV()};
+tvSet0();
+G.tick.push(()=>{if(tvMode==='off')return;const n=performance.now();if(n-tvLast>90){tvLast=n;drawTV()}});
+const tvSet=m=>{tvMode=m;drawTV()};function tvSet0(){tvMode='off';drawTV()}
 
 /* the figure across the road */
 const FIG=new THREE.Group();FIG.position.set(-6,0,10.3);FIG.visible=false;scene.add(FIG);
 {const dk=M(0x040506);box(.17,.85,.2,dk,-.1,.43,0,FIG);box(.17,.85,.2,dk,.1,.43,0,FIG);box(.46,.7,.26,dk,0,1.2,0,FIG);box(.13,.7,.14,dk,-.3,1.15,0,FIG);box(.13,.7,.14,dk,.3,1.15,0,FIG);box(.24,.26,.24,dk,0,1.72,0,FIG)}
 
+
+/* the little things that are wrong with each customer (they show up from Day 3) */
+const sph=(r,m,x,y,z,p,sx=1,sy=1,sz=1)=>{const o=new THREE.Mesh(new THREE.SphereGeometry(r,8,6),m);o.position.set(x,y,z);o.scale.set(sx,sy,sz);p.add(o);return o};
+let detDone=false;
+function details(){if(detDone)return;detDone=true;
+  const red=M(0xa22d22,{emissive:0x300806}),dark=M(0x3a0f0c),soot=M(0x24201c);
+  /* Mak Cik Salmah: a burn up the arm */
+  {const u=CROWD[1].userData;sph(.085,red,0,-.14,.02,u.aL.fo,1,2.4,.9);sph(.08,red,0,-.26,0,u.aL.fo,1.1,1.1,1.1);sph(.09,dark,.02,-.05,.03,u.aL.up,1,2,.9);sph(.06,red,0,-.14,.02,u.aR.fo,1,1.6,.8)}
+  /* Ah Seng: a watch, soot on his shirt */
+  {const u=CROWD[0].userData,fo=u.aL.fo,band=new THREE.Mesh(new THREE.CylinderGeometry(.068,.068,.045,10),M(0x9a9a9a));band.position.y=-.2;fo.add(band);
+   const face=new THREE.Mesh(new THREE.BoxGeometry(.05,.012,.05),new THREE.MeshBasicMaterial({color:0xe8e4d4}));face.position.set(0,-.2,.072);fo.add(face);
+   sph(.12,soot,.06,1.22,.12,u.body,1,1.3,.35);sph(.07,soot,-.1,1.35,.14,u.body,1,1,.4)}
+  /* Raj: only one shoe, a scraped foot */
+  {const u=CROWD[2].userData,sh=u.L.sh,shoe=sh.children[2];shoe.visible=false;
+   sph(.072,M(0x8a5836),0,-.41,.05,sh,1,.6,1.8);sph(.05,red,.02,-.41,.09,sh,1,.5,1.2);sph(.1,soot,-.04,1.2,.14,u.body,1,1.2,.35)}
+  /* Mei Ling: a dark stain on her top, soot on her hands */
+  {const u=CROWD[4].userData;sph(.14,red,.09,1.22,.12,u.body,1,1.4,.32);sph(.07,dark,.14,1.1,.14,u.body,1,1,.3);sph(.065,soot,0,-.26,0,u.aR.fo)}
+  /* Pak Hassan: the same newspaper page, smudged */
+  {const t=ctex(60,80,c=>{c.fillStyle='#d9d2bd';c.fillRect(0,0,60,80);c.fillStyle='#2a2824';c.fillRect(4,5,52,9);c.fillStyle='#555';for(let y=20;y<74;y+=4)c.fillRect(5,y,50,1.5);
+     c.fillStyle='#222';c.font='bold 8px sans-serif';c.fillText('7',27,78);c.fillStyle='rgba(30,25,20,.55)';c.beginPath();c.ellipse(30,44,20,14,.3,0,7);c.fill();c.fillStyle='rgba(120,20,16,.5)';c.beginPath();c.ellipse(40,52,9,7,0,0,7);c.fill()}),
+   pm=new THREE.Mesh(new THREE.PlaneGeometry(.36,.48),new THREE.MeshLambertMaterial({map:t}));pm.rotation.x=-Math.PI/2;pm.rotation.z=.12;pm.position.set(-1.7,.785,.0);scene.add(pm)}
+}
+
 /* ---------- opening: same alarm, with smoke ---------- */
 async function start(){
   G.busy=true;G.state='d3_intro';
   setTime('day');G.setLights(true);applyLights(1);bulbSet(1);tapOff();setClock('6:30 AM');
-  shutter.position.y=3.6;shutBlock(false);drawBoard(3);day1Props(true);TV.visible=true;tvSet('off');FIG.visible=false;
+  shutter.position.y=3.6;shutBlock(false);drawBoard(3);day1Props(true);tvSet('off');FIG.visible=false;details();
   showCrowd(true);D.crowd=true;CROWD.forEach((c,i)=>{c.position.set(HOME[i][0],0,HOME[i][1]);c.rotation.y=HOME[i][2];pose(c,0,'sit')});
   atuk.position.set(3.9,0,3.5);atuk.rotation.y=1.0;pose(atuk,0,'stand');FEET.visible=false;
   CINE.noclip=true;EYE.y=.62;P.x=14.5;P.z=17.0;P.yaw=0;P.pitch=1.1;P.tx=null;P.fy=null;lids(0,0);G.setBlur(true);
@@ -78,7 +102,7 @@ const Y=t=>say(sp('YOU',t),2200);
 const LK=[
  {obj:'Ask Mak Cik Salmah',m:[-2.2,-2.6],c:1,pit:-.45,clk:'8:05 AM',run:async c=>{await Y('Mak Cik... your hand. Are you okay?');await say('"Teh tarik, adik. Panas-panas."',2600,c);await say('She slides her hand under the table. A shiny red mark, up to the wrist.',3000)}},
  {obj:'Ask Ah Seng',m:[-2.15,-.85],c:0,pit:-.55,clk:'8:40 AM',run:async c=>{await Y('Ah Seng, your watch stopped.');await say('"Teh-C peng."',2200,c);await say('The hands are frozen at 12:41.',2600)}},
- {obj:'Ask Raj',m:[-3.95,.4],c:2,pit:-.9,clk:'9:15 AM',run:async c=>{await Y('Raj. Where is your other shoe?');await say('"Kopi-O kurang manis, boss."',2400,c);await say('One shoe. Only ever one shoe.',2400)}},
+ {obj:'Ask Raj',m:[-3.95,.4],c:2,pit:-.7,clk:'9:15 AM',run:async c=>{await Y('Raj. Where is your other shoe?');await say('"Kopi-O kurang manis, boss."',2400,c);await say('One shoe. Only ever one shoe.',2400)}},
  {obj:'Ask Mei Ling',m:[-.9,1.15],c:4,pit:-.3,clk:'9:50 AM',run:async c=>{await Y('Mei Ling, how is your daughter?');await say('"Her birthday is next week. I must buy a cake..."',3000,c);await say('"Milo dinosaur."',1800,c);await say('She said "next week" yesterday too.',2600)}},
  {obj:'Ask Pak Hassan',m:[-.9,-.5],c:3,pit:-.5,clk:'10:30 AM',run:async c=>{await Y('Pak Hassan, that page again?');await say('"Kopi. Roti bakar."',2200,c);await say('Page seven. The print is smudged, like it got wet.',3000)}}];
 WPS.d3_look={get x(){return LK[Math.min(ci,LK.length-1)].m[0]},get z(){return LK[Math.min(ci,LK.length-1)].m[1]},r:.6,go:1,get fn(){return lookRun}};
@@ -118,7 +142,7 @@ async function atukTalk(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
   await csleep(1100);
   await say(sp('ATUK','TV rosak. Don\'t watch. Don\'t ask.'),2600);
   $('fade').style.transition='opacity 1.4s';$('fade').style.opacity=1;await sleep(1600);
-  showCrowd(false);atuk.visible=true;atuk.position.set(3.9,0,3.5);atuk.rotation.y=1.0;TV.visible=false;
+  showCrowd(false);atuk.visible=true;atuk.position.set(3.9,0,3.5);atuk.rotation.y=1.0;
   setTime('dusk');setClock('5:40 PM');P.x=.6;P.z=2.3;P.yaw=-2.14;P.pitch=0;P.tx=null;
   await card('EVENING','5:40 PM',1800);
   $('fade').style.opacity=0;G.state='d3_rule';objT('Talk to Atuk');G.busy=false;await cineOut()}
@@ -139,12 +163,17 @@ async function lockUp(){if(G.busy||CINE.on||D.walking)return;G.busy=true;await c
   await camTo(.3,5.2,yawTo(0,3.9),.1,900);
   handAct('lift',2000);A.scrape();await tween(k=>{shutter.position.y=3.6-2.4*k;P.pitch=.1-.25*k},1800);shutBlock(true);
   A.click();handAct('reach',1200);await say('You pull the padlock through. Click.',2200);
-  await camTo(.3,5.2,yawTo(-6,10.3),.02,1200);
-  FIG.visible=true;A.tone(55,45,1.4,.08,'sine');
-  await say('Someone is standing across the road.',2600);
-  await csleep(1800);
-  await camTo(.3,5.2,yawTo(6.1,14),0,900);FIG.visible=false;await csleep(500);
-  await camTo(.3,5.2,yawTo(-6,10.3),.02,700);
+  await csleep(500);
+  await camTo(.3,5.2,yawTo(6.1,14),0,1000);
+  await csleep(400);
+  /* you turn back toward the shop... and it is right there, in the road */
+  await camTo(.3,5.2,yawTo(0,3.9),0,500);
+  FIG.position.set(-.1,0,8.3);FIG.visible=true;A.sting();applyLights(0);
+  await camTo(.3,5.2,yawTo(-.1,8.3),.02,260);
+  await tween(k=>{P.pitch=.02+Math.sin(k*40)*.03*(1-k)},300);
+  await csleep(1500);
+  $('fade').style.transition='opacity .08s';$('fade').style.opacity=1;await sleep(260);FIG.visible=false;applyLights(1);$('fade').style.opacity=0;
+  await csleep(900);
   await say('Gone.',1600);
   await camTo(.3,5.2,yawTo(6.1,14),0,1100);
   G.state='d3_home';window.__doorG.rotation.y=0;setClock('6:10 PM');objT('Go home');G.busy=false;await cineOut()}
