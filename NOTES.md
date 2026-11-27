@@ -89,3 +89,6 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 - CINE system: letterbox bars (#cbt/#cbb via body.cine), HUD/markers hidden, input locked (cineIn clears stick/look), camTo() eased auto camera, tap = skip current line (csleep), subtitles sit above bars.
 - Walk-to rings now trigger scenes (WPS[state].fn): d1_go -> d1Knock (knock, Atuk answers, shutter opens by itself, queue walks in, crowd revealed 2.3s later); d1_greet/report/back/rule ring inside shop -> cineAtuk (camera frames Atuk, atukAct lines, greet adds glance at customers, rule follows him toward the door). Atuk hand-button still works (calls cineAtuk).
 - Test: d1.py waits for state + !busy + no body.cine.
+
+## Knock scene v2 (Nov 27)
+- d1Knock choreography: you walk up to the shutter (camTo .3,4.6) and knock with hand; Atuk answers (muffled); camera cuts to the queue customer who turns to face you and speaks; camera swings back; Atuk explains the rule; you lift the shutter with the 'lift' hand animation; queue walks in.

@@ -546,11 +546,17 @@ async function toEvening(){busy=true;await say('The day goes by. Kopi, toast, th
   setTime('dusk');setClock('5:40 PM');P.x=.6;P.z=2.3;P.yaw=-2.14;P.pitch=0;P.tx=null;
   const dc=$('dcard');dc.innerHTML='EVENING<small>5:40 PM</small>';dc.style.opacity=1;await sleep(1800);dc.style.opacity=0;
   $('fade').style.opacity=0;state='d1_rule';objT('Talk to Atuk');busy=false}
-async function d1Knock(){busy=true;state='d1_knock';await cineIn();await camTo(.9,7.3,-.05,.07,1100);
-  await say('The shutter is still down. Customers are waiting outside.',2400);await say('"Boss belum buka lagi ke?"',2300,QUEUE[0]);handAct('knock',2300);for(let i=0;i<3;i++){A.knock();await sleep(650)}
-  await say(sp('ATUK','Siapa tu?'),1700);await say(sp('YOU',"Atuk, it's me."),1800);await say(sp('ATUK','Three knock. Always three knock. That means is us.'),3000);await say(sp('ATUK',"Anybody else knock, don't open. Okay, I open now. Customers waiting."),3400);
-  A.scrape();shutBlock(false);atuk.visible=true;
-  await Promise.all([tween(k=>{shutter.position.y=1.2+2.4*k},1700),camTo(P.x,P.z,0,.34,900).then(()=>camTo(P.x,P.z,0,.05,800))]);
+async function d1Knock(){busy=true;state='d1_knock';await cineIn();
+  await camTo(.3,4.6,0,.04,1800);
+  handAct('knock',2300);for(let i=0;i<3;i++){A.knock();await sleep(650)}
+  await say(sp('ATUK','Siapa tu?'),1700);await say(sp('YOU',"Atuk, it's me."),1800);
+  const q=QUEUE[0],qy=q.rotation.y,qx=q.position.x,qz=q.position.z;await tween(k=>{q.rotation.y=qy+((Math.atan2(-(.3-qx),-(4.6-qz))-qy+Math.PI*3)%(Math.PI*2)-Math.PI)*k},350);
+  await camTo(-.3,4.7,Math.atan2(-(qx+.3),-(qz-4.7)),.05,850);
+  await say('"Boss, belum buka lagi ke?"',2300,q);q.rotation.y=qy;
+  await camTo(.3,4.6,0,.04,850);
+  await say(sp('ATUK','Three knock. Always three knock. That means is us.'),3000);await say(sp('ATUK',"Anybody else knock, don't open. Okay, I open now. Customers waiting."),3400);
+  handAct('lift',1900);A.scrape();shutBlock(false);atuk.visible=true;await tween(k=>{shutter.position.y=1.2+2.4*k},1900);
+  await camTo(P.x,P.z,0,.03,500);
   state='d1_greet';setClock('7:02 AM');objT('Go inside');queueIn();await say('Warm air. Toast. The queue shuffles in behind you.',2600);
   await cineOut();busy=false}
 async function beginDay1(){
