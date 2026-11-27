@@ -82,13 +82,13 @@ async function radioScene(){if(G.busy||CINE.on)return;G.busy=true;await cineIn()
   G.state='d2_bath';setClock('10:15 AM');objT('The tap is running again');tapOn();G.busy=false;await cineOut()}
 
 /* ---------- the bathroom: tap, mirror ---------- */
-WPS.d2_bath={x:-7.7,z:2.2,r:.6,go:1,fn:bathScene};
+WPS.d2_bath={x:-8.2,z:2.5,r:.6,go:1,fn:bathScene};
 async function bathScene(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
-  await camTo(-7.7,2.4,yawTo(-7.7,1.1),-.05,1300);
+  await camTo(-8.4,2.4,yawTo(-7.7,1.1),-.05,1300);
   await say(sp('YOU','Again. I turned this off yesterday.'),2200);
   handAct('reach',1400);await csleep(700);tapOff();A.click();await csleep(900);
   A.tone(1300,900,.04,.04);await csleep(800);
-  await camTo(-7.7,2.1,yawTo(-7.7,1.0),.03,1200);
+  await camTo(-8.2,1.9,yawTo(-7.7,1.0),.03,1200);
   await csleep(500);
   flicker([.5,1,.3,.9],80);await csleep(500);
   A.nz(.25,5000,3000,.2,'highpass');A.tone(3200,2200,.12,.07,'square');crack.visible=true;
