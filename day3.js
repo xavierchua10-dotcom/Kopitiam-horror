@@ -37,13 +37,16 @@ const tvSet=m=>{tvMode=m;drawTV()};function tvSet0(){tvMode='off';drawTV()}
 
 /* the figure across the road */
 const FIG=new THREE.Group();FIG.position.set(-6,0,10.3);FIG.visible=false;scene.add(FIG);
-{const dk=M(0x050608,{emissive:0x07080b});box(.17,.85,.2,dk,-.1,.43,0,FIG);box(.17,.85,.2,dk,.1,.43,0,FIG);
- box(.48,.7,.28,dk,0,1.16,.03,FIG);box(.13,.78,.14,dk,-.31,1.08,.05,FIG);box(.13,.78,.14,dk,.31,1.08,.05,FIG);
- const hd=new THREE.Group();hd.position.set(0,1.66,.1);hd.rotation.x=.28;FIG.add(hd);box(.25,.28,.25,dk,0,0,0,hd);
- const wm=new THREE.MeshBasicMaterial({color:0xf2f0e6,fog:false});box(.06,.045,.02,wm,-.065,.03,.13,hd);box(.06,.045,.02,wm,.065,.03,.13,hd);
- box(.03,.03,.02,new THREE.MeshBasicMaterial({color:0x050505,fog:false}),-.065,.03,.14,hd);box(.03,.03,.02,new THREE.MeshBasicMaterial({color:0x050505,fog:false}),.065,.03,.14,hd);
- box(.09,.05,.02,new THREE.MeshBasicMaterial({color:0x1a0505,fog:false}),0,-.08,.13,hd)}
-G.tick.push(()=>{if(FIG.visible){const t=performance.now()/1000;FIG.rotation.z=Math.sin(t*38)*.018;FIG.rotation.x=.04+Math.sin(t*5)*.02}});
+/* the black figure: built like the other people (round head, arms, legs), all black, only the eyes are white. its front is +z at rotation 0. */
+{const K=0x050506,pm=G.person(0,0,Math.PI,K,K,K,{bot:K,shoe:K,f:{}});scene.remove(pm);FIG.add(pm);pm.position.set(0,0,0);pm.rotation.y=Math.PI;pm.visible=true;pm.scale.setScalar(1.04);
+ pm.userData.head.traverse(o=>{if(o.isMesh&&o.material&&o.material.map)o.material=new THREE.MeshLambertMaterial({color:0x050506})});   /* no painted face: smile and blush would make him friendly */
+ const wm=new THREE.MeshBasicMaterial({color:0xf2f0e6,fog:false});
+ for(const q of[-1,1]){const e=new THREE.Mesh(new THREE.PlaneGeometry(.045,.05),wm);e.position.set(q*.065,.02,.172);pm.userData.head.add(e)}
+ FIG.userData.pm=pm;let ph=0,lx=null,lz=null;
+ G.tick.push(dt=>{if(!FIG.visible){lx=null;return}
+   if(lx!==null){const d=Math.hypot(FIG.position.x-lx,FIG.position.z-lz);
+     if(d/Math.max(dt,.001)>.4&&d<3){ph+=d*3.3;G.pose(pm,ph,'walk')}else G.pose(pm,0,'stand')}
+   lx=FIG.position.x;lz=FIG.position.z;pm.userData.head.rotation.x=.2})}
 
 
 /* the little things that are wrong with each customer (they show up from Day 3) */

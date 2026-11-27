@@ -259,7 +259,7 @@ async function newsScene(){
    await flicker([0,0,.3,0]);applyLights(.3);FIG.position.set(-.4,0,-3.0);FIG.rotation.y=0;
    await look(-.4,-3.0,350);A.sting();
    await say(sp('ATUK','Dia datang! LARI, cucu! LARI!'),1800);
-   await flicker([0,.2,0]);FIG.position.set(.4,0,-.4);FIG.rotation.y=Math.atan2(P.x-.4,P.z+.4)+Math.PI;await look(.4,-.4,300);cry();await csleep(500)}
+   await flicker([0,.2,0]);FIG.position.set(.4,0,-.4);FIG.rotation.y=Math.atan2(P.x-.4,P.z+.4);await look(.4,-.4,300);cry();await csleep(500)}
   /* the collapse: slow, then all at once */
   A.rumble&&A.rumble();A.sting();
   const hz=(r,g,b,a1,a2)=>{G.haze.style.background=`radial-gradient(ellipse at 50% 55%,rgba(${r},${g},${b},${a1}) 0%,rgba(${Math.round(r*.8)},${Math.round(g*.3)},${Math.round(b*.3)},${a2}) 100%)`};
@@ -298,7 +298,7 @@ G.tick.push(dt=>{if(!chase)return;const FIG=G.FIG,t=performance.now()/1000;
   const dx=P.x-FIG.position.x,dz=P.z-FIG.position.z,d=Math.hypot(dx,dz);
   const want=d>2.6?(d>9?4.6:3.7):0;
   if(want){FIG.position.x+=dx/d*want*dt;FIG.position.z+=dz/d*want*dt}
-  FIG.rotation.y=Math.atan2(dx,dz)+Math.PI;FIG.visible=d<16;
+  FIG.rotation.y=Math.atan2(dx,dz);FIG.visible=d<16;
   const near=Math.max(0,Math.min(1,(9-d)/6.5));
   G.haze.style.opacity=.8+near*.2+Math.sin(t*(6+near*8))*.08;
   hb-=dt;if(hb<=0){hb=1.1-near*.6;A.tone(70,45,.14,.18+near*.15,'sine')}

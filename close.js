@@ -60,7 +60,7 @@ const TB=new T.Mesh(new T.SphereGeometry(.17,7,6),new T.MeshBasicMaterial({color
 
 const pace=(x,z,ms,bag)=>{const x0=P.x,z0=P.z;let st=0;return tween(k=>{const e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;P.x=x0+(x-x0)*e;P.z=z0+(z-z0)*e;st++;EYE.y=1.6+Math.sin(performance.now()/110)*.03;if(st%16===0)A.step()},ms).then(()=>{EYE.y=1.6})};
 const FIG=()=>G.FIG;
-const faceFig=(x,z)=>{const f=FIG();f.position.set(x,0,z);f.rotation.y=Math.atan2(P.x-x,P.z-z)+Math.PI;f.visible=true};
+const faceFig=(x,z)=>{const f=FIG();f.position.set(x,0,z);f.rotation.y=Math.atan2(P.x-x,P.z-z);f.visible=true};
 const look=(x,z,pitch=0,ms=650)=>camTo(P.x,P.z,yawTo(x,z),pitch,ms);
 
 /* ---------- the three chores ---------- */
