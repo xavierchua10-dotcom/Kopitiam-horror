@@ -25,7 +25,7 @@ async function start(){
   setTime('day');G.setLights(true);applyLights(1);bulbSet(1);tapOff();setClock('6:30 AM');
   shutter.position.y=3.6;shutBlock(false);drawBoard(5);day1Props(true);G.tvSet('off');
   CROWD.forEach(c=>c.visible=false);atuk.visible=false;FEET.visible=false;D.crowd=true;cast();
-  CINE.noclip=true;EYE.y=.62;P.x=14.5;P.z=17.0;P.yaw=0;P.pitch=1.1;P.tx=null;P.fy=null;lids(0,0);
+  window.__doorG.rotation.y=0;CINE.noclip=true;EYE.y=.62;P.x=14.5;P.z=17.0;P.yaw=0;P.pitch=1.1;P.tx=null;P.fy=null;lids(0,0);
   $('fade').style.transition='opacity 1s';$('fade').style.opacity=1;
   await card('DAY 5','Last Order',2600);
   await cineIn();

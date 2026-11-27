@@ -81,7 +81,7 @@ async function start(){
   atuk.position.set(3.9,0,3.5);atuk.rotation.y=1.0;pose(atuk,0,'stand');FEET.visible=false;
   atukMats=[];atuk.traverse(o=>{if(o.isMesh&&o.material&&!o.material.map){o.material=o.material.clone();o.material.transparent=true;o.material.opacity=.72;atukMats.push(o.material)}});
   G.haze.style.background='radial-gradient(ellipse at 50% 55%,rgba(170,60,40,.08) 0%,rgba(140,30,22,.5) 100%)';G.haze.style.opacity=1;
-  CINE.noclip=true;EYE.y=.62;P.x=14.5;P.z=17.0;P.yaw=0;P.pitch=1.1;P.tx=null;P.fy=null;lids(0,0);G.setBlur(true);
+  window.__doorG.rotation.y=0;CINE.noclip=true;EYE.y=.62;P.x=14.5;P.z=17.0;P.yaw=0;P.pitch=1.1;P.tx=null;P.fy=null;lids(0,0);G.setBlur(true);
   $('fade').style.transition='opacity 1s';$('fade').style.opacity=1;
   await card('DAY 4','6:30 AM',2200);
   await cineIn();
