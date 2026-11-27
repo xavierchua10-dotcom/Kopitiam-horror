@@ -64,3 +64,6 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 
 ## House v2 (Nov 27)
 - Player's house now two-storey: cream upper floor with windows + balcony door, terracotta hip roof + eave, balcony with railing/plants, porch roof + pillars (collision), gate plants, "No.7" plate, warm lit upstairs window (visible at dusk). Exterior only; interior/ZONES unchanged.
+
+## Modern UI (Nov 27)
+- Glass-pill clock + OBJECTIVE box, rounded subtitle bubble with amber speaker name (say() parses "NAME: text"; dataset.k replaces textContent compare), pill interact button with ring icon, segmented Graphics switch, solid amber start button, light wide day card. CSS block "modern UI" at end of <style>.
