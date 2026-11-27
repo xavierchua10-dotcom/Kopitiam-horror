@@ -25,7 +25,9 @@ function drawTV(){const c=tvX;
     if(tvMode==='news'){c.fillStyle='#12305c';c.fillRect(0,0,96,60);c.fillStyle='#c0272d';c.fillRect(0,6,96,10);c.fillStyle='#fff';c.font='bold 9px sans-serif';c.fillText('BERITA TERKINI',6,14);
       c.fillStyle='#e9e9e9';c.font='bold 8px sans-serif';c.fillText('LORI LANGGAR KEDAI',4,40);c.fillText('KOPI DI JALAN',4,50);
       c.fillStyle='rgba(255,255,255,.18)';for(let i=0;i<5;i++)c.fillRect(0,Math.random()*60,96,1+Math.random()*2)}
-    const im=c.getImageData(0,0,96,60),d=im.data,amt=tvMode==='static'?1:.35;
+    if(tvMode==='crash'){c.fillStyle='#1a0a06';c.fillRect(0,0,96,60);for(let i=0;i<10;i++){const x=i*10+Math.random()*4,h=14+Math.random()*24;c.fillStyle=i%2?'#ff7a1a':'#ffb030';c.beginPath();c.moveTo(x-6,42);c.lineTo(x+Math.random()*3,42-h);c.lineTo(x+6,42);c.fill()}
+      c.fillStyle='#c0272d';c.fillRect(0,0,96,9);c.fillStyle='#fff';c.font='bold 7px sans-serif';c.fillText('BERITA TERKINI',3,7);c.fillStyle='rgba(0,0,0,.75)';c.fillRect(0,42,96,18);c.fillStyle='#fff';c.fillText('LORI LANGGAR KEDAI KOPI',2,50);c.fillStyle='#ffd24a';c.fillText('6 MAUT · 1 TERSELAMAT',2,58)}
+    const im=c.getImageData(0,0,96,60),d=im.data,amt=tvMode==='static'?1:tvMode==='crash'?.08:.35;
     for(let i=0;i<d.length;i+=4){if(Math.random()<amt){const v=60+Math.random()*190|0;d[i]=d[i+1]=d[i+2]=v}}
     c.putImageData(im,0,0)}
   tvT.needsUpdate=true}
@@ -271,9 +273,11 @@ async function homeNight(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
   await csleep(1200);
   await say('The crying stops. Then, a soft sound, like someone sitting down against the door.',3600);
   $('fade').style.transition='opacity 2s';$('fade').style.opacity=1;await sleep(2400);
-  CINE.noclip=false;EYE.y=1.6;haze.style.opacity=0;await cineOut();
+  CINE.noclip=false;EYE.y=1.6;await cineOut();
+  if(G.day4){G.busy=false;G.state='d4_intro';G.day4();return}
+  haze.style.opacity=0;
   $('endh').textContent='END OF DAY 3';$('endp').textContent='Somebody was crying at the door. Atuk did not answer.';$('endl').textContent='Last Order · Day 4 is coming';
   $('end').style.display='flex';G.busy=false;G.state='end'}
 
-G.gore=goreDetails;
+G.gore=goreDetails;G.details=details;G.FIG=FIG;G.tvSet=tvSet;G.haze=haze;
 G.day3=start}
