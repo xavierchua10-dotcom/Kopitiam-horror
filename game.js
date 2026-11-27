@@ -280,7 +280,7 @@ hw(4.4,3,11.2,1.5,17.2,Math.PI/2);
 hw(1.4,3,7.9,1.5,19.4,0);hw(3,3,11.1,1.5,19.4,0);hw(1.4,3,14.3,1.5,19.4,0);hw(1,.8,9.1,2.6,19.4,0);hw(1,.8,13.1,2.6,19.4,0);
 for(const dx of[8.6,9.6,12.6,13.6])box(.08,2.2,.12,M(0x5a3a28),dx,1.1,19.4);box(1.2,.08,.12,M(0x5a3a28),9.1,2.2,19.4);box(1.2,.08,.12,M(0x5a3a28),13.1,2.2,19.4);
 function doorLeaf(hx,hz,th,w){const g=new THREE.Group();g.position.set(hx,0,hz);g.rotation.y=th;scene.add(g);box(w,2.1,.05,M(0x6a4630),w/2,1.05,0,g);box(.05,.12,.09,M(0xc9a24a),w-.1,1.0,0,g);return g}
-doorLeaf(8.6,19.4,1.45,1.0);doorLeaf(12.6,19.4,1.45,1.0);doorLeaf(-7,2.0,-2.95,1.0);
+doorLeaf(8.6,19.4,1.45,1.0);doorLeaf(12.6,19.4,1.45,1.0);doorLeaf(-7,2.0,-.12,1.0);
 const RLGT=(()=>{const c=document.createElement('canvas');c.width=c.height=64;const x=c.getContext('2d'),g=x.createRadialGradient(32,32,2,32,32,32);g.addColorStop(0,'rgba(255,240,190,.9)');g.addColorStop(.4,'rgba(255,225,150,.28)');g.addColorStop(1,'rgba(255,225,150,0)');x.fillStyle=g;x.fillRect(0,0,64,64);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t})();
 const ROOMLAMPS=[];
 function roomLamp(x,z){const g=new THREE.Group();g.position.set(x,2.97,z);scene.add(g);

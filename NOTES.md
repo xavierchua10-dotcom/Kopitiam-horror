@@ -148,3 +148,5 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 - DAY 2 (day2.js, loaded by game.js through the G hook): Day 1 night flows straight into Day 2 (no end card). Same 6:55 alarm; everyone already inside repeating Day 1 lines; Atuk repeats his greeting; chores = wipe table + clear cups (still full, cold); radio cuts at "...lori..."; bathroom tap runs again + cracked mirror; evening rule talk ("especially if they call your name"); lock up; night 2:07 AM knock with a woman voice "Can you hear me? Squeeze my hand." + Atuk "Jangan buka / jangan jawab"; ends with END OF DAY 2 card. Later days: add day3.js the same way.
 
 - Shortcut: add ?day2 to the URL to start straight at Day 2 (index.html?day2).
+
+- Day 2 radio: Atuk lunges in from behind, slaps it off, camera whips to his face (jump scare), then camera drifts down the hall to the flickering bathroom bulb with the tap running (clue to go there). Bathroom door leaf now opens outward into the hall (no longer blocks the sink/mirror); Day 2 bathroom camera is centred on the mirror.
