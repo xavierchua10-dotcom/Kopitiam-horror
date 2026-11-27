@@ -111,3 +111,6 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 ## Bathroom light cutscenes
 - After Atuk says the bathroom light is flickering, camera walks a few steps and turns to the bathroom lamp (visible hanging through the doorway with a glow) while the whole place dims and flickers; lights stay slightly dim until fixed.
 - Walking into the bathroom marker (no button) plays a cutscene: lamp flickers, you screw the bulb in, tap starts running by itself (water stream + sound), you turn it off, lights return, objective "Tell Atuk".
+
+## Lock-up cutscene
+- End of shift: no shutter button. Walk into the marker outside the shutter; cutscene pulls the shutter down, padlock click, camera turns toward home. Objective "Go home".
