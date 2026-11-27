@@ -142,3 +142,5 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 - Wipe chore: camera leans in close over the table (eye lowered), cloth + arm rest on the tabletop and wipe the stain; eye height restores after.
 
 - Talk-to-Atuk marker moved next to Atuk (2.8,3.05): player walks up to him, no door-marker sprint (auto-walk only if >0.9 away).
+
+- Files split: index.html (page), style.css (looks), game.js (all game code), three.module.min.js. Edit game.js / style.css from now on.
