@@ -283,7 +283,7 @@ async function newsScene(){
   atuk.visible=false;A.tone(260,60,.7,.15,'sawtooth');await csleep(700);
   await say(sp('YOU','RUN.'),1200);
   /* hand the controls back: the chase */
-  mkFire();FIRE.forEach((f,i)=>{const t=(i>>1)/8,x=.9+(5.6-.9)*t+(i%2?3.2:-3.2),z=6.6+(13-6.6)*t+(i%2?-1:1);f.position.set(x,1.5,z);f.visible=true});
+  mkFire();FIRE.forEach((f,i)=>{if(i>5){f.visible=false;return}const t=(i>>1)*.3,x=.9+(5.6-.9)*t+(i%2?3.2:-3.2),z=6.6+(13-6.6)*t+(i%2?-1:1);f.position.set(x,1.5,z);f.visible=true});
   const dg=window.__doorG;if(dg)dg.rotation.y=-1.25;
   const FIG=G.FIG;FIG.position.set(.4,0,-.9);FIG.visible=true;
   RT=0;G.spd=1.9;chase=true;
@@ -344,7 +344,7 @@ async function bedroom(){
   await say('Faint. Far away. A beep, and a voice that is not in this room.',3200);
   await csleep(900);
   /* the screams: they are not banging to hurt you */
-  A.nz(.6,600,300,.12,'bandpass',1);G.SFX&&G.SFX.play('ghost_scream_3',{g:.28,lp:1200,rate:.9,wet:.5});
+  A.nz(.6,600,300,.12,'bandpass',1);G.SFX&&G.SFX.play('yell_far',{g:.45,lp:1800,wet:.6});
   await say(sp('ATUK','Cucu! Tolong! TOLONG!'),2200);
   await say(sp('MEI LING','Panas! Please! Somebody!'),2200);
   await say(sp('RAJ','We cannot get out!'),2000);
@@ -371,12 +371,17 @@ const items={};let SM=null;
 function mkSmoke(){if(SM)return;const c=document.createElement('canvas');c.width=c.height=64;const g=c.getContext('2d'),gr=g.createRadialGradient(32,32,2,32,32,30);gr.addColorStop(0,'rgba(44,38,35,.7)');gr.addColorStop(1,'rgba(44,38,35,0)');g.fillStyle=gr;g.fillRect(0,0,64,64);
   const tx=new THREE.CanvasTexture(c);SM=[];for(let i=0;i<14;i++){const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tx,transparent:true,depthWrite:false,fog:false}));sp.position.set(-4+Math.random()*8,2.1+Math.random()*.9,-3+Math.random()*6.5);sp.scale.set(3.6,3.2,1);sp.visible=false;scene.add(sp);SM.push(sp)}}
 const fadeP=(c,a)=>{if(!c.userData.fm){c.userData.fm=[];c.traverse(o=>{if(o.isMesh&&o.material){o.material=o.material.clone();o.material.transparent=true;c.userData.fm.push(o.material)}})}c.userData.fm.forEach(m=>m.opacity=a)};
-const SPOT=[[-1,.9,1.8],[1.4,.8,2.8],[-3.9,1,-.2],[.5,1.1,-2.4],[-2.2,.6,-3.3],[-1.3,.7,-.9],[-4.1,.9,-3.1]];
+const SPOT=[[3.7,.9,-3.4],[-3.2,.8,-2.4],[-1.4,.7,3.4]];   /* only three flames: kitchen door, back corner, shutter edge. the rest is smoke and glow */
+let FL2=null,fogD0=null;
+G.tick.push(()=>{if(!FL2)return;const on=G.state==='d4_find'||G.state==='d4_atuk',t=performance.now()/1000;
+  FL2.forEach((l,i)=>{l.intensity=on?6+Math.sin(t*11+i*2)*1.6+Math.sin(t*27+i)*1:0})});
 async function startFind(){G.busy=true;await cineIn();
   mkSmoke();SM.forEach(s=>s.visible=true);
   FIRE.forEach(f=>f.visible=false);SPOT.forEach((p,i)=>{const f=FIRE[i];f.position.set(p[0],p[1]+.6,p[2]);f.visible=true});
-  G.haze.style.background='radial-gradient(ellipse at 50% 55%,rgba(255,110,40,.2) 0%,rgba(130,25,10,.72) 100%)';
-  applyLights(.14);
+  if(!FL2){FL2=[SPOT[0],SPOT[1]].map(p=>{const l=new THREE.PointLight(0xff7a2a,0,9,1.6);l.position.set(p[0],p[1]+.8,p[2]+.6);scene.add(l);return l})}
+  if(fogD0===null)fogD0=scene.fog.density;
+  G.haze.style.background='radial-gradient(ellipse at 50% 58%,rgba(255,120,50,.08) 0%,rgba(46,22,14,.74) 100%)';
+  applyLights(.2);scene.fog.density=fogD0*1.9;
   FIND.forEach(k=>{const c=CROWD[k.c];c.visible=true;c.position.set(k.pos[0],0,k.pos[1]);c.rotation.y=k.pos[2];pose(c,0,k.pos[3]);fadeP(c,.7)});
   tapOn();
   cueI=setInterval(cue,1300);
@@ -438,7 +443,7 @@ async function atukEnd(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
   /* the fires sink, the shop goes quiet, just the beep */
   clearInterval(fx);clearInterval(cueI);tapOff();await tween(k=>{FIRE.forEach(f=>f.scale.set(1.9*(1-k*.5),3*(1-k*.5),1))},1400);
   $('fade').style.transition='opacity 2.4s';$('fade').style.opacity=1;await sleep(2800);
-  FIRE.forEach(f=>f.visible=false);SM&&SM.forEach(s=>s.visible=false);
+  FIRE.forEach(f=>f.visible=false);SM&&SM.forEach(s=>s.visible=false);if(fogD0!==null)scene.fog.density=fogD0;
   beepQuiet();await sleep(3200);beepSoft=false;
   CINE.noclip=false;EYE.y=1.6;await cineOut();
   if(G.day5){G.busy=false;G.state='d5_intro';G.day5();return}

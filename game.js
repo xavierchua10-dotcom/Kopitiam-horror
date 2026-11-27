@@ -76,11 +76,13 @@ function bulbSet(f){GLOW.material.opacity=f;bulbM.color.setRGB(1*f+.06*(1-f),.94
 const tapM=M(0xb8c0c4);box(.04,.04,.16,tapM,-7.7,1.2,1.14);box(.05,.28,.05,tapM,-7.7,1.065,1.08);box(.12,.025,.025,tapM,-7.7,1.24,1.08);
 const STREAM=new THREE.Mesh(new THREE.BoxGeometry(.03,.26,.03),B(0xa8dcf0,{transparent:true,opacity:.75,fog:false}));STREAM.position.set(-7.7,1.06,1.21);STREAM.visible=false;scene.add(STREAM);
 let tapTI=0,tapN=null;
-/* running water: a steady soft band of noise plus little drips, not hissing bursts */
-function tapSnd(on){if(!ac||typeof A==='undefined'||!A.nb)return;
-  if(on&&!tapN){const s=ac.createBufferSource();s.buffer=A.nb;s.loop=true;const hp=ac.createBiquadFilter();hp.type='highpass';hp.frequency.value=600;const lp=ac.createBiquadFilter();lp.type='lowpass';lp.frequency.value=2200;const g=ac.createGain();g.gain.value=0;s.connect(hp);hp.connect(lp);lp.connect(g);g.connect(master);s.start();g.gain.setTargetAtTime(.04,ac.currentTime,.2);tapN={s,g}}
-  else if(!on&&tapN){const{s,g}=tapN;tapN=null;g.gain.setTargetAtTime(0,ac.currentTime,.1);setTimeout(()=>{try{s.stop()}catch(e){}},600)}}
-function tapOn(){tapOff();tapSnd(true);tapTI=setInterval(()=>{if(Math.random()<.5)A.tone(1500+Math.random()*1300,900+Math.random()*500,.06,.018,'sine');STREAM.scale.y=.85+Math.random()*.3},300);STREAM.visible=true}
+/* running water: a steady soft band of sound plus little drips, not hissing bursts */
+function tapSnd(on){if(!ac||!A.nb)return;
+  if(on&&!tapN){
+    if(G.SFX&&G.SFX.has('loop_rain'))tapN=G.SFX.loop('loop_rain',{g:.55,lp:2800,hp:350,rate:1.1,fade:.3});
+    else{const s=ac.createBufferSource();s.buffer=A.nb;s.loop=true;const hp=ac.createBiquadFilter();hp.type='highpass';hp.frequency.value=600;const lp=ac.createBiquadFilter();lp.type='lowpass';lp.frequency.value=2200;const g=ac.createGain();g.gain.value=0;s.connect(hp);hp.connect(lp);lp.connect(g);g.connect(master);s.start();g.gain.setTargetAtTime(.04,ac.currentTime,.2);tapN={stop(){g.gain.setTargetAtTime(0,ac.currentTime,.1);setTimeout(()=>{try{s.stop()}catch(e){}},600)}}}}
+  else if(!on&&tapN){const n=tapN;tapN=null;n.stop(.25)}}
+function tapOn(){tapOff();tapSnd(true);tapTI=setInterval(()=>{if(G.SFX&&G.SFX.has('tap_drip')&&Math.random()<.06)G.SFX.play('tap_drip',{g:.5,wet:.3});else if(Math.random()<.5)A.tone(1500+Math.random()*1300,900+Math.random()*500,.06,.012,'sine');STREAM.scale.y=.85+Math.random()*.3},300);STREAM.visible=true}
 function tapOff(){clearInterval(tapTI);tapTI=0;tapSnd(false);STREAM.visible=false}
 
 const radio=new THREE.Group();radio.position.set(4.15,1.05,-.2);scene.add(radio);
@@ -458,7 +460,7 @@ const AEV={
  breath(g,p){aN(1.5,700,260,.1*g,'bandpass',.9,p);aN(1.7,260,520,.07*g,'bandpass',.9,p,1.7)}};
 function ambTick(){
   const day=(/^d([1-5])_/.exec(state)||[])[1]|0,cfg=AMBD[day];
-  if(ac&&tenG){const lv=cfg?cfg.lv:0;tenG.gain.setTargetAtTime(lv,ac.currentTime,2.5);roomG.gain.setTargetAtTime(cfg?(day===5?.015:.022):.012,ac.currentTime,2)}
+  if(ac&&tenG){const lv=cfg?cfg.lv:0;tenG.gain.setTargetAtTime(lv,ac.currentTime,2.5);roomG.gain.setTargetAtTime((cfg?(day===5?.015:.022):.012)*(G.roomMul??1),ac.currentTime,2)}
   AMBT-=1;if(cfg&&AMBT<=0){AMBT=cfg.gap[0]+Math.random()*(cfg.gap[1]-cfg.gap[0]);
     const k=cfg.ev[Math.random()*cfg.ev.length|0],p=(Math.random()<.5?-1:1)*(.45+Math.random()*.5);try{AEV[k](cfg.g,p)}catch(_){}}
   setTimeout(ambTick,1000)}
@@ -901,7 +903,7 @@ const G={ZONES,AABB,AMB,person,THREE,scene,camera,P,EYE,A,CINE,D,WPS,atuk,CROWD,
   AEV,AMBD,get ac(){return ac},get master(){return master},get ambG(){return ambG},
   get state(){return state},set state(v){state=v},get busy(){return busy},set busy(v){busy=v},
   setLights(v){lightsOn=v},setBlur(v){cv.style.transition='filter 1.4s';cv.style.filter=v?'blur(8px)':''}};
-const V=new URL(import.meta.url).search,BUILD='202611273002';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+const V=new URL(import.meta.url).search,BUILD='202611273003';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));

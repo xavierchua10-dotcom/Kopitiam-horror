@@ -87,7 +87,7 @@ async function mop(){
     const sw=Math.sin(k*30);P.x=1.7-3.2*k;P.yaw=Math.PI/2+.1+sw*.16;
     MOP.position.set(.24+sw*.08,-.22,-.8);MOP.rotation.set(-.3,0,-.12+sw*.1);
     WET.material.opacity=Math.min(.3,k*.9);
-    if((performance.now()-t0)/420>nx){nx++;A.nz(.35,700,400,.08);if(nx%2)A.step()}},3600);
+    if((performance.now()-t0)/420>nx){nx++;A.nz(.35,700,400,.08);if(nx%2)A.step();else G.SFX&&G.SFX.play('slosh',{g:.5,wet:.2,rate:.9+Math.random()*.2})}},3600);
   /* lights stutter. someone is standing between the tables. */
   MOP.visible=false;
   A.tone(60,40,1.6,.2,'sine');
@@ -126,7 +126,7 @@ async function cups(){
 /* 3. trash — carry the bag to the lane. something is standing in the kitchen door behind you. */
 async function trash(){
   await camTo(3.9,-2.45,yawTo(4.5,-2.2),-.6,700);
-  handAct('reach',1200);await csleep(500);BAGW.visible=false;A.nz(.3,500,300,.1);
+  handAct('reach',1200);await csleep(500);BAGW.visible=false;A.nz(.3,500,300,.1);G.SFX&&G.SFX.play('bag',{g:.7,wet:.15});
   TB.visible=true;TB.position.set(.22,-.42,-.62);
   await say('Take the bag out the back.',1800);
   await camTo(P.x,P.z,yawTo(3.8,-4),0,600);

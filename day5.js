@@ -112,7 +112,7 @@ async function atukLast(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
   await csleep(800);
   await say(sp('YOU','I know.'),2000);
   await say(sp('YOU','...I forgive you.'),3000);
-  A.tone(396,440,1.6,.1,'sine');
+  A.tone(396,440,1.6,.1,'sine');G.SFX&&G.SFX.play('bell_low',{g:.6,wet:.5});
   await tween(k=>{fadeP(F,1-k)},3000);F.visible=false;
   await say(sp('DRIVER','Terima kasih.'),2400);
   /* Atuk's goodbye */
