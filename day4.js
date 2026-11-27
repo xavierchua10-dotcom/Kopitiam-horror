@@ -267,13 +267,10 @@ G.tick.push(dt=>{if(!chase)return;const FIG=G.FIG,t=performance.now()/1000;
   if(near>.85&&Math.random()<dt*.8)A.nz&&A.nz(.3,500,300,.1,'bandpass',1.2);
   if(G.state==='d4_run'&&RT===0&&Math.random()<dt*.05)say('"maaf... maaf..."',1500)});
 
-async function finish(){await cineIn();FIG0();await bedroom();
-  $('fade').style.transition='opacity 2.2s';$('fade').style.opacity=1;await sleep(2600);
-  CINE.noclip=false;EYE.y=1.6;await cineOut();
-  if(G.day5){G.busy=false;G.state='d5_intro';G.day5();return}
-  $('endh').textContent='END OF DAY 4';$('endp').textContent='Three gentle knocks. "It\'s us."';$('endl').textContent='Last Order · Day 5 is coming';
-  $('end').style.display='flex';G.busy=false;G.state='end'}
+async function finish(){await cineIn();FIG0();await bedroom()}
 function FIG0(){G.FIG.visible=false;FIRE.forEach(f=>f.visible=false);G.busy=true}
+const smooth=[];let beepSoft=false;
+async function beepQuiet(){beepSoft=true;while(beepSoft){A.tone(900,900,.14,.045,'sine');await sleep(1250)}}
 async function bedroom(){
   const dg2=scene.children.find(o=>o.isGroup&&Math.abs(o.position.x-12.6)<.02&&Math.abs(o.position.z-19.4)<.02);
   setTime('night');applyLights(.1);bulbSet(0);G.haze.style.background='radial-gradient(ellipse at 50% 55%,rgba(120,30,25,.1) 0%,rgba(90,15,12,.55) 100%)';G.haze.style.opacity=1;
@@ -292,13 +289,113 @@ async function bedroom(){
   await tween(k=>{P.pitch=Math.sin(k*80)*.025;P.yaw=Math.PI+Math.sin(k*65)*.01},1300);
   for(let i=0;i<9;i++){A.knock();await csleep(150)}
   A.static(0);await csleep(2400);
-  /* silence. then three gentle knocks. */
+  /* silence. you wait in the corner. you try to wake up. */
   await say('...',1600);
-  await csleep(1800);
-  for(let i=0;i<3;i++){A.tone(120,90,.16,.2,'sine');await csleep(1100)}
-  await csleep(600);
-  applyLights(.5);bulbSet(.7);G.haze.style.opacity=0;
-  await say(sp('ATUK','...It\'s us.'),3200);
-  await say('You let out a breath you did not know you were holding.',3200)}
+  await csleep(1400);
+  await Promise.all([camTo(14.6,15.35,yawTo(13.1,19.4),.02,1600),tween(k=>{EYE.y=1.6-.85*k},1600)]);
+  setClock('2:50 AM');
+  await say('You sit in the corner. Hands over your ears. You do not sleep.',3200);
+  await say(sp('YOU','Wake up. ...Wake up.'),2000);
+  await lids(0,700);await csleep(1500);await lids(1,800);
+  await say('The same corner. The same dark.',2400);
+  await say(sp('YOU','Please. Wake up.'),1900);
+  await lids(0,700);beepQuiet();await csleep(1800);
+  await say(sp('NURSE','...squeeze my hand.'),2800);
+  await lids(1,900);
+  await say('Faint. Far away. A beep, and a voice that is not in this room.',3200);
+  await csleep(900);
+  /* the screams: they are not banging to hurt you */
+  A.nz(.6,600,300,.12,'bandpass',1);
+  await say(sp('ATUK','Cucu! Tolong! TOLONG!'),2200);
+  await say(sp('MEI LING','Panas! Please! Somebody!'),2200);
+  await say(sp('RAJ','We cannot get out!'),2000);
+  await say(sp('YOU','...They were never banging to hurt me.'),3000);
+  await say(sp('YOU','They were asking for help.'),2600);
+  await Promise.all([tween(k=>{EYE.y=.75+.85*k},1000),camTo(13.1,17.7,Math.PI,0,1100)]);
+  A.click();handAct('reach',1100);await csleep(500);A.click();
+  if(dg2){await tween(k=>{dg2.rotation.y=1.45*k},800);A.tone(110,80,.3,.15,'sine')}
+  beepSoft=false;
+  /* out into the dark: you walk, nobody chases you now */
+  applyLights(.1);G.haze.style.background='radial-gradient(ellipse at 50% 55%,rgba(255,110,40,.1) 0%,rgba(110,18,10,.6) 100%)';
+  mkFire();[[-1.4,1.4,4.6,0],[1.5,1.2,4.7,1],[0,2.4,4.3,2]].forEach(([x,y,z,i])=>{const f=FIRE[i];f.position.set(x,y,z);f.visible=true});
+  const dgo=window.__doorG;if(dgo)dgo.rotation.y=-1.25;
+  CINE.noclip=false;EYE.y=1.6;RB=0;G.spd=1;setClock('3:10 AM');
+  G.state='d4_back';objT('Go to the kopitiam');G.busy=false;await cineOut()}
+
+/* ---------- the walk back through the dark, and the search ---------- */
+let RB=0,fx=0;
+const ROUTE2=[[13.1,20.8],[6.5,20.8],[6.1,17.4],[6.1,15.4],[5.6,13.0],[.9,6.8],[.6,4.4]];
+WPS.d4_back={get x(){return ROUTE2[Math.min(RB,ROUTE2.length-1)][0]},get z(){return ROUTE2[Math.min(RB,ROUTE2.length-1)][1]},r:.95,get fn(){return backStep}};
+function backStep(){RB++;if(RB===5){say(sp('ATUK','...Cucu... tolong...'),1800)}
+  if(RB>=ROUTE2.length){G.state='d4_find';ci2=0;setClock('3:40 AM');startFind()}}
+const items={};let SM=null;
+function mkSmoke(){if(SM)return;const c=document.createElement('canvas');c.width=c.height=64;const g=c.getContext('2d'),gr=g.createRadialGradient(32,32,2,32,32,30);gr.addColorStop(0,'rgba(44,38,35,.7)');gr.addColorStop(1,'rgba(44,38,35,0)');g.fillStyle=gr;g.fillRect(0,0,64,64);
+  const tx=new THREE.CanvasTexture(c);SM=[];for(let i=0;i<14;i++){const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tx,transparent:true,depthWrite:false,fog:false}));sp.position.set(-4+Math.random()*8,2.1+Math.random()*.9,-3+Math.random()*6.5);sp.scale.set(3.6,3.2,1);sp.visible=false;scene.add(sp);SM.push(sp)}}
+const fadeP=(c,a)=>{if(!c.userData.fm){c.userData.fm=[];c.traverse(o=>{if(o.isMesh&&o.material){o.material=o.material.clone();o.material.transparent=true;c.userData.fm.push(o.material)}})}c.userData.fm.forEach(m=>m.opacity=a)};
+const SPOT=[[-1,.9,1.8],[1.4,.8,2.8],[-3.9,1,-.2],[.5,1.1,-2.4],[-2.2,.6,-3.3],[-1.3,.7,-.9],[-4.1,.9,-3.1]];
+async function startFind(){G.busy=true;await cineIn();
+  mkSmoke();SM.forEach(s=>s.visible=true);
+  FIRE.forEach(f=>f.visible=false);SPOT.forEach((p,i)=>{const f=FIRE[i];f.position.set(p[0],p[1]+.6,p[2]);f.visible=true});
+  G.haze.style.background='radial-gradient(ellipse at 50% 55%,rgba(255,110,40,.2) 0%,rgba(130,25,10,.72) 100%)';
+  applyLights(.14);
+  CROWD.forEach((c,i)=>{c.visible=true;c.position.set(HOME[i][0],0,HOME[i][1]);c.rotation.y=HOME[i][2];pose(c,0,'sit');fadeP(c,.7)});
+  atuk.visible=true;atuk.position.set(3.9,0,3.5);atuk.rotation.y=1.0;fadeP(atuk,.7);
+  fx=setInterval(()=>A.nz(.14,2800+Math.random()*1500,1800,.06,'highpass'),380);
+  await camTo(.6,2.9,yawTo(-2,-.5),-.05,1200);
+  await say('Smoke. Small fires. Shapes in the smoke.',2800);
+  await say(sp('YOU','Where are you...?'),2000);
+  ci2=0;objT(FIND[0].obj);await csleep(300);G.busy=false;await cineOut()}
+let ci2=0;
+const FIND=[
+ {obj:'Find Mak Cik Salmah',m:[-2.2,-2.6],c:1,pit:-.35,it:'glass',tab:[-3,.8,-2.6],name:'MAK CIK',lines:['"Panas... so hot. You came, cucu."','"It is not so hot now."']},
+ {obj:'Find Ah Seng',m:[-2.15,-.85],c:0,pit:-.4,it:'watch',tab:[-3,.8,-1.0],name:'AH SENG',lines:['"Teh-C peng... always so cold."','"My watch. Keep it. It was always tired."']},
+ {obj:'Find Pak Hassan',m:[-.95,-.5],c:3,pit:-.3,it:'page7',tab:[-1.7,.8,-.5],name:'PAK HASSAN',lines:['"Page seven. I finally turned it."','"Take it. Read the next one for me."']},
+ {obj:'Find Raj',m:[-2.15,.45],c:2,pit:-.4,it:'shoe',tab:[-3,.5,.4],name:'RAJ',lines:['"I stopped looking for my shoe."','"Keep this one. I will not need it."']},
+ {obj:'Find Mei Ling',m:[-.9,1.15],c:4,pit:-.3,it:'card',tab:[-1.7,.8,1.1],name:'MEI LING',lines:['"Tell my daughter... happy birthday."','"Next week. I know it was never next week."']}];
+G.d4items=[];
+WPS.d4_find={get x(){return FIND[Math.min(ci2,FIND.length-1)].m[0]},get z(){return FIND[Math.min(ci2,FIND.length-1)].m[1]},r:.65,go:1,get fn(){return findRun}};
+function itemMesh(k,p){const T=THREE;let m;
+  if(k==='watch'){m=new T.Mesh(new T.CylinderGeometry(.05,.05,.015,12),new T.MeshBasicMaterial({color:0xd8d8d0}))}
+  else if(k==='glass'){m=new T.Mesh(new T.CylinderGeometry(.045,.035,.11,10),new T.MeshBasicMaterial({color:0xe6c8a0}))}
+  else if(k==='page7'){m=new T.Mesh(new T.BoxGeometry(.2,.006,.28),new T.MeshBasicMaterial({color:0xe8e4d0}))}
+  else if(k==='shoe'){m=new T.Mesh(new T.BoxGeometry(.11,.07,.26),new T.MeshBasicMaterial({color:0x6a4a2a}))}
+  else{m=new T.Mesh(new T.BoxGeometry(.2,.008,.14),new T.MeshBasicMaterial({color:0xf2d6e0}))}
+  m.position.set(p[0]+.25,p[1]+.04,p[2]);m.rotation.y=Math.random()*3;scene.add(m);return m}
+async function findRun(){if(G.busy||CINE.on)return;G.busy=true;const k=FIND[ci2],c=CROWD[k.c];A.click();await cineIn();
+  await camTo(k.m[0],k.m[1],yawTo(c.position.x,c.position.z),-.02,900);
+  await turnTo(c,1500);
+  await camTo(k.m[0],k.m[1],yawTo(c.position.x,c.position.z),k.pit,600);
+  const u=c.userData;u.aR&&(u.aR.up=1.6);A.tone(300,200,.4,.06,'sine');
+  await say(sp(k.name,k.lines[0]),3000);
+  await say(sp('YOU','I am here. I am here.'),1800);
+  await say(sp(k.name,k.lines[1]),3200);
+  await say('You touch their hand. It is warm, and then it is not there.',3000);
+  const o=itemMesh(k.it,k.tab);G.d4items.push(k.it);
+  await tween(k=>{fadeP(c,.7*(1-k))},2400);c.visible=false;A.tone(500,200,.9,.08,'sine');
+  await csleep(600);await say('They left something behind.',2200);
+  await camTo(k.m[0],k.m[1],yawTo(c.position.x,c.position.z),-.02,500);
+  ci2++;setClock(['3:52 AM','4:03 AM','4:15 AM','4:26 AM','4:41 AM'][ci2-1]);
+  if(ci2>=FIND.length){G.state='d4_atuk';objT('Find Atuk')}else objT(FIND[ci2].obj);
+  G.busy=false;await cineOut()}
+WPS.d4_atuk={x:2.8,z:3.05,r:.7,go:1,fn:atukEnd};
+async function atukEnd(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
+  await pace(2.9,3.0,1.4);await camTo(P.x,P.z,yawTo(atuk.position.x,atuk.position.z),.02,900);
+  await say(sp('ATUK','Cukup, cucu. Enough.'),2400);
+  await say(sp('YOU','Atuk... I cannot wake up.'),2400);
+  await say(sp('ATUK','Not yet.'),2000);
+  await say(sp('YOU','What am I missing?'),2000);
+  await csleep(900);
+  await say(sp('ATUK','Still one more. Tomorrow. Open the shutter, make kopi.'),3600);
+  await say(sp('ATUK','Atuk will be here.'),2400);
+  await tween(k=>{fadeP(atuk,.7*(1-k*.8))},2600);
+  /* the fires sink, the shop goes quiet, just the beep */
+  clearInterval(fx);await tween(k=>{FIRE.forEach(f=>f.scale.set(1.9*(1-k*.5),3*(1-k*.5),1))},1400);
+  $('fade').style.transition='opacity 2.4s';$('fade').style.opacity=1;await sleep(2800);
+  FIRE.forEach(f=>f.visible=false);SM&&SM.forEach(s=>s.visible=false);
+  beepQuiet();await sleep(3200);beepSoft=false;
+  CINE.noclip=false;EYE.y=1.6;await cineOut();
+  if(G.day5){G.busy=false;G.state='d5_intro';G.day5();return}
+  $('endh').textContent='END OF DAY 4';$('endp').textContent='"Still one more. Tomorrow."';$('endl').textContent='Last Order · Day 5 is coming';
+  $('end').style.display='flex';G.busy=false;G.state='end'}
 
 G.day4=start}
