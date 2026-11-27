@@ -389,7 +389,7 @@ async function toEvening(){busy=true;await say('The day goes by. Kopi, toast, th
   setTime('dusk');setClock('5:40 PM');P.x=.6;P.z=2.3;P.yaw=-2.14;P.pitch=0;P.tx=null;
   const dc=$('dcard');dc.innerHTML='EVENING<small>5:40 PM</small>';dc.style.opacity=1;await sleep(1800);dc.style.opacity=0;
   $('fade').style.opacity=0;state='d1_rule';objT('Talk to Atuk');busy=false}
-async function d1Knock(){busy=true;state='d1_knock';await say('The shutter is down. Atuk is inside already?',2200);for(let i=0;i<3;i++){A.knock();await sleep(650)}await say('Three knocks, from the inside. That is the signal.',2800);state='d1_open';objT('Open the shutter');busy=false}
+async function d1Knock(){busy=true;state='d1_knock';await say('The shutter is down. Atuk is inside already?',2200);handAct('knock',2300);for(let i=0;i<3;i++){A.knock();await sleep(650)}await say('Three knocks, from the inside. That is the signal.',2800);state='d1_open';objT('Open the shutter');busy=false}
 async function beginDay1(){
   setTime('day');lightsOn=true;applyLights(1);objT('');setClock('6:55 AM');
   shutter.position.y=1.2;shutBlock(true);showCrowd(false);drawBoard(1);day1Props(true);
@@ -434,7 +434,30 @@ const prompt=$('prompt');let cur=null;
 prompt.addEventListener('pointerdown',e=>{e.stopPropagation()});
 prompt.addEventListener('click',e=>{e.stopPropagation();if(cur&&!busy)go(cur)});
 
-function go(o){const dx=o.pos.x-P.x,dz=o.pos.z-P.z;if(Math.hypot(dx,dz)>.3)P.fy=Math.atan2(-dx,-dz);o.act()}
+/* first-person hands (only while interacting) */
+const hands=new THREE.Group();camera.add(hands);hands.visible=false;hands.scale.setScalar(.8);
+const HMt=c=>{const m=NM(c);m.depthTest=false;return m};const skinH=HMt(0xc9a27e),sleeveH=HMt(0x4a5a72),clothH=HMt(0xe9e4d2),cupH=HMt(0xeeeeee),cupT=HMt(0x3a1d10);
+function mkArm(){const g=new THREE.Group();hands.add(g);const up=new THREE.Group();g.add(up);
+  for(const [geo,m,z] of [[new THREE.CylinderGeometry(.06,.07,.32,8),sleeveH,-.16],[new THREE.CylinderGeometry(.042,.055,.3,8),skinH,-.46]]){const me=new THREE.Mesh(geo,m);me.rotation.x=Math.PI/2;me.position.z=z;me.renderOrder=40;up.add(me)}
+  const hd=new THREE.Mesh(new THREE.SphereGeometry(.062,8,6),skinH);hd.scale.set(1,.7,1.35);hd.position.z=-.66;hd.renderOrder=40;up.add(hd);
+  const cloth=new THREE.Mesh(new THREE.BoxGeometry(.17,.03,.15),clothH);cloth.position.set(0,-.05,-.7);cloth.renderOrder=41;cloth.visible=false;up.add(cloth);
+  const cup=new THREE.Group();cup.position.set(0,.06,-.68);cup.visible=false;up.add(cup);
+  const cb=new THREE.Mesh(new THREE.CylinderGeometry(.06,.045,.1,8),cupH);cb.renderOrder=41;cup.add(cb);const ct=new THREE.Mesh(new THREE.CylinderGeometry(.052,.052,.012,8),cupT);ct.position.y=.045;ct.renderOrder=42;cup.add(ct);
+  return {g,up,hd,cloth,cup}}
+const HR=mkArm(),HL=mkArm();let hMode='idle',hT=0,hV=0,hGoal=0,hTO=0;
+function setHands(mode,t,ht){const pose=(a,x,y,z,rx,ry,rz=0)=>{a.g.position.set(x,y,z);a.g.rotation.set(rx,ry,rz)};
+  HR.cloth.visible=HL.cloth.visible=HR.cup.visible=HL.cup.visible=false;HR.hd.scale.set(1,.7,1.35);
+  pose(HL,-.3,-.26,-.3,-.2,.16);pose(HR,.3,-.26,-.3,-.2,-.16);
+  if(mode==='wipe'){pose(HR,.02+Math.sin(t)*.16,-.22,-.4,-.5,-.05+Math.sin(t)*.3);HR.cloth.visible=true}
+  else if(mode==='reach'){const k=Math.sin(Math.min(1,ht/.8)*Math.PI);pose(HR,.14,-.24+k*.04,-.3-k*.2,-.25+k*.2,-.1)}
+  else if(mode==='kopi'){pose(HR,.12,-.26,-.35,.08,.3);HR.cup.visible=true;pose(HL,-.14,-.3,-.35,-.1,-.25)}
+  else if(mode==='serve'){pose(HR,.2,-.26,-.4,.12,.1);HR.cup.visible=true}
+  else if(mode==='lift'){const r=Math.min(1,ht/1.3);pose(HR,.2,-.2+r*.2,-.35,.4+r*.55,-.18);pose(HL,-.2,-.2+r*.2,-.35,.4+r*.55,.18)}
+  else if(mode==='knock'){pose(HR,.1,-.1,-.45-.07*Math.max(0,Math.sin(t*1.9)),.3,.08);HR.hd.scale.set(1.15,1,1.15)}}
+function handAct(mode,ms){hMode=mode;hT=0;hGoal=1;clearTimeout(hTO);hTO=setTimeout(()=>{hGoal=0},ms)}
+function handTick(dt){hV+=(hGoal-hV)*Math.min(1,dt*9);if(hGoal===0&&hV<.03)hV=0;hands.visible=hV>.03;if(!hands.visible)return;hT+=dt;hands.position.y=-(1-hV)*.6;setHands(hMode,hT*7,hT)}
+const HMODE={wipe:['wipe',1500],cups:['reach',1200],kopi:['kopi',1700],serve:['serve',1700],sugar:['reach',1200],bath:['reach',1200],note:['reach',1200],housedoor:['reach',1200],radio:['reach',1100],fuse:['reach',1100],hatch:['reach',1100],shutter:['lift',1900]};
+function go(o){const dx=o.pos.x-P.x,dz=o.pos.z-P.z;if(Math.hypot(dx,dz)>.3)P.fy=Math.atan2(-dx,-dz);const h=HMODE[o.id];if(h&&!(o.id==='shutter'&&state==='d1_lock'&&P.z<4.3))handAct(h[0],h[1]);o.act()}
 /* markers */
 const MK={};const mkTex=ctex(32,32,c=>{c.fillStyle='#F2B531';c.strokeStyle='#000';c.lineWidth=3;c.beginPath();c.moveTo(16,2);c.lineTo(28,16);c.lineTo(16,30);c.lineTo(4,16);c.closePath();c.fill();c.stroke();c.fillStyle='rgba(255,255,255,.55)';c.fillRect(13,8,6,6)});mkTex.minFilter=mkTex.magFilter=THREE.LinearFilter;
 function markers(t){const arrow=$('arrow');let tgt=null,td=1e9;
@@ -468,7 +491,7 @@ function update(dt){
    else if(P.x<-6.8){zx=-8.25;zz=2.5;zk=6}
    LZ.position.set(zx,zy,zz);if(zk!==ZK){ZK=zk}LZ.intensity=lightF*ZK}
   fan.rotation.y+=dt*(lightsOn?2.2:.4);
-  d1tick(dt);npcTick(dt);markers(performance.now());
+  d1tick(dt);npcTick(dt);markers(performance.now());handTick(dt);
   if(P.fy!==null){let df=P.fy-P.yaw;df=Math.atan2(Math.sin(df),Math.cos(df));if(Math.abs(df)<.02)P.fy=null;else P.yaw+=df*Math.min(1,dt*6)}
   led.visible=state==='dark'?(Math.floor(performance.now()/450)%2===0):false;
   if(lightsOn&&!busy&&TIME==='night'){flickT-=dt;if(flickT<0){flickT=3+Math.random()*6;if(Math.random()<.5)flicker([.35,1],60)}}
@@ -504,6 +527,6 @@ $('begin').addEventListener('click',begin);
 $('again').addEventListener('click',()=>location.reload());
 if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 requestAnimationFrame(t=>{last=t;frame(t)});
-window.__lo={D:()=>D,setState:v=>{state=v},setTime,shut:()=>shutter.position.y,board:drawBoard,crowd:showCrowd,land:isLand,st:()=>({state,busy,scareDone,x:P.x,z:P.z,yaw:P.yaw,lights:lightsOn,cur:cur&&cur.id}),goto:(x,z)=>{P.tx=x;P.tz=z},tp:(x,z,y)=>{P.x=x;P.z=z;P.yaw=y||0;P.tx=null},look:(y,p)=>{P.yaw=y;P.pitch=p||0},act:id=>{const o=ITS.find(i=>i.id===id);o.act()},begin};
+window.__lo={hand:()=>[hV,hMode],D:()=>D,setState:v=>{state=v},setTime,shut:()=>shutter.position.y,board:drawBoard,crowd:showCrowd,land:isLand,st:()=>({state,busy,scareDone,x:P.x,z:P.z,yaw:P.yaw,lights:lightsOn,cur:cur&&cur.id}),goto:(x,z)=>{P.tx=x;P.tz=z},tp:(x,z,y)=>{P.x=x;P.z=z;P.yaw=y||0;P.tx=null},look:(y,p)=>{P.yaw=y;P.pitch=p||0},act:id=>{const o=ITS.find(i=>i.id===id);o.act()},begin};
 </script>
 </body></html>

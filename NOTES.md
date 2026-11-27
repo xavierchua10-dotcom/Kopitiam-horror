@@ -50,3 +50,6 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 - Yellow diamond markers float over whatever you can do right now (only enabled interactables, hidden within 2.2m and beyond 14m); edge arrow points to the nearest when off-screen.
 - Prompt button reaches 3.4m with a looser facing angle; pressing it (or tapping the object) turns your view toward the object.
 - Gotcha: three.js needs sprite.visible to be a real boolean (visible=0 still renders).
+
+## First-person hands (Nov 27)
+- Hands are hidden normally; slide up only while interacting (go() → handAct). Modes: wipe, reach, kopi (cup), serve (cup), lift (shutter, both hands), knock (fist during the 3 knocks). No hands when talking to Atuk. Hands use depthTest=false so they never clip into walls.
