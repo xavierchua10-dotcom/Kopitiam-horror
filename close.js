@@ -76,7 +76,7 @@ let ci=0,CLD=1;
 WPS.d1_close={get x(){return CL[ci].x},get z(){return CL[ci].z},get tx(){return CL[ci].tx},get tz(){return CL[ci].tz},get lab(){return CL[ci].obj},manual:true,r:.6,go:1,get fn(){return CL[ci].fn}};
 WPS.d2_close=WPS.d1_close;
 G.closeJump=n=>{ci=n;objT(CL[n].obj)};
-G.closeInit=(dn=1)=>{CLD=dn;lkDone=false;ctDone=false;ci=0;CFALL.position.set(3.3,.97,-6.45);CFALL.rotation.set(0,0,0);CFALL.scale.setScalar(1.7);CFALL.visible=true;dAt(0);if(AABB.indexOf(doorBlock)<0)AABB.push(doorBlock);SBIN.visible=true;CUPS2.forEach(m=>m.visible=true);BAGW.visible=false;setClock('6:05 PM');objT(CL[0].obj)};
+G.closeInit=(dn=1)=>{CLD=dn;lkDone=false;lnS=0;lnLook=0;lnSide=0;lnPrev=null;dsShut=false;ci=0;CFALL.position.set(3.3,.97,-6.45);CFALL.rotation.set(0,0,0);CFALL.scale.setScalar(1.7);CFALL.visible=true;dAt(0);if(AABB.indexOf(doorBlock)<0)AABB.push(doorBlock);SBIN.visible=true;CUPS2.forEach(m=>m.visible=true);BAGW.visible=false;setClock('6:05 PM');objT(CL[0].obj)};
 async function run(i){if(G.busy||CINE.on||i!==ci)return;G.busy=true;A.click();await cineIn();
   await [mop,cups,bagUp,backDoor,throwBag][i]();
   setClock(['6:12 PM','6:20 PM','6:24 PM','6:27 PM','6:36 PM'][i]);ci++;if(ci>=CL.length){G.state='d'+CLD+'_lock';objT('Lock up')}else objT(CL[ci].obj);
@@ -143,6 +143,7 @@ async function throwBag(){
   TB.visible=false;A.nz(.25,200,90,.3,'lowpass');A.tone(90,60,.3,.2);
   await csleep(700);
   await say('Done. Shutter, then home.',1700);
+  if(CLD===2){CINE.noclip=false;TB.visible=false;SBIN.visible=false;return}   /* Day 2: you walk back yourself */
   /* back inside: the door stays open, a cup rolls off the counter by itself */
   await pace(6.4,-5.1,1500);await camTo(P.x,P.z,yawFrom(P.x,P.z,5.1,-5.1),0,500);
   await pace(4.1,-5.1,1800);
@@ -161,14 +162,30 @@ async function throwBag(){
   CINE.noclip=false;SBIN.visible=false;TB.visible=false;if(AABB.indexOf(doorBlock)<0)AABB.push(doorBlock)}
 /* ---------- Day 1 closing: something stands in the kitchen, watching. You turn, it stares, you say we are closing, it is gone. ---------- */
 let lkDone=false;const LKX=3.8,LKZ=-4.75;
-/* Day 2: after the last chore the back door has closed behind you. Something is already standing in the middle of the shop, between you and the shutter. Walk close and it is gone. */
-let ctDone=false;const CTX=.2,CTZ=.5;
+/* Day 2: free roam after the last bag. Turn from the bins toward the door and it is standing at your shoulder, on the side you are turning away from. Look at it and the lamp flickers; it is gone. */
+let lnS=0,lnLook=0,lnSide=0,lnPrev=null,lnT=0,dsShut=false;
+const lnGone=async()=>{lnS=2;G.busy=true;const F=G.FIG;lampFlick([.4,0,.8,.1,1]);await flicker([.45,0,.7,.2,1]);F.visible=false;G.busy=false};
 G.tick.push(dt=>{
-  if(G.state!=='d2_lock'||ctDone||CINE.on||G.busy)return;
+  if(G.state!=='d2_lock'||CINE.on||G.busy)return;
   const F=G.FIG;
-  if(!F.visible){F.userData.sit=false;F.userData.d2sit=false;F.position.set(CTX,0,CTZ);F.visible=true;try{G.AMB.duck(3000)}catch(_){}A.tone(48,40,2.2,.14,'sine');return}
-  F.rotation.y=Math.atan2(P.x-CTX,P.z-CTZ);
-  if(Math.hypot(P.x-CTX,P.z-CTZ)<3.3){ctDone=true;G.busy=true;(async()=>{await flicker([.45,0,.7,.2,1]);F.visible=false;G.busy=false})()}});
+  /* the back door closes by itself once you are back inside */
+  if(!dsShut&&P.x<4.7&&KDOOR.rotation.y!==DC){dsShut=true;G.busy=true;(async()=>{await tween(k=>dAt(1-k),700);A.click();if(AABB.indexOf(doorBlock)<0)AABB.push(doorBlock);G.busy=false})();return}
+  if(lnS===0){
+    if(P.x<5.4){lnS=2;return}
+    if(P.x<5.6||P.z>-3.4)return;
+    const toDoor=Math.atan2(-(5.0-P.x),-(-5.1-P.z));let df=toDoor-P.yaw;df=Math.atan2(Math.sin(df),Math.cos(df));
+    if(lnPrev!==null){let dy=P.yaw-lnPrev;dy=Math.atan2(Math.sin(dy),Math.cos(dy));if(Math.abs(dy)>.003)lnSide=dy>0?-1:1}   /* turning left: it is on your right */
+    lnPrev=P.yaw;
+    if(Math.abs(df)<1.0){if(!lnSide)lnSide=df>0?-1:1;const a=P.yaw+lnSide*.87;
+      F.position.set(P.x-Math.sin(a)*.95,0,P.z-Math.cos(a)*.95);F.userData.sit=false;F.userData.d2sit=false;F.visible=true;lnS=1;lnT=0;lnLook=0;
+      try{G.AMB.duck(3000)}catch(_){}A.tone(48,40,2.2,.14,'sine')}
+    return}
+  if(lnS===1){
+    F.rotation.y=Math.atan2(P.x-F.position.x,P.z-F.position.z);lnT+=dt;
+    const d=Math.hypot(P.x-F.position.x,P.z-F.position.z);
+    let b=Math.atan2(-(F.position.x-P.x),-(F.position.z-P.z))-P.yaw;b=Math.abs(Math.atan2(Math.sin(b),Math.cos(b)));
+    if(b<.6)lnLook+=dt;
+    if(lnLook>1.7||P.x<4.9||lnT>14||d<.6)lnGone()}});
 async function lockStare(cine){
   if(lkDone)return;lkDone=true;const F=G.FIG,was=G.busy;G.busy=true;
   F.position.set(LKX,0,LKZ);F.rotation.y=yawFrom(LKX,LKZ,P.x,P.z)+Math.PI;
