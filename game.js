@@ -1085,8 +1085,8 @@ function update(dt){
   {let zx=0,zy=2.5,zz=0,zk=0;
    if(P.z>4.2&&P.z<14.8&&(P.z>14.2?!(P.x>3&&P.x<15.2):true)){let lx=LAMPS[0];for(const l of LAMPS)if(Math.abs(l-P.x)<Math.abs(lx-P.x))lx=l;zx=lx;zy=3.5;zz=10.5;zk=SK}
    else if(P.z>=14.8&&P.x>3&&P.x<15.2){zk=({day:3.8,dusk:5.5,night:4.2})[TIME];zy=2.3;if(P.x<7.2){zx=5.2;zz=19}else if(P.z<19.4){zx=P.x<11.2?9.1:13.1;zz=17.2}else{zx=11;zz=21.2}}
-   else if(P.z<-4.2&&P.x>-2.7){zx=1.25;zz=-5.5;zk=7}
-   else if(P.x<-6.8){zx=-8.25;zz=2.5;zk=6}
+   else if(P.x<-5){zx=-8.25;zz=2.5;zk=6}   /* corridor + bathroom */
+   else if(P.x<7.2&&P.z>-7&&P.z<4.5){zx=1.25;zz=-5.5;zk=7}   /* shop + kitchen: the kitchen light stays on, so it never pops when you walk in */
    {const cp=LZ.position,dd=Math.hypot(zx-cp.x,zz-cp.z)+Math.abs(zy-cp.y);
     if(dd>1.5){ZKc+=(0-ZKc)*Math.min(1,dt*9);if(ZKc<.06){cp.set(zx,zy,zz)}}
     else{const a=Math.min(1,dt*6);cp.x+=(zx-cp.x)*a;cp.y+=(zy-cp.y)*a;cp.z+=(zz-cp.z)*a;ZKc+=(zk-ZKc)*a}
@@ -1303,7 +1303,7 @@ let FXM='auto';try{const v=localStorage.lo_fx;if(v==='full'||v==='off')FXM=v}cat
    const r=new THREE.BufferGeometry();r.setAttribute('position',new THREE.Float32BufferAttribute(p,3));r.setAttribute('normal',new THREE.Float32BufferAttribute(n,3));r.setAttribute('uv',new THREE.Float32BufferAttribute(u,2));r.setIndex(ix);return r};
  const MATS={trim:TRIM,dark:DARK,win:WIN,int:INT};
  for(const k in L){if(!L[k].length)continue;const m=new THREE.Mesh(merge(L[k]),MATS[k]);m.userData.noSoot=true;m.name='thick_'+k;scene.add(m)}}
-const V=new URL(import.meta.url).search,BUILD='202611290700';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+const V=new URL(import.meta.url).search,BUILD='202611290716';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));
