@@ -90,7 +90,7 @@ box(.3,.2,.5,M(0x6b4a2b),0,.1,0,radio);box(.02,.14,.28,M(0x111111),-.16,.1,0,rad
 const register=box(.4,.28,.34,M(0x3b3f45),4.2,1.19,1.3);
 /* fuse box */
 const fuse=new THREE.Group();fuse.position.set(-4.9,1.5,.5);scene.add(fuse);
-box(.12,.7,.5,M(0x55595e),0,0,0,fuse);box(.02,.5,.34,M(0x3f4247),.07,0,0,fuse);const led=box(.02,.06,.06,B(0xff3b30),.08,.22,.14,fuse);
+box(.12,.7,.5,M(0x55595e),0,0,0,fuse);box(.02,.5,.34,M(0x3f4247),.07,0,0,fuse);const led=box(.02,.06,.06,B(0xff3b30),.08,.22,.14,fuse);for(let i=0;i<3;i++){box(.02,.05,.16,M(0x1d1f22),.085,.12-i*.15,-.02,fuse);box(.03,.07,.05,M(0xc9ccd1),.1,.12-i*.15,-.06,fuse)}
 /* fan */
 const fan=new THREE.Group();fan.position.set(0,2.78,-.3);scene.add(fan);
 box(.14,.14,.14,M(0x333640),0,0,0,fan);for(let i=0;i<3;i++){const b=box(1.1,.02,.18,M(0x4a5163),.55,0,0,fan);b.geometry.translate(0,0,0);const g=new THREE.Group();scene.remove(b);g.add(b);g.rotation.y=i*Math.PI*2/3;fan.add(g)}
@@ -409,16 +409,16 @@ const BALC=[];
 const WPS={d1_go:{x:.9,z:5.5,r:.6,go:1,fn:d1Knock},d1_greet:{x:2.8,z:3.05,r:.6,go:1,fn:cineAtuk},d1_report:{x:2.8,z:3.05,r:.6,go:1,fn:cineAtuk},d1_back:{x:2.8,z:3.05,r:.6,go:1,fn:cineAtuk},d1_rule:{x:2.8,z:3.05,r:.6,go:1,fn:cineAtuk},d1_bath:{x:-8.2,z:2.5,r:.6,go:1,fn:cineBath},d1_fuse:{x:-4.0,z:.5,r:.7,go:1,fn:d1FuseAct},d1_lock:{x:.3,z:5.3,r:.6,go:1,fn:cineLock},d1_home:{x:6.1,z:14.0,r:.6,go:1,fn:cineHome}};
 const WP={x:0,z:0,r:.6};
 const WPG=new THREE.Group();WPG.position.set(WP.x,0,WP.z);scene.add(WPG);
-{const ring=new THREE.Mesh(new THREE.RingGeometry(WP.r-.05,WP.r,40),new THREE.MeshBasicMaterial({color:0xE0A526,transparent:true,opacity:.6,depthWrite:false,fog:false,side:THREE.DoubleSide}));ring.material.opacity=.32;ring.rotation.x=-Math.PI/2;ring.position.y=.04;WPG.add(ring);
+{const ring=new THREE.Mesh(new THREE.RingGeometry(WP.r-.11,WP.r,48),new THREE.MeshBasicMaterial({color:0xE0A526,transparent:true,opacity:.6,depthWrite:false,fog:false,side:THREE.DoubleSide}));ring.material.opacity=.32;ring.rotation.x=-Math.PI/2;ring.position.y=.04;WPG.add(ring);
  const disc=new THREE.Mesh(new THREE.CircleGeometry(WP.r-.05,40),new THREE.MeshBasicMaterial({color:0xE0A526,transparent:true,opacity:.1,depthWrite:false,fog:false}));disc.rotation.x=-Math.PI/2;disc.position.y=.035;WPG.add(disc);
  const bt=ctex(8,64,c=>{const g=c.createLinearGradient(0,0,0,64);g.addColorStop(0,'rgba(255,205,90,0)');g.addColorStop(1,'rgba(255,205,90,.9)');c.fillStyle=g;c.fillRect(0,0,8,64)});
  const beam=new THREE.Mesh(new THREE.CylinderGeometry(.09,.09,2.6,10,1,true),new THREE.MeshBasicMaterial({map:bt,transparent:true,opacity:.3,depthWrite:false,fog:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide}));beam.visible=false;WPG.add(beam);
- const chev=new THREE.Mesh(new THREE.SphereGeometry(.04,10,8),new THREE.MeshBasicMaterial({color:0xF2B531,transparent:true,opacity:.9,fog:false,depthWrite:false}));chev.position.y=1.45;WPG.add(chev);
- const halo=new THREE.Sprite(new THREE.SpriteMaterial({map:GLOW.material.map,color:0xffc850,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,fog:false,opacity:.5}));halo.scale.set(.42,.42,1);chev.add(halo);chev.userData.halo=halo;
+ const chev=new THREE.Mesh(new THREE.ConeGeometry(.1,.19,4),new THREE.MeshBasicMaterial({color:0xF2B531,transparent:true,opacity:.95,fog:false,depthWrite:false}));chev.rotation.x=Math.PI;chev.rotation.y=Math.PI/4;chev.position.y=1.05;WPG.add(chev);
+ const halo=new THREE.Sprite(new THREE.SpriteMaterial({map:GLOW.material.map,color:0xffc850,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,fog:false,opacity:.5}));halo.scale.set(.7,.7,1);chev.add(halo);chev.userData.halo=halo;
  WPG.userData={ring,disc,beam,chev}}
 function wpTick(){const w=WPS[state];if(CINE.on){WPG.visible=false;return}if(!w||busy){WPG.visible=false;if(!w&&$('obj').textContent!==OBJB)$('obj').textContent=OBJB;return}
   const d=Math.hypot(P.x-w.x,P.z-w.z);WP.x=w.x;WP.z=w.z;WP.r=w.r;WPG.position.set(w.x,0,w.z);WPG.visible=w.go||d>w.r;
-  const t=performance.now()/1000,k=1+Math.sin(t*3)*.04;WPG.userData.ring.scale.set(k,k,1);{const fd=Math.max(.2,Math.min(1,(d-.7)/1.6)),pl=.75+Math.sin(t*3)*.25,c=WPG.userData.chev;c.position.y=1.45+Math.sin(t*2)*.03;c.material.opacity=.9*fd*pl;c.userData.halo.material.opacity=.5*fd*pl;WPG.userData.ring.material.opacity=.14+.2*fd;WPG.userData.disc.material.opacity=.04+.04*fd}
+  const t=performance.now()/1000,k=1+Math.sin(t*3)*.04;WPG.userData.ring.scale.set(k,k,1);{const fd=Math.max(.2,Math.min(1,(d-.7)/1.6)),pl=.75+Math.sin(t*3)*.25,c=WPG.userData.chev;c.position.y=1.05+Math.sin(t*2.4)*.05;c.rotation.y=t*1.2;c.material.opacity=.95*Math.max(.55,fd)*(.85+.15*pl);c.userData.halo.material.opacity=.5*Math.max(.5,fd)*pl;WPG.userData.ring.material.opacity=.3+.3*fd;WPG.userData.disc.material.opacity=.07+.06*fd}
   const txt=OBJB&&WPG.visible?OBJB+'  ·  '+Math.max(0,Math.round(d-w.r))+' m':OBJB;if($('obj').textContent!==txt)$('obj').textContent=txt}
 /* ---------- audio ---------- */
 let ac=null,master,hum,humG,statG,droneG;
@@ -811,8 +811,11 @@ async function d1Blackout(){
   await say(sp('ATUK','Power cut, cucu. Go check the fuse box. Same place.'),3200);
   state='d1_fuse';setClock('5:48 PM');objT('Check the fuse box');busy=false}
 async function d1FuseAct(){if(busy||CINE.on)return;busy=true;await cineIn();
-  await camTo(-4.0,.5,Math.PI/2,0,800);A.click();
+  torch.intensity=9;
+  await camTo(P.x,P.z,yawFrom(P.x,P.z,-4.9,.5),.04,700);
+  await camTo(-4.15,.5,yawFrom(-4.15,.5,-4.9,.5),-.1,1500);A.click();
   await say('The breaker is warm to the touch.',2000);handAct('reach',900);await csleep(500);A.click();
+  try{led.material=led.material.clone();led.material.color.setHex(0x3cff5a)}catch(_){}await csleep(350);
   torch.intensity=0;await lightsOnNow();setClock('5:55 PM');
   await camTo(-4.0,.5,yawFrom(-4.0,.5,-1.5,-.5),0,900);
   await say('The lights are back.',1600);
@@ -1034,7 +1037,7 @@ const G={tm:nightClock,yawFrom,ZONES,AABB,AMB,person,THREE,scene,camera,P,EYE,A,
   AEV,AMBD,get ac(){return ac},get master(){return master},get ambG(){return ambG},
   get state(){return state},set state(v){state=v},get busy(){return busy},set busy(v){busy=v},
   setLights(v){lightsOn=v},setBlur(v){cv.style.transition='filter 1.4s';cv.style.filter=v?'blur(8px)':''}};
-const V=new URL(import.meta.url).search,BUILD='202611273022';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+const V=new URL(import.meta.url).search,BUILD='202611273023';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));
