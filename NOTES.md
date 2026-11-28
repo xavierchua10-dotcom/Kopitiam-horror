@@ -206,3 +206,4 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 - 202611273031: Day 1 closing: the kitchen figure is already standing there (placed while you look away, or at cutscene start) so there is no delayed pop-in; it only vanishes after you speak.
 - 202611273032: (superseded by 033)
 - 202611273033: Photo beside the altar: only the floating arrow and icon disappear after you look once; the Look at the photo button stays.
+- 202611273034: Day 1 home front door starts closed (blocks the doorway); tap the door icon (Open the door), walk out, it closes behind you.

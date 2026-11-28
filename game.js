@@ -541,7 +541,8 @@ async function photoAct(){if(busy||CINE.on)return;busy=true;const po=ITS.find(i=
 const MAN=it('man',[0,1.1,0],()=>{const w=WPS[state];return (w&&w.lab)||OBJB},()=>{const w=WPS[state];return !!(w&&w.manual&&!busy&&!CINE.on&&Math.hypot(P.x-w.x,P.z-w.z)<w.r+.55)},()=>{const w=WPS[state];if(w&&w.fn)w.fn()},[]);
 it('photo',[4.55,1.2,22.45],'Look at the photo',()=>!busy&&!CINE.on&&P.x>3&&P.x<15.5&&P.z>15,photoAct,PHOTO);
 const hatchIt=ITS[3];
-it('housedoor',[6.1,1.2,15.1],'Go inside',()=>state==='leave',houseAct,[doorMesh]);
+const DOORBLK=[5.5,6.7,14.85,15.2];
+it('housedoor',[6.1,1.2,15.1],()=>state==='d1_go'?'Open the door':'Go inside',()=>state==='leave'||(state==='d1_go'&&!busy&&!CINE.on&&P.z>15.3&&P.x>4.3&&P.x<7.9),houseAct,[doorMesh]);
 async function radioAct(){busy=true;A.click();A.static(.12);await say('The radio hisses. Nobody tuned it.',2400);A.static(.2);await say('"...order forty-two..."',2300);A.static(.28);await say('"...still waiting..."',2300);A.static(0);A.sting();lightsOffNow();torch.intensity=26;state='dark';objT('Find the fuse box');busy=false;say('Something scrapes, far off in the dark.',2800);setTimeout(()=>A.scrape(),600)}
 async function fuseAct(){busy=true;A.click();await say('The breaker is warm to the touch.',1800);torch.intensity=0;await lightsOnNow();state='lit2';fig.visible=true;objT('Check the kitchen hatch');busy=false;say('The lights are back.',1800)}
 async function doScare(){busy=true;lightsOffNow();A.sting();await sleep(800);fig.visible=false;seat.position.set(2.45,.23,-.55);seat.rotation.y=.7;A.scrape();await sleep(500);await lightsOnNow();scareDone=true;await say('The stool is still swaying.',2300);busy=false}
@@ -627,6 +628,7 @@ async function midnightDoor(){
   $('fade').style.transition='opacity 1.6s';$('fade').style.opacity=1;await sleep(1800);
   EYE.y=1.6;CINE.noclip=false;P.pitch=0;await cineOut();busy=false;const r=midDone;midDone=null;if(r)r()}
 async function houseAct(){
+  if(state==='d1_go'){const i=AABB.indexOf(DOORBLK);if(i>=0)AABB.splice(i,1);doorSeen.d1_go=1;return doorOut()}
   busy=true;A.click();
   if(state==='d1_home'){await say('The door is locked. Atuk is already home.',2200);handAct('knock',2300);for(let i=0;i<3;i++){A.knock();await sleep(650)}await say(sp('ATUK','Three knock. Okay. Masuk.'),2400);$('endh').textContent='END OF DAY 1';$('endp').textContent='Nothing strange happened today. Remember the rule: three knocks.';$('endl').textContent='Last Order · Day 2 is coming'}
   $('fade').style.transition='opacity 1.6s';$('fade').style.opacity=1;await sleep(1800);$('end').style.display='flex';busy=false;state='end'}
@@ -893,6 +895,7 @@ async function beginDay1(){
   setTime('day');lightsOn=true;applyLights(1);objT('');bulbSet(1);tapOff();ci=0;KC.visible=false;setClock('6:30 AM');
   shutter.position.y=1.2;shutBlock(true);showCrowd(false);D.crowd=false;QUEUE.forEach((q,i)=>{q.visible=true;q.position.set(QPOS[i][0],0,QPOS[i][1]);q.rotation.y=QPOS[i][2];pose(q,0,'stand')});drawBoard(1);day1Props(true);
   P.x=13;P.z=17.4;P.yaw=Math.PI/2;P.pitch=0;P.tx=null;
+  window.__doorG.rotation.y=0;if(AABB.indexOf(DOORBLK)<0)AABB.push(DOORBLK);
   state='d1_intro';const dc=$('dcard');dc.innerHTML='DAY 1<small>6:30 AM</small>';dc.style.opacity=1;await sleep(2600);dc.style.opacity=0;
   if(/[?&]skipwake/.test(location.search)){setClock('6:55 AM');$('fade').style.transition='opacity 1.6s';$('fade').style.opacity=0;P.x=13.1;P.z=18.2;P.yaw=Math.PI}else await wakeUp();
   state='d1_go';objT('Go to the kopitiam');$('hint').textContent=isLand()?'Left thumb: move · Right thumb: look':'Tap the floor to walk · drag to look';$('hint').classList.add('on');setTimeout(()=>$('hint').classList.remove('on'),8000);
@@ -1038,7 +1041,7 @@ const G={KC,tm:nightClock,yawFrom,ZONES,AABB,AMB,person,THREE,scene,camera,P,EYE
   AEV,AMBD,get ac(){return ac},get master(){return master},get ambG(){return ambG},
   get state(){return state},set state(v){state=v},get busy(){return busy},set busy(v){busy=v},
   setLights(v){lightsOn=v},setBlur(v){cv.style.transition='filter 1.4s';cv.style.filter=v?'blur(8px)':''}};
-const V=new URL(import.meta.url).search,BUILD='202611273033';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+const V=new URL(import.meta.url).search,BUILD='202611273034';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));
