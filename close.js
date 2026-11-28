@@ -162,7 +162,7 @@ async function throwBag(){
   CINE.noclip=false;SBIN.visible=false;TB.visible=false;if(AABB.indexOf(doorBlock)<0)AABB.push(doorBlock)}
 /* ---------- Day 1 closing: something stands in the kitchen, watching. You turn, it stares, you say we are closing, it is gone. ---------- */
 let lkDone=false;const LKX=3.8,LKZ=-4.75;
-/* Day 2: free roam after the last bag. Turn from the bins toward the door and it is standing at your shoulder, on the side you are turning away from. Look at it and the lamp flickers; it is gone. */
+/* Day 2: free roam after the last bag. Turn from the bins and it is standing in front of the back door, the way back in. Walk toward it and the lamp flickers; it is gone. */
 let lnS=0,lnLook=0,lnSide=0,lnPrev=null,lnT=0,dsShut=false;
 const lnGone=async()=>{lnS=2;G.busy=true;const F=G.FIG;lampFlick([.4,0,.8,.1,1]);await flicker([.45,0,.7,.2,1]);F.visible=false;G.busy=false};
 G.tick.push(dt=>{
@@ -173,19 +173,12 @@ G.tick.push(dt=>{
   if(lnS===0){
     if(P.x<5.4){lnS=2;return}
     if(P.x<5.6||P.z>-3.4)return;
-    const toDoor=Math.atan2(-(5.0-P.x),-(-5.1-P.z));let df=toDoor-P.yaw;df=Math.atan2(Math.sin(df),Math.cos(df));
-    if(lnPrev!==null){let dy=P.yaw-lnPrev;dy=Math.atan2(Math.sin(dy),Math.cos(dy));if(Math.abs(dy)>.003)lnSide=dy>0?-1:1}   /* turning left: it is on your right */
-    lnPrev=P.yaw;
-    if(Math.abs(df)<1.0){if(!lnSide)lnSide=df>0?-1:1;const a=P.yaw+lnSide*.87;
-      F.position.set(P.x-Math.sin(a)*.95,0,P.z-Math.cos(a)*.95);F.userData.sit=false;F.userData.d2sit=false;F.visible=true;lnS=1;lnT=0;lnLook=0;
-      try{G.AMB.duck(3000)}catch(_){}A.tone(48,40,2.2,.14,'sine')}
-    return}
+    /* it is already standing in front of the back door, behind you, before you ever turn around */
+    F.position.set(5.9,0,-5.1);F.userData.sit=false;F.userData.d2sit=false;F.visible=true;lnS=1;lnT=0;
+    try{G.AMB.duck(3000)}catch(_){}A.tone(48,40,2.2,.14,'sine');return}
   if(lnS===1){
     F.rotation.y=Math.atan2(P.x-F.position.x,P.z-F.position.z);lnT+=dt;
-    const d=Math.hypot(P.x-F.position.x,P.z-F.position.z);
-    let b=Math.atan2(-(F.position.x-P.x),-(F.position.z-P.z))-P.yaw;b=Math.abs(Math.atan2(Math.sin(b),Math.cos(b)));
-    if(b<.6)lnLook+=dt;
-    if(lnLook>1.7||P.x<4.9||lnT>14||d<.6)lnGone()}});
+    if(Math.hypot(P.x-F.position.x,P.z-F.position.z)<3.2||P.x<4.9||lnT>60)lnGone()}});
 async function lockStare(cine){
   if(lkDone)return;lkDone=true;const F=G.FIG,was=G.busy;G.busy=true;
   F.position.set(LKX,0,LKZ);F.rotation.y=yawFrom(LKX,LKZ,P.x,P.z)+Math.PI;
