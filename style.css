@@ -73,3 +73,6 @@ body.cine #sub{bottom:calc(12% + 12px)!important;z-index:8}
 #lidT.soft{box-shadow:0 14px 30px 8px rgba(10,7,5,.92)}#lidB.soft{box-shadow:0 -14px 30px 8px rgba(10,7,5,.92)}
 
 #sub i{display:block;margin-top:3px;font-size:12.5px;font-weight:400;font-style:italic;opacity:.72;letter-spacing:.2px;color:var(--txt)}
+#sub b .to{font-weight:400;letter-spacing:.4px;color:#8c88a0}
+#sub.self .sf{font-style:italic;color:#bfe3ff}
+#sub.nar{background:none;border-color:transparent;-webkit-backdrop-filter:none;backdrop-filter:none;font-style:italic;font-weight:400;font-size:14px;color:#b4afc9;text-shadow:0 1px 3px #000,0 0 8px #000}

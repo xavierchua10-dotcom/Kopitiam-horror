@@ -134,7 +134,7 @@ async function atukRule(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
   await pace(2.95,3.05);await camTo(P.x,P.z,yawTo(atuk.position.x,atuk.position.z),.02,500);
   await say(sp('ATUK','Same like yesterday. Tonight, anybody knock...'),2800);
   await say(sp('ATUK','Three knock only. Anything else, don\'t open.'),2800);
-  await say(sp('YOU','Even if they call my name?'),2000);
+  await say(sp('YOU>ATUK','Even if they call my name?'),2000);
   await csleep(900);
   await say(sp('ATUK','...Especially if they call your name.'),3000);
   await say(sp('ATUK','Atuk balik dulu. Lock properly.'),2400);

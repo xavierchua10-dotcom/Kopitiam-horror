@@ -288,7 +288,7 @@ async function atukTalk(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
 async function atukRule(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
   await pace(2.95,3.05);await camTo(P.x,P.z,yawTo(atuk.position.x,atuk.position.z),.02,500);
   await say(sp('ATUK','Dengar ah. Tonight, if anybody knock, three knock only.'),3000);
-  await say(sp('YOU','Even if somebody is crying outside?'),2200);
+  await say(sp('YOU>ATUK','Even if somebody is crying outside?'),2200);
   await csleep(900);
   await say(sp('ATUK','...Especially if somebody is crying.'),2800);
   await say(sp('ATUK','Atuk balik dulu. Lock properly.'),2200);

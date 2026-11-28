@@ -520,8 +520,12 @@ function transOf(t){let w=t.toLowerCase().replace(/[“”"]/g,'').replace(/\s+/
   for(const [k,v] of TR){const p=w.indexOf(k);if(p<0)continue;const L=k.replace(/[^a-z]/g,'').length;w=w.slice(0,p)+' '.repeat(k.length)+w.slice(p+k.length);got+=L;out.push([k,v,L])}
   if(!out.length)return '';const whole=got/Math.max(1,full)>.6;
   return out.map(([k,v])=>whole?v:'“'+k+'” = '+v).join(' · ')}
-async function say(t,ms=2600,who){const s=$('sub');{const w=t.startsWith('ATUK:')?atuk:who;if(w&&w.visible)speak(w,Math.max(.8,Math.min(ms/1000-.4,t.length*.06)),w.userData.f0,Math.max(.15,Math.min(1,2.2/(1+Math.hypot(P.x-w.position.x,P.z-w.position.z)))))}const mm=/^([A-Z][A-Z ]{1,11}): (.*)$/.exec(t),nm=who&&NAMEOF.get(who);let nme=null,body=t;if(mm){nme=mm[1];body=mm[2]}else if(nm)nme=nm;const tr=transOf(body),esc=x=>x.replace(/&/g,'&amp;').replace(/</g,'&lt;');
-  s.innerHTML=(nme?'<b style="color:'+(NCOL[nme]||'var(--acc)')+'">'+nme+'</b>':'')+esc(body)+(tr?'<i>'+esc(tr)+'</i>':'');s.dataset.k=t;s.classList.add('on');if(tr)ms+=900;await(CINE.on?csleep(ms):sleep(ms));if(s.dataset.k===t)s.classList.remove('on')}
+async function say(t,ms=2600,who){const s=$('sub');{const w=t.startsWith('ATUK:')?atuk:who;if(w&&w.visible)speak(w,Math.max(.8,Math.min(ms/1000-.4,t.length*.06)),w.userData.f0,Math.max(.15,Math.min(1,2.2/(1+Math.hypot(P.x-w.position.x,P.z-w.position.z)))))}const mm=/^([A-Z][A-Z ]{1,11})(?:>([A-Z][A-Z ]{0,11}))?: (.*)$/.exec(t),nm=who&&NAMEOF.get(who);let nme=null,body=t,tgt=null;if(mm){nme=mm[1];tgt=mm[2]||null;body=mm[3]}else if(nm)nme=nm;
+  if(nme==='ATUK'&&!tgt)tgt='YOU';
+  let self=false;if(nme==='YOU'&&!tgt){if(/^\.*Atuk(\.\.\.|\?|,)/.test(body)||/,\s*Atuk[.?!,]/.test(body))tgt='ATUK';else if(!/^[^a-z]*[A-Z]{3,}[^a-z]*$/.test(body))self=true}
+  const tr=transOf(body),esc=x=>x.replace(/&/g,'&amp;').replace(/</g,'&lt;'),col=nme&&(NCOL[nme]||'var(--acc)'),tl=tgt==='YOU'?'you':tgt==='ALL'?'everyone':tgt?tgt.charAt(0)+tgt.slice(1).toLowerCase():'';
+  s.className='';s.classList.toggle('nar',!nme);s.classList.toggle('self',self);
+  s.innerHTML=(nme&&!self?'<b style="color:'+col+'">'+nme+(tl?'<span class="to"> to '+tl+'</span>':'')+'</b>':'')+(self?'<span class="sf">('+esc(body)+')</span>':esc(body))+(tr?'<i>'+esc(tr)+'</i>':'');s.dataset.k=t;s.classList.add('on');if(tr)ms+=900;await(CINE.on?csleep(ms):sleep(ms));if(s.dataset.k===t)s.classList.remove('on')}
 const ITS=[];const lab=o=>typeof o.label==='function'?o.label():o.label;
 function it(id,pos,label,enabled,act,meshes){const o={id,pos:new THREE.Vector3(...pos),label,enabled,act};for(const m of meshes)m.traverse(n=>{if(n.isMesh)n.userData.it=o});ITS.push(o);return o}
 it('radio',[4.15,1.2,-.2],'Turn off the radio',()=>state==='lit1',radioAct,[radio]);
@@ -813,7 +817,7 @@ async function crowdWake(){
       await tween(k=>{q.position.set(x0+dx*k,0,z0+dz*k);q.rotation.y=ry+dyy*Math.min(1,k*5);pose(q,performance.now()/220,'walk')},L/1.25*1000);cx=tx;cz=tz}
     q.visible=false;pose(q,0,'stand')};
   for(let i=0;i<QUEUE.length;i++){const q=QUEUE[i];pose(q,0,'stand');const ln=LINES[NAMEOF.get(q)];if(ln)await say(ln,2300,q);walks.push(walk(q,i));await sleep(500)}
-  atuk.visible=true;await say(sp('ATUK','Hati-hati balik, ya.'),2300);
+  atuk.visible=true;await say(sp('ATUK>ALL','Hati-hati balik, ya.'),2300);
   await Promise.all(walks);await sleep(600)}
 async function d1Knock(){busy=true;state='d1_knock';await cineIn();
   await camTo(.3,4.6,0,.04,1800);
@@ -1013,7 +1017,7 @@ const G={tm:nightClock,yawFrom,ZONES,AABB,AMB,person,THREE,scene,camera,P,EYE,A,
   AEV,AMBD,get ac(){return ac},get master(){return master},get ambG(){return ambG},
   get state(){return state},set state(v){state=v},get busy(){return busy},set busy(v){busy=v},
   setLights(v){lightsOn=v},setBlur(v){cv.style.transition='filter 1.4s';cv.style.filter=v?'blur(8px)':''}};
-const V=new URL(import.meta.url).search,BUILD='202611273012';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+const V=new URL(import.meta.url).search,BUILD='202611273013';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));
