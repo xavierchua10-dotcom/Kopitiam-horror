@@ -176,7 +176,7 @@ G.tick.push(dt=>{
     if(cyLook>.9||P.z>3.2||cyT>120){cyS=2;F.visible=false;F.userData.sit=false;F.userData.hunch=false;
       if(cyLook>.9){G.busy=true;(async()=>{await csleep(500);await say('"...maaf..."',2400);G.busy=false})()}}}});
 
-/* Day 3: right after the mop, someone is crying in the toilet and glitter spills out of the stall. Go in: slow lean over the bowl, a standing figure with its back to you, it turns, looks up, lunges and is gone. Back at the door it is standing in the hall. */
+/* Day 3: right after the mop, someone is crying in the toilet and glitter spills out of the stall. Go in: slow lean over the bowl, nothing there. Walk out and the figure is suddenly standing in the hall. */
 let wcTurn=0,wcHeard=false,wcCry=0,wcLook=0,wcT=0,wcGlow=0;
 const GLT=(()=>{const cv=document.createElement('canvas');cv.width=cv.height=64;const x=cv.getContext('2d');
   let g=x.createRadialGradient(32,32,1,32,32,30);g.addColorStop(0,'rgba(255,255,255,1)');g.addColorStop(.15,'rgba(190,235,255,.8)');g.addColorStop(1,'rgba(150,220,255,0)');x.fillStyle=g;x.fillRect(0,0,64,64);
@@ -201,28 +201,16 @@ G.tick.push(dt=>{
   wcCry-=dt;if(wcCry<0){wcCry=2.4+Math.random()*1.6;A.tone(200+Math.random()*60,150,1,.05*Math.max(.35,1-Math.hypot(P.x+9,P.z-1.7)/14),'sine')}});
 async function wcScene(){
   if(G.busy||CINE.on||G.state!=='d3_wc')return;G.busy=true;A.click();await cineIn();
-  const F=G.FIG;F.userData.sit=false;F.userData.hunch=false;F.userData.up=false;F.visible=false;F.position.set(-9.1,0,1.95);F.rotation.y=Math.PI;
-  const ty=(x,z)=>yawFrom(x,z,-9.1,1.35);
+    const ty=(x,z)=>yawFrom(x,z,-9.1,1.35);
   /* walk in to the stall opening, slowly lean down over the bowl */
   await camTo(-8.85,3.3,ty(-8.85,3.3),-.05,1700);
   await Promise.all([camTo(-8.95,3.05,ty(-8.95,3.05),-.5,2600),tween(k=>{EYE.y=1.6-.25*k},2600)]);
   await csleep(600);
-  /* it is standing right there, back to you; the glitter surges as it appears */
-  F.visible=true;wcGlow=2.2;A.tone(46,38,2.4,.16,'sine');
-  await Promise.all([camTo(-8.95,3.05,ty(-8.95,3.05),-.1,1800),tween(k=>{EYE.y=1.35+.25*k},1800)]);
-  wcGlow=1.2;await csleep(1300);
-  await say(sp('YOU','Who are you.... what do you want from me.'),3400);
-  await csleep(900);
-  /* it turns round and looks up */
-  F.userData.up=true;
-  await tween(k=>{F.rotation.y=Math.PI*(1-k*k*(3-2*k))},1100);
-  await csleep(900);
-  /* lunge, then nothing */
-  const px=P.x,pz=P.z-.4;const fx=F.position.x,fz=F.position.z;
-  A.tone(70,30,.5,.3,'sine');A.nz(.35,900,200,.35,'lowpass',.8);
-  await tween(k=>{const e=k*k;F.position.set(fx+(px-fx)*e,0,fz+(pz-fz)*e);P.pitch=-.1+Math.sin(k*9)*.01*k},260);
-  F.visible=false;F.userData.up=false;wcOff();A.knock();
-  await csleep(1700);
+  /* nothing there: the crying stops, the glitter fades out */
+  await Promise.all([camTo(-8.95,3.05,ty(-8.95,3.05),-.4,1800),tween(k=>{wcGlow=1-k},1800)]);
+  wcOff();await csleep(1600);
+  await say(sp('YOU','...I must have imagined it.'),3000);
+  await csleep(500);
   await tween(k=>{EYE.y=1.6},1);
   G.state='d3_close';setClock('6:14 PM');objT(CL[ci].obj);wcTurn=1;wcLook=0;wcT=0;
   await camTo(P.x,P.z,P.yaw,0,600);G.busy=false;await cineOut()}
