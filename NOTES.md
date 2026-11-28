@@ -188,3 +188,4 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 - 202611273012: Post-breaker customer lines (BM) + Atuk 'Hati-hati balik'; BM lines show small italic English translation under them (TR table in game.js, mixed lines show "phrase" = meaning); each speaker has own name colour (NCOL).
 - 202611273013: Label style C: 'NAME to target' (you/everyone/Atuk), self-talk = (blue italic, no name), narration = dim italic with no box. Explicit target via sp('YOU>ATUK',..).
 - 202611273014: Blackout no longer jumps to night sky (stays dusk); lights cut instantly, player turns to face the crowd, thought '(Damn... what happened?)'.
+- 202611273015: Midnight: 3 knocks, you get out of bed, walk to the door marker, tap 'Open the door'; Atuk talks then walks back to his own room (no vanish).
