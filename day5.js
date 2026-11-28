@@ -176,7 +176,8 @@ G.tick.push(()=>{if(!HOSP)return;for(const g of[HOSP.mama,HOSP.papa]){const u=g.
 G.d5parents=()=>HOSP&&[HOSP.mama,HOSP.papa];
 /* the hospital song: fades in as you wake, fades out into the end card */
 let SONG=null;
-function songIn(){try{if(!SONG){SONG=new Audio('./sfx/forgotten_memories.mp3');SONG.preload='auto'}SONG.currentTime=0;SONG.volume=0;const p=SONG.play();if(p&&p.catch)p.catch(()=>{});const t0=performance.now();const f=()=>{if(!SONG)return;const k=Math.min(1,(performance.now()-t0)/4000);SONG.volume=.55*k;if(k<1&&!SONG.paused)requestAnimationFrame(f)};f()}catch(e){}}
+function songIn(){try{if(!SONG){SONG=new Audio('./sfx/forgotten_memories.mp3');SONG.preload='auto'}SONG.currentTime=0;SONG.volume=0;const p=SONG.play();if(p&&p.catch)p.catch(()=>{});const t0=performance.now();const f=()=>{if(!SONG)return;const k=Math.min(1,(performance.now()-t0)/4000);SONG.volume=.18*k;if(k<1&&!SONG.paused)requestAnimationFrame(f)};f()}catch(e){}}
+function songTo(v,ms){try{if(!SONG)return;const v0=SONG.volume,t0=performance.now();const f=()=>{const k=Math.min(1,(performance.now()-t0)/ms);SONG.volume=v0+(v-v0)*k;if(k<1&&!SONG.paused)requestAnimationFrame(f)};f()}catch(e){}}
 function songOut(ms){try{if(!SONG)return;const v0=SONG.volume,t0=performance.now();const f=()=>{const k=Math.min(1,(performance.now()-t0)/ms);SONG.volume=v0*(1-k);if(k<1)requestAnimationFrame(f);else SONG.pause()};f()}catch(e){}}
 async function hospital(w){
   buildHospital();const c=$('c'),X=HX;if(!CINE.on)await cineIn();   /* no walking in the hospital */
@@ -209,7 +210,7 @@ async function hospital(w){
   await csleep(900);
   HOSP.papa.position.set(X+.85,0,-2.0);await camTo(X,-.8,G.yawFrom(X,-.8,X-.75,-1.9),.42,1800);
   await say(sp('YOU','...I was there.'),2400);
-  await say(sp('MAMA','You were. And you came back to us, sayang. That is enough.'),3600,MA);
+  songTo(.45,2800);await say(sp('MAMA','You were. And you came back to us, sayang. That is enough.'),3600,MA);
   await csleep(900);
   songOut(3000);$('fade').style.transition='opacity 2.8s';$('fade').style.opacity=1;await sleep(3200);
   scene.fog.density=.012;CINE.noclip=false;EYE.y=1.6;await cineOut()}

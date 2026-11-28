@@ -244,3 +244,4 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 - Build 070 (202611290124): Day 5 hospital: controls locked (no walking), Mama and Papa now talk like Atuk (mouths open and close, voices) and their lines are spoken by them.
 - Build 071 (202611290136): Day 5 hospital TV now shows real in-game aftermath stills (wrecked shop, police tape, evidence markers, seven black body bags) with a breaking-news banner and slow push-in, instead of the drawn placeholder.
 - Build 072 (202611290148): Day 5 hospital plays the song "Forgotten Memories" (sfx/forgotten_memories.mp3): fades in as you wake, fades out into the end card; end card credit line. TODO: artist name + licence unknown, add to credit here and README when known.
+- Build 073 (202611290156): hospital song now sits low (18%) under Mama/Papa/news voices so they can be heard, then swells to 45% on Mama's last line before the fade.
