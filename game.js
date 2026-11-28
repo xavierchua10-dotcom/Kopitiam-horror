@@ -295,7 +295,7 @@ hw(4.4,3,11.2,1.5,17.2,Math.PI/2);
 hw(1.4,3,7.9,1.5,19.4,0);hw(3,3,11.1,1.5,19.4,0);hw(1.4,3,14.3,1.5,19.4,0);hw(1,.8,9.1,2.6,19.4,0);hw(1,.8,13.1,2.6,19.4,0);
 for(const dx of[8.6,9.6,12.6,13.6])box(.08,2.2,.12,M(0x5a3a28),dx,1.1,19.4);box(1.2,.08,.12,M(0x5a3a28),9.1,2.2,19.4);box(1.2,.08,.12,M(0x5a3a28),13.1,2.2,19.4);
 function doorLeaf(hx,hz,th,w){const g=new THREE.Group();g.position.set(hx,0,hz);g.rotation.y=th;scene.add(g);box(w,2.1,.05,M(0x6a4630),w/2,1.05,0,g);box(.05,.12,.09,M(0xc9a24a),w-.1,1.0,0,g);return g}
-doorLeaf(8.6,19.4,1.45,1.0);doorLeaf(12.6,19.4,1.45,1.0);doorLeaf(-7,2.0,-.12,1.0);
+const D_ATUK=doorLeaf(8.6,19.4,1.45,1.0),D_ME=doorLeaf(12.6,19.4,1.45,1.0);doorLeaf(-7,2.0,-.12,1.0);
 const RLGT=(()=>{const c=document.createElement('canvas');c.width=c.height=64;const x=c.getContext('2d'),g=x.createRadialGradient(32,32,2,32,32,32);g.addColorStop(0,'rgba(255,240,190,.9)');g.addColorStop(.4,'rgba(255,225,150,.28)');g.addColorStop(1,'rgba(255,225,150,0)');x.fillStyle=g;x.fillRect(0,0,64,64);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t})();
 const ROOMLAMPS=[];
 function roomLamp(x,z){const g=new THREE.Group();g.position.set(x,2.97,z);scene.add(g);
@@ -596,7 +596,7 @@ const HALLGLOW=new THREE.PointLight(0xffb36b,0,7);HALLGLOW.position.set(13.1,2.1
 let midDone=null;
 WPS.d1_midnight={x:13.1,z:18.35,r:.6,tx:13.1,tz:19.4,lab:'Open the door',manual:true,go:1,fn:()=>midnightDoor()};
 async function midnight(){
-  busy=true;setTime('night');lightsOffNow();setClock('12:00 AM');atuk.visible=false;
+  busy=true;setTime('night');lightsOffNow();setClock('12:00 AM');atuk.visible=false;D_ME.rotation.y=0;
   CINE.noclip=true;EYE.y=.62;P.x=14.5;P.z=17.0;P.yaw=Math.PI;P.pitch=.9;P.tx=null;P.fy=null;
   await cineIn();
   const dc=$('dcard');dc.innerHTML='MIDNIGHT<small>12:00 AM</small>';dc.style.opacity=1;$('fade').style.transition='opacity 1.2s';$('fade').style.opacity=0;await sleep(2200);dc.style.opacity=0;
@@ -611,7 +611,7 @@ async function midnight(){
 async function midnightDoor(){
   if(busy||CINE.on)return;busy=true;A.click();await cineIn();
   await camTo(13.1,18.4,yawFrom(13.1,18.4,13.1,19.6),.02,800);
-  HALLGLOW.intensity=1.3;atuk.visible=true;atuk.position.set(13.1,0,19.7);atuk.rotation.y=0;pose(atuk,0,'stand');A.door();await csleep(900);
+  A.door();await tween(k=>{D_ME.rotation.y=1.45*k*k*(3-2*k)},800);HALLGLOW.intensity=1.3;atuk.visible=true;atuk.position.set(13.1,0,19.7);atuk.rotation.y=0;pose(atuk,0,'stand');await csleep(500);
   await say(sp('YOU>ATUK','Atuk...? What time is it?'),2200);
   await say(sp('ATUK','Listen. From tomorrow, shop open six in the evening. Close one in the morning.'),3600);
   await say(sp('YOU>ATUK','Six? But we always open seven to five...'),2600);
@@ -1037,7 +1037,7 @@ const G={tm:nightClock,yawFrom,ZONES,AABB,AMB,person,THREE,scene,camera,P,EYE,A,
   AEV,AMBD,get ac(){return ac},get master(){return master},get ambG(){return ambG},
   get state(){return state},set state(v){state=v},get busy(){return busy},set busy(v){busy=v},
   setLights(v){lightsOn=v},setBlur(v){cv.style.transition='filter 1.4s';cv.style.filter=v?'blur(8px)':''}};
-const V=new URL(import.meta.url).search,BUILD='202611273023';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+const V=new URL(import.meta.url).search,BUILD='202611273024';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));
