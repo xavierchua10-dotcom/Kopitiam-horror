@@ -1100,7 +1100,7 @@ const G={KC,flo,wall,doorLeaf,regDoor,tm:nightClock,yawFrom,ZONES,AABB,AMB,perso
   AEV,AMBD,get ac(){return ac},get master(){return master},get ambG(){return ambG},
   get state(){return state},set state(v){state=v},get busy(){return busy},set busy(v){busy=v},
   setLights(v){lightsOn=v},setBlur(v){cv.style.transition='filter 1.4s';cv.style.filter=v?'blur(8px)':''}};
-const V=new URL(import.meta.url).search,BUILD='202611290016';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+const V=new URL(import.meta.url).search,BUILD='202611290022';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));
@@ -1154,7 +1154,7 @@ const SCENES=[
  ['Day 2 (play it)',[
   ['s2_chores','Chores + restock',null],['s2_bath','Bathroom mirror',null],['s2_rules','Atuk rules, then closing chores',null],['s2_close','Closing chores + lane scare',null],['s2_lock','Lock up, walk home',null]]],
  ['Day 3 (play it)',[
-  ['s3_kitchen','Kitchen smoke check',null],['s3_chores','Chores: soot, drinks, gas tank',null],['s3_rules','Atuk rules, then closing chores',null],['s3_wc','Toilet crying + figure',null],['s3_close','Closing chores + crying figure',null]]],
+  ['s3_kitchen','Kitchen smoke check',null],['s3_chores','Chores: soot, drinks, gas tank',null],['s3_rules','Atuk rules, then closing chores',null],['s3_wc','Toilet crying + figure',null],['s3_lock','Shutter + figure beside you',null],['s3_close','Closing chores + crying figure',null]]],
  ['Later days',[['d2','Day 2 start',null],['d3','Day 3 start',null],['d4','Day 4 start',null],['d5','Day 5 start',null]]]];
 const SCRUN={s_greet:()=>cineAtuk(),s_report:()=>cineAtuk(),s_bath:()=>cineBath(),s_back:()=>cineAtuk(),s_evening:()=>cineAtuk(),s_fuse:()=>d1FuseAct(),s_lock:()=>cineLock(),s_home:()=>cineHome(),s_midnight:()=>midnight()};
 function scEnd(key){let e=$('scEnd');if(!e){e=document.createElement('div');e.id='scEnd';e.style.cssText='position:fixed;right:14px;bottom:14px;z-index:99999;display:flex;gap:8px';
@@ -1179,6 +1179,7 @@ async function chapter(key){
     if(key==='s3_kitchen'){d3b('day','6:58 AM');P.x=2.95;P.z=3.05;P.yaw=-2;state='d3_kitchen';objT('Check the kitchen')}
     else if(key==='s3_chores'){d3b('day','7:20 AM');P.x=2.95;P.z=3.05;P.yaw=-2;state='d3_chores';objT('Wipe the table')}
     else if(key==='s3_rules'){d3b('dusk','5:40 PM');showCrowd(false);D.crowd=false;P.x=.6;P.z=2.3;P.yaw=-2.14;state='d3_rule';objT('Talk to Atuk')}
+    else if(key==='s3_lock'){d3b('dusk','6:30 PM');showCrowd(false);D.crowd=false;atuk.visible=false;if(G.closeInit)G.closeInit(3);P.x=.3;P.z=5.3;P.yaw=yawFrom(.3,5.3,0,3.9);state='d3_lock';objT('Lock up')}
     else if(key==='s3_wc'){d3b('dusk','6:12 PM');showCrowd(false);D.crowd=false;atuk.visible=false;P.x=-1.5;P.z=.9;P.yaw=Math.PI/2;state='d3_close';if(G.closeInit)G.closeInit(3);G.wcTest&&G.wcTest()}
     else if(key==='s3_close'){d3b('dusk','6:05 PM');showCrowd(false);D.crowd=false;atuk.visible=false;P.x=.6;P.z=1.0;P.yaw=.8;state='d3_close';if(G.closeInit)G.closeInit(3)}
     return}
