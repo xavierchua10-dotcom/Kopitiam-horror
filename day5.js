@@ -176,8 +176,11 @@ function buildHospital(){if(HOSP)return;const T=THREE,S=scene,X=HX;HOSP={};
   const pp=G.person;
   HOSP.mama=pp(X-.95,-1.3,0,0xc77a8a,0x1a1210,0xc9a27e,{long:true,bot:0x4a4a58});HOSP.papa=pp(X+.95,-1.5,0,0x4a6a8a,0x1a1a1a,0xc9a27e,{bot:0x2a2a30});
   HOSP.mama.visible=HOSP.papa.visible=true;pose(HOSP.mama,0,'stand');pose(HOSP.papa,0,'stand')}
+G.tick.push(()=>{if(!HOSP)return;for(const g of[HOSP.mama,HOSP.papa]){const u=g.userData;let m=0;const tk=u.talk;if(tk){const t=(performance.now()-tk.t0)/1000;if(t>tk.end+.2)u.talk=null;else for(const [st,dd,a] of tk.syl){if(t>=st&&t<=st+dd){m=Math.sin((t-st)/dd*Math.PI)*a;break}}}u.mouth.visible=m>.08;u.mouth.scale.y=.08+m;u.mouth.scale.x=1.5-m*.3}});
+G.d5parents=()=>HOSP&&[HOSP.mama,HOSP.papa];
 async function hospital(w){
-  buildHospital();const c=$('c'),X=HX;
+  buildHospital();const c=$('c'),X=HX;if(!CINE.on)await cineIn();   /* no walking in the hospital */
+  HOSP.mama.userData.f0=215;HOSP.papa.userData.f0=105;const MA=HOSP.mama,PA=HOSP.papa;
   setTime('day');applyLights(1);bulbSet(1);scene.fog.density=.003;CINE.noclip=true;
   for(const [m,x,z] of[[HOSP.mama,X-.75,-1.9],[HOSP.papa,X+.85,-2.0]]){m.position.set(x,0,z);m.rotation.y=G.yawFrom(x,z,X,-.8);m.userData.head.rotation.x=.3}
   P.x=X;P.z=-.8;P.yaw=0;P.pitch=.6;EYE.y=1.0;
@@ -187,11 +190,11 @@ async function hospital(w){
   tween(k=>{c.style.filter=`blur(${9*(1-k)}px) brightness(1.1)`;P.pitch=.6-.12*k},4200);
   await sleep(2600);
   const sw=(t,ms)=>say(t,ms);
-  await sw(sp('MAMA','Sayang...? Can you hear Mama?'),3000);
-  await sw(sp('PAPA','He is awake. Look... he is really awake.'),3200);
-  await sw(sp('MAMA','Four days. You slept four days, sayang.'),3200);
+  await say(sp('MAMA','Sayang...? Can you hear Mama?'),3000,MA);
+  await say(sp('PAPA','He is awake. Look... he is really awake.'),3200,PA);
+  await say(sp('MAMA','Four days. You slept four days, sayang.'),3200,MA);
   await sw(sp('YOU','...Mama?'),2000);
-  await sw(sp('MAMA','Shh. Do not talk. Mama is here. Papa is here.'),3200);
+  await say(sp('MAMA','Shh. Do not talk. Mama is here. Papa is here.'),3200,MA);
   await sw(sp('YOU','Atuk...?'),2200);
   await csleep(900);
   await sw('Mama does not answer. She only holds your hand tighter.',3400);
@@ -205,7 +208,7 @@ async function hospital(w){
   await csleep(900);
   HOSP.papa.position.set(X+.85,0,-2.0);await camTo(X,-.8,G.yawFrom(X,-.8,X-.75,-1.9),.42,1800);
   await say(sp('YOU','...I was there.'),2400);
-  await say(sp('MAMA','You were. And you came back to us, sayang. That is enough.'),3600);
+  await say(sp('MAMA','You were. And you came back to us, sayang. That is enough.'),3600,MA);
   await csleep(900);
   $('fade').style.transition='opacity 2.8s';$('fade').style.opacity=1;await sleep(3200);
   scene.fog.density=.012;CINE.noclip=false;EYE.y=1.6;await cineOut()}
