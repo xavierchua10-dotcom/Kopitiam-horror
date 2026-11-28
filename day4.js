@@ -3,6 +3,7 @@ export default function install(G){
 const {THREE,scene,P,EYE,A,CINE,D,WPS,atuk,CROWD,HOME,FEET,shutter,
   $,sleep,say,sp,cineIn,cineOut,camTo,yawTo,csleep,tween,handAct,pose,objT,setClock,setTime,applyLights,bulbSet,flicker,tapOn,tapOff,lids,drawClock,
   showCrowd,drawBoard,day1Props,shutBlock,M,box,ctex}=G;
+const yawFrom=G.yawFrom;
 
 const card=async(h,sm,ms=2400)=>{const dc=$('dcard');dc.innerHTML=h+'<small>'+sm+'</small>';dc.style.opacity=1;await sleep(ms);dc.style.opacity=0};
 const rnd=(a,b)=>a+Math.random()*(b-a);
@@ -149,12 +150,12 @@ WPS.d4_look={x:-.2,z:-.2,r:.75,go:1,fn:silent};
 async function silent(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
   await pace(-.2,-.2,1.5);
   const stop=beatT();
-  await camTo(-.2,-.2,yawTo(-3,-1.2),-.12,1100);
+  await camTo(-.2,-.2,yawFrom(-.2,-.2,-3,-1.2),-.12,1100);
   await say('...What is this?',2600);
   for(const i of [1,0,3,2,4]){const c=CROWD[i];
-    await camTo(-.2,-.2,yawTo(c.position.x,c.position.z),-.1,1000);
+    await camTo(-.2,-.2,yawFrom(-.2,-.2,c.position.x,c.position.z),-.1,1000);
     turnTo(c,2000);await csleep(1500)}
-  await camTo(-.2,-.2,yawTo(-2.6,-.7),-.1,900);
+  await camTo(-.2,-.2,yawFrom(-.2,-.2,-2.6,-.7),-.1,900);
   fade(.5);await csleep(2200);stop();
   await newsScene()}
 
@@ -229,7 +230,7 @@ async function footage(){
 
 async function newsScene(){
   setClock('12:48 PM');
-  await camTo(3.9,.5,yawTo(4.9,.5),.27,1400);
+  await camTo(3.9,.5,yawFrom(3.9,.5,4.9,.5),.27,1400);
   G.tvSet('static');A.static(.25);await csleep(900);
   G.tvSet('crash');A.static(.05);await csleep(500);
   await newsLine('Breaking news. This evening, a lorry lost control and crashed into a kopitiam on Jalan Besar. This is CCTV from inside the shop.',4600);
@@ -243,7 +244,7 @@ async function newsScene(){
   await csleep(900);
   await say(sp('YOU','...That is me. That is all of us.'),2800);
   A.tone(60,40,1.2,.2,'sine');
-  await camTo(3.9,.5,yawTo(2.5,2.5),0,1100);
+  await camTo(3.9,.5,yawFrom(3.9,.5,2.5,2.5),0,1100);
   await turnToYou(1300);
   await say(sp('ATUK','Dengar ah, cucu.'),2000);
   await say(sp('ATUK','It is time. Do not be afraid.'),3000);
@@ -331,7 +332,7 @@ async function bedroom(){
   /* silence. you wait in the corner. you try to wake up. */
   await say('...',1600);
   await csleep(1400);
-  await Promise.all([camTo(14.6,15.35,yawTo(13.1,19.4),.02,1600),tween(k=>{EYE.y=1.6-.85*k},1600)]);
+  await Promise.all([camTo(14.6,15.35,yawFrom(14.6,15.35,13.1,19.4),.02,1600),tween(k=>{EYE.y=1.6-.85*k},1600)]);
   setClock('2:50 AM');
   await say('You sit in the corner. Hands over your ears. You do not sleep.',3200);
   await say(sp('YOU','Wake up. ...Wake up.'),2000);
@@ -387,7 +388,7 @@ async function startFind(){G.busy=true;await cineIn();
   cueI=setInterval(cue,1300);
   atuk.visible=true;atuk.position.set(3.9,0,3.5);atuk.rotation.y=1.0;fadeP(atuk,.7);
   fx=setInterval(()=>A.nz(.14,2800+Math.random()*1500,1800,.06,'highpass'),380);
-  await camTo(.6,2.9,yawTo(-2,-.5),-.05,1200);
+  await camTo(.6,2.9,yawFrom(.6,2.9,-2,-.5),-.05,1200);
   await say('Smoke. Small fires. Nobody is sitting where they were.',3000);
   await say(sp('YOU','Where are you...? Where did you go?'),2400);
   ci2=0;objT(FIND[0].obj);await csleep(300);G.busy=false;await cineOut()}

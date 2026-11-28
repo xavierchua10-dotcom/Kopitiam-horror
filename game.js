@@ -525,6 +525,8 @@ async function photoAct(){if(busy||CINE.on)return;busy=true;const x0=P.x,z0=P.z,
   await say(sp('YOU','Atuk and me, in front of the shop.'),2400);
   await say(sp('YOU','He told me to smile. Then he forgot to smile himself.'),3200);
   await camTo(x0,z0,y0,0,700);busy=false;await cineOut()}
+/* manual chores: stand in the ring, then tap the button (nothing starts by itself) */
+const MAN=it('man',[0,1.1,0],()=>{const w=WPS[state];return (w&&w.lab)||OBJB},()=>{const w=WPS[state];return !!(w&&w.manual&&!busy&&!CINE.on&&Math.hypot(P.x-w.x,P.z-w.z)<w.r+.55)},()=>{const w=WPS[state];if(w&&w.fn)w.fn()},[]);
 it('photo',[4.55,1.2,22.45],'Look at the photo',()=>!busy&&!CINE.on&&P.x>3&&P.x<15.5&&P.z>15,photoAct,PHOTO);
 const hatchIt=ITS[3];
 it('housedoor',[6.1,1.2,15.1],'Go inside',()=>state==='leave',houseAct,[doorMesh]);
@@ -537,10 +539,10 @@ async function hatchAct(){busy=true;A.click();if(!scareDone){await doScare();bus
   A.rumble();dawn.intensity=4;await sleep(2000);
   state='leave';objT('Go home');busy=false;say('Grey light outside. Your house is across the road.',3200)}
 async function cineLock(){if(busy||CINE.on||D.walking)return;busy=true;await cineIn();
-  await camTo(.3,5.2,yawTo(0,3.9),.1,900);
+  await camTo(.3,5.2,yawFrom(.3,5.2,0,3.9),.1,900);
   handAct('lift',2000);A.scrape();await tween(k=>{shutter.position.y=3.6-2.4*k;P.pitch=.1-.25*k},1800);shutBlock(true);
   A.click();handAct('reach',1200);await say('You pull the padlock through. Click.',2200);
-  await camTo(.3,5.2,yawTo(6.1,14),0,1200);
+  await camTo(.3,5.2,yawFrom(.3,5.2,6.1,14),0,1200);
   state='d1_home';window.__doorG.rotation.y=0;setClock('6:10 PM');objT('Go home');busy=false;await cineOut()}
 async function shutterAct(){A.click();
   if(state==='d1_open'){busy=true;A.shutter();shutBlock(false);atuk.visible=true;await tween(k=>{shutter.position.y=1.2+2.4*k},1700);state='d1_greet';setClock('7:02 AM');objT('Talk to Atuk');busy=false;queueIn();say('Warm air. Toast. The queue shuffles in behind you.',2800);return}
@@ -551,13 +553,13 @@ const FEET=new THREE.Group();FEET.visible=false;scene.add(FEET);
 {const st=new THREE.Mesh(new THREE.PlaneGeometry(1.15,.5),B(0xf2d48a,{transparent:true,opacity:.55,fog:false}));st.rotation.x=-Math.PI/2;st.position.set(6.1,.03,15.35);FEET.add(st);
  for(const dx of[-.3,.3]){const f=new THREE.Mesh(new THREE.PlaneGeometry(.2,.3),B(0x050506,{fog:false}));f.rotation.x=-Math.PI/2;f.position.set(6.1+dx,.04,15.2);FEET.add(f)}}
 async function cineHome(){if(busy||CINE.on)return;busy=true;await cineIn();const dg=window.__doorG;dg.rotation.y=0;
-  await camTo(6.1,13.5,yawTo(6.1,15),.03,900);
+  await camTo(6.1,13.5,yawFrom(6.1,13.5,6.1,15),.03,900);
   await say('The door is locked. Atuk is already home.',2200);
   handAct('knock',2300);for(let i=0;i<3;i++){A.knock();await csleep(650)}
   await csleep(700);A.tone(170,110,.7,.05,'sawtooth');
   atuk.visible=true;atuk.position.set(6.1,0,15.85);atuk.rotation.y=0;pose(atuk,0,'stand');
   await tween(k=>{dg.rotation.y=-1.25*k},900);
-  await camTo(6.1,13.9,yawTo(6.1,15.85),.05,700);
+  await camTo(6.1,13.9,yawFrom(6.1,13.9,6.1,15.85),.05,700);
   await say(sp('ATUK','Three knock. Okay. Masuk.'),2400);
   await camTo(6.1,15.4,Math.PI,0,900);
   {let cx=6.1,cz=15.85;for(const [tx,tz] of [[6.1,17.0],[6.5,20.5],[7.2,20.5],[9.1,20.4],[9.1,19.4],[9.1,18.3]]){const dx=tx-cx,dz=tz-cz,L=Math.hypot(dx,dz),x0=cx,z0=cz,ry=atuk.rotation.y,ty=Math.atan2(-dx,-dz),dyy=((ty-ry+Math.PI*3)%(Math.PI*2))-Math.PI;
@@ -586,7 +588,7 @@ async function midnight(){
   const dc=$('dcard');dc.innerHTML='MIDNIGHT<small>12:00 AM</small>';dc.style.opacity=1;$('fade').style.transition='opacity 1.2s';$('fade').style.opacity=0;await sleep(2200);dc.style.opacity=0;
   await sleep(900);for(let i=0;i<3;i++){A.knock();await sleep(700)}
   await say(sp('ATUK','Cucu. Bangun.'),1800);
-  await camTo(14.5,17.0,yawTo(13.1,19.55),.02,1100);
+  await camTo(14.5,17.0,yawFrom(14.5,17.0,13.1,19.55),.02,1100);
   HALLGLOW.intensity=1.3;atuk.visible=true;atuk.position.set(13.1,0,19.55);atuk.rotation.y=0;pose(atuk,0,'stand');A.door();await sleep(900);
   await say(sp('YOU','Atuk...? What time is it?'),2200);
   await say(sp('ATUK','Listen. From tomorrow, shop open six in the evening. Close one in the morning.'),3600);
@@ -621,6 +623,7 @@ async function cineIn(){stk=null;look=null;stickEl.style.display='none';P.tx=nul
 async function cineOut(){document.body.classList.remove('cine');await sleep(480);CINE.on=false}
 function camTo(x,z,yaw,pitch,ms){return new Promise(r=>{const x0=P.x,z0=P.z,p0=P.pitch,y0=P.yaw;let dy=yaw-y0;dy=Math.atan2(Math.sin(dy),Math.cos(dy));const t0=performance.now();(function f(){const k=Math.min(1,(performance.now()-t0)/ms),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;P.x=x0+(x-x0)*e;P.z=z0+(z-z0)*e;P.yaw=y0+dy*e;P.pitch=p0+(pitch-p0)*e;k<1?requestAnimationFrame(f):r()})()})}
 const yawTo=(tx,tz)=>Math.atan2(-(tx-P.x),-(tz-P.z));
+const yawFrom=(fx,fz,tx,tz)=>Math.atan2(-(tx-fx),-(tz-fz));
 async function cineAtuk(){if(busy||CINE.on)return;busy=true;const was=state;await cineIn();
   {const tx=2.95,tz=3.05,x0=P.x,z0=P.z,L=Math.hypot(tx-x0,tz-z0),ms=Math.max(700,L/1.7*1000);let st=0;
    if(L>.9)await tween(k=>{const e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;P.x=x0+(tx-x0)*e;P.z=z0+(tz-z0)*e;st+=1;EYE.y=1.6+Math.sin(performance.now()/110)*.035*Math.min(1,Math.min(k,1-k)*8);if(st%16===0)A.step();
@@ -632,12 +635,12 @@ async function cineAtuk(){if(busy||CINE.on)return;busy=true;const was=state;awai
   else if(was==='d1_report'){await bathPeek()}
   await cineOut()}
 async function bathPeek(){
-  await camTo(-1.2,2.5,yawTo(-8.25,2.5),.1,1700);
+  await camTo(-1.2,2.5,yawFrom(-1.2,2.5,-8.25,2.5),.1,1700);
   const pat=[.6,.18,.7,.1,.45,.8,.2,.55,.12,.7];
   for(const v of pat){applyLights(v*.8+.1);bulbSet(v);if(v<.3)A.tone(60,50,.06,.03,'square');await csleep(90+Math.random()*90)}
   applyLights(.72);bulbSet(.8);A.nz(.5,3000,1200,.05,'highpass');await csleep(900)}
 async function cineBath(){if(busy||CINE.on)return;busy=true;await cineIn();
-  await camTo(-7.4,2.5,yawTo(-8.25,2.5),.12,1500);
+  await camTo(-7.4,2.5,yawFrom(-7.4,2.5,-8.25,2.5),.12,1500);
   const buzz=()=>A.tone(100,100,.08,.02,'sawtooth');
   for(const v of[.8,.15,.6,.1,.5,.9,.2,.7]){bulbSet(v);applyLights(.3+v*.5);if(v<.3)buzz();await csleep(110+Math.random()*80)}
   await camTo(-7.45,2.5,P.yaw,.5,900);
@@ -645,13 +648,13 @@ async function cineBath(){if(busy||CINE.on)return;busy=true;await cineIn();
   handAct('reach',2800);await tween(k=>{BULB.rotation.y=k*Math.PI*2},1500);A.click();
   for(const v of[.2,1,.3,1,1]){bulbSet(v);applyLights(.4+v*.6);await csleep(120)}
   tapOn();await csleep(1200);
-  await camTo(-8.2,2.4,yawTo(-7.7,1.2),-.1,1100);
+  await camTo(-8.2,2.4,yawFrom(-8.2,2.4,-7.7,1.2),-.1,1100);
   await say(sp('YOU',"...the tap is running."),1800);await say("You didn't turn it on.",2200);
-  await camTo(-7.95,2.0,yawTo(-7.7,1.15),-.3,1300);
+  await camTo(-7.95,2.0,yawFrom(-7.95,2.0,-7.7,1.15),-.3,1300);
   handAct('reach',1400);await csleep(700);tapOff();A.click();await csleep(500);
   A.tone(1300,900,.04,.04);await csleep(900);A.tone(1200,850,.04,.03);await csleep(900);
   applyLights(1);bulbSet(1);await say(sp('YOU','Okay. Done.'),1600);
-  await camTo(-8.2,2.6,yawTo(-6,2.5),0,1000);
+  await camTo(-8.2,2.6,yawFrom(-8.2,2.6,-6,2.5),0,1000);
   state='d1_back';setClock('10:20 AM');objT('Tell Atuk');busy=false;await cineOut()}
 const sp=(w,t)=>w+': '+t;
 const SHB=[-2,2,3.8,4.1];
@@ -681,13 +684,13 @@ const refreshObj=()=>objT(CH[Math.min(ci,CH.length-1)].obj);
 const CLK=['7:20 AM','8:05 AM','9:10 AM','10:05 AM'];
 /* ---- chores = automatic close-up mini playthroughs ---- */
 const CH=[
- {k:'sugar',x:3.1,z:.3,obj:'Refill the sugar',fn:()=>runChore(0)},
- {k:'wipe',x:2.8,z:-.8,obj:'Wipe the table',fn:()=>runChore(1)},
- {k:'cups',x:-2.0,z:-1.8,obj:'Clear the cups',fn:()=>runChore(2)},
- {k:'kopi',x:-1.4,z:-5.7,obj:'Make the kopi',fn:()=>runChore(3)},
- {k:'serve',x:-2.0,z:1.2,obj:'Serve the kopi',fn:()=>runChore(4)}];
+ {k:'sugar',x:3.1,z:.3,tx:4.2,tz:.3,obj:'Refill the sugar',fn:()=>runChore(0)},
+ {k:'wipe',x:2.8,z:-.8,tx:2.8,tz:-1.8,obj:'Wipe the table',fn:()=>runChore(1)},
+ {k:'cups',x:-2.0,z:-1.8,tx:-3,tz:-1.8,obj:'Clear the cups',fn:()=>runChore(2)},
+ {k:'kopi',x:-1.4,z:-5.7,tx:-1.4,tz:-6.4,obj:'Make the kopi',fn:()=>runChore(3)},
+ {k:'serve',x:-2.45,z:1.75,tx:-3,tz:.95,obj:'Serve the kopi',fn:()=>runChore(4)}];
 let ci=0;
-WPS.d1_chores={get x(){return CH[ci].x},get z(){return CH[ci].z},r:.6,go:1,get fn(){return CH[ci].fn}};
+WPS.d1_chores={get x(){return CH[ci].x},get z(){return CH[ci].z},get tx(){return CH[ci].tx},get tz(){return CH[ci].tz},get lab(){return CH[ci].obj},manual:true,r:.6,go:1,get fn(){return CH[ci].fn}};
 const BAG=new THREE.Group();BAG.visible=false;scene.add(BAG);box(.14,.2,.07,M(0xe0d2a8),0,0,0,BAG);box(.15,.05,.075,M(0xb8452e),0,.06,0,BAG);
 const GRAN=[];for(let i=0;i<18;i++){const g=new THREE.Mesh(new THREE.BoxGeometry(.012,.012,.012),B(0xffffff));g.visible=false;scene.add(g);GRAN.push(g)}
 const KC=new THREE.Group();KC.position.set(-1.4,.95,-6.36);KC.scale.setScalar(1.4);KC.visible=false;scene.add(KC);
@@ -697,7 +700,7 @@ box(.035,.035,.1,M(0xb9bec4),-1.4,1.12,-6.42);
 const KST=new THREE.Mesh(new THREE.BoxGeometry(.022,1,.022),B(0x3a2010));KST.visible=false;scene.add(KST);
 function kStream(on,top=1.1,bot=1.0){KST.visible=on;if(on){KST.scale.y=Math.max(.01,top-bot);KST.position.set(-1.4,(top+bot)/2,-6.37)}}
 async function chSugar(){
-  await camTo(3.45,.3,yawTo(4.2,.3),-.5,1000);
+  await camTo(3.45,.3,yawFrom(3.45,.3,4.2,.3),-.5,1000);
   A.click();await tween(k=>{jarTop.position.set(4.2+.28*k,1.26-.2*k,.3+.15*k)},350);
   BAG.visible=true;await tween(k=>{BAG.position.set(4.12,1.75-.3*k,.3);BAG.rotation.z=1.0*k},650);
   handAct('reach',3000);A.nz(2.3,2600,1800,.05,'highpass');
@@ -716,11 +719,11 @@ async function chWipe(){
   stain.visible=false;P.yaw=0;await tween(k=>{EYE.y=1.22+.38*k},500);EYE.y=1.6;
   await say('Wipe, wipe. Somebody always spills the teh.',2400)}
 async function chCups(){
-  await camTo(-2.05,-1.8,yawTo(-3,-1.8),-.5,1000);
+  await camTo(-2.05,-1.8,yawFrom(-2.05,-1.8,-3,-1.8),-.5,1000);
   for(const m of cupsD){const p0=m.position.clone();handAct('reach',800);await tween(k=>{m.position.set(p0.x+(-2.25-p0.x)*k,p0.y+.4*k,p0.z+(-1.8-p0.z)*k);m.scale.setScalar(1+.6*k)},520);A.clink();m.visible=false;m.position.copy(p0);m.scale.setScalar(1);await csleep(260)}
   await say('Three cups. Always the same table.',2400)}
 async function chKopi(){
-  await camTo(-.95,-5.7,yawTo(-1.4,-6.4),-.5,1100);
+  await camTo(-.95,-5.7,yawFrom(-.95,-5.7,-1.4,-6.4),-.5,1100);
   KC.visible=true;KLIQ.scale.y=.01;await csleep(300);
   handAct('reach',3200);A.nz(2.8,700,400,.07,'bandpass');kStream(true,1.1,1.04);
   await tween(k=>{KLIQ.scale.y=.01+.99*k;kStream(true,1.1,.96+.0875*k)},2800);
@@ -728,9 +731,9 @@ async function chKopi(){
   await say('Pour, pull, pour. Kopi-O, less sugar.',2400);
   KC.visible=false;handAct('serve',600000)}
 async function chServe(){
-  await camTo(-2.0,1.2,yawTo(-3,.95),-.3,1000);
+  await camTo(-2.45,1.75,yawFrom(-2.45,1.75,-3,.95),-.3,1000);
   KC.position.set(-3.0,.78,.95);KC.visible=true;handAct('serve',1);A.tone(2400,1800,.06,.05);await csleep(500);
-  await camTo(-2.0,1.2,yawTo(-3,.4),.05,700);
+  await camTo(-2.45,1.75,yawFrom(-2.45,1.75,-3,.4),.05,700);
   await say('"Kopi-O kurang manis, ya?" He nods without looking up.',2800)}
 async function runChore(i){if(busy||CINE.on||i!==ci)return;busy=true;A.click();await cineIn();
   await [chSugar,chWipe,chCups,chKopi,chServe][i]();
@@ -779,13 +782,13 @@ async function d1Blackout(){
   await say(sp('ATUK','Power cut, cucu. Go check the fuse box. Same place.'),3200);
   state='d1_fuse';setClock('5:48 PM');objT('Check the fuse box');busy=false}
 async function d1FuseAct(){if(busy||CINE.on)return;busy=true;await cineIn();
-  await camTo(-4.0,.5,yawTo(-4.9,.5),0,800);A.click();
+  await camTo(-4.0,.5,Math.PI/2,0,800);A.click();
   await say('The breaker is warm to the touch.',2000);handAct('reach',900);await csleep(500);A.click();
   torch.intensity=0;await lightsOnNow();setClock('5:55 PM');
-  await camTo(-4.0,.5,yawTo(-1.5,-.5),0,900);
+  await camTo(-4.0,.5,yawFrom(-4.0,.5,-1.5,-.5),0,900);
   await say('The lights are back.',1600);
   await crowdWake();
-  await camTo(-4.0,.5,yawTo(atuk.position.x,atuk.position.z),0,900);
+  await camTo(-4.0,.5,yawFrom(-4.0,.5,atuk.position.x,atuk.position.z),0,900);
   await say(sp('ATUK','Okay. Shop tutup now. Tonight, if anybody knock our door...'),3200);
   await say(sp('ATUK',"Don't open. Don't care who. Don't care what they say."),3200);
   await say(sp('ATUK','Only three knock. Same like this morning. That one is us. Faham?'),3400);
@@ -866,7 +869,7 @@ function d1tick(dt){
   for(const f of G.tick)f(dt);
   CCLED.visible=Math.sin(performance.now()/420)>-.2;
   if(state==='d1_bath'&&!CINE.on){const t=performance.now()/1000;bulbSet(Math.sin(t*23)+Math.sin(t*37)>1.3?.15:.85)}
-  {const w=WPS[state];if(w&&w.fn&&!busy&&!CINE.on&&Math.hypot(P.x-w.x,P.z-w.z)<w.r)w.fn()}
+  {const w=WPS[state];if(w&&w.manual)MAN.pos.set(w.tx,1.1,w.tz);else if(w&&w.fn&&!busy&&!CINE.on&&Math.hypot(P.x-w.x,P.z-w.z)<w.r)w.fn()}
   wpTick();
   if(CHATST.includes(state)){chatT-=dt;
     if(chatT<0&&!busy&&!$('sub').classList.contains('on')){let bi=-1,bd2=2.6;CROWD.forEach((c,i)=>{const d=Math.hypot(c.position.x-P.x,c.position.z-P.z);if(d<bd2){bd2=d;bi=i}});if(bi>=0){chatT=8+Math.random()*6;say('"'+CHAT[bi][Math.random()*2|0]+'"',2600,CROWD[bi])}}
@@ -933,7 +936,7 @@ const HF=[[6.4,4.6,2.5,10,1.25],[9.4,2.4,2.5,11,1.25],[12.4,3,2.5,10.5,1.25],[15
 const ICONS={touch:{r:HF},wipe:{r:HF,p:'M3 22q4.5 -2.6 9 0t9 0'},grab:{r:[[6.4,8,11.6,4.2,2.1],[6,11.4,12.4,4,2],[6.4,14.6,11.6,4,2],[5,6,14,13.4,5],[3.2,7.4,5,3,1.5,25,5.7,8.9]]},
  knock:{r:[[5,8,14,11,4.5],[5.6,4.6,2.8,5,1.4],[8.6,3.6,2.8,6,1.4],[11.6,3.6,2.8,6,1.4],[14.6,4.6,2.8,5,1.4]],p:'M1.5 8.5l2-1.2M1 12h2.4M1.5 15.5l2 1.2'}};
 const iconSvg=k=>{const d=ICONS[k];return 'url("data:image/svg+xml;utf8,'+encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill='#fff'>"+d.r.map(r=>"<rect x='"+r[0]+"' y='"+r[1]+"' width='"+r[2]+"' height='"+r[3]+"' rx='"+r[4]+"'"+(r[5]?" transform='rotate("+r[5]+" "+r[6]+" "+r[7]+")'":'')+'/>').join('')+"</g>"+(d.p?"<path d='"+d.p+"' stroke='#6b4400' stroke-width='1.3' stroke-linecap='round' fill='none'/>":'')+'</svg>')+'")'};
-const ICF={shutter:'grab',wipe:'wipe',cups:'grab',kopi:'grab',serve:'grab',sugar:'grab',housedoor:'knock'},icOf=o=>ICF[o.id]||'touch';
+const ICF={shutter:'grab',wipe:'wipe',cups:'grab',kopi:'grab',serve:'grab',sugar:'grab',housedoor:'knock'},icOf=o=>ICF[o.id]||'touch';ICF.man='grab';
 const mkTexs={};function mkTexFor(k){if(mkTexs[k])return mkTexs[k];const d=ICONS[k];const t=mkTexs[k]=ctex(48,48,c=>{c.fillStyle='rgba(20,16,10,.78)';c.beginPath();c.arc(24,24,21,0,7);c.fill();c.strokeStyle='#F2B531';c.lineWidth=2.6;c.stroke();c.save();c.translate(24,24);c.scale(1.15,1.15);c.translate(-12,-12);c.fillStyle='#fff';
   for(const r of d.r){c.save();if(r[5]){c.translate(r[6],r[7]);c.rotate(r[5]*Math.PI/180);c.translate(-r[6],-r[7])}const x=r[0],y=r[1],w=r[2],h=r[3],q=Math.min(r[4],w/2,h/2);c.beginPath();c.moveTo(x+q,y);c.arcTo(x+w,y,x+w,y+h,q);c.arcTo(x+w,y+h,x,y+h,q);c.arcTo(x,y+h,x,y,q);c.arcTo(x,y,x+w,y,q);c.closePath();c.fill();c.restore()}
   if(d.p){c.strokeStyle='#F2B531';c.lineWidth=1.3;c.lineCap='round';c.stroke(new Path2D(d.p))}c.restore()});t.minFilter=t.magFilter=THREE.LinearFilter;return t}
@@ -993,13 +996,13 @@ function frame(t){requestAnimationFrame(frame);const raw=t-last;if(raw<30)return
   update(dt);renderer.render(scene,camera)}
 
 /* ---------- hook for the later days (day2.js ...) ---------- */
-const G={tm:nightClock,ZONES,AABB,AMB,person,THREE,scene,camera,P,EYE,A,CINE,D,WPS,atuk,CROWD,HOME,QUEUE,FEET,shutter,radio,BULB,STREAM,ALK,stain,cupsD,tick:[],day2:null,day3:null,day4:null,day5:null,stools,fan,
+const G={tm:nightClock,yawFrom,ZONES,AABB,AMB,person,THREE,scene,camera,P,EYE,A,CINE,D,WPS,atuk,CROWD,HOME,QUEUE,FEET,shutter,radio,BULB,STREAM,ALK,stain,cupsD,tick:[],day2:null,day3:null,day4:null,day5:null,stools,fan,
   $,sleep,say,sp,cineIn,cineOut,camTo,yawTo,csleep,tween,handAct,pose,objT,setClock,setTime,applyLights,bulbSet,flicker,tapOn,tapOff,lids,startAlarm,stopAlarm,drawClock,
   showCrowd,drawBoard,day1Props,shutBlock,chWipe,chCups,ctex,isLand,atukLeave,M,B,box,
   AEV,AMBD,get ac(){return ac},get master(){return master},get ambG(){return ambG},
   get state(){return state},set state(v){state=v},get busy(){return busy},set busy(v){busy=v},
   setLights(v){lightsOn=v},setBlur(v){cv.style.transition='filter 1.4s';cv.style.filter=v?'blur(8px)':''}};
-const V=new URL(import.meta.url).search,BUILD='202611273010';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+const V=new URL(import.meta.url).search,BUILD='202611273011';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));

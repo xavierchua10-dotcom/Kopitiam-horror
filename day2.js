@@ -3,6 +3,7 @@ export default function install(G){
 const {THREE,scene,P,EYE,A,CINE,D,WPS,atuk,CROWD,HOME,FEET,shutter,radio,BULB,STREAM,stain,cupsD,
   $,sleep,say,sp,cineIn,cineOut,camTo,yawTo,csleep,tween,handAct,pose,objT,setClock,setTime,applyLights,bulbSet,flicker,tapOn,tapOff,lids,startAlarm,stopAlarm,drawClock,
   showCrowd,drawBoard,day1Props,shutBlock,chWipe,chCups,ctex,atukLeave}=G;
+const yawFrom=G.yawFrom;
 
 /* the crack in the bathroom mirror (hidden until the bathroom scene) */
 const crack=new THREE.Mesh(new THREE.PlaneGeometry(.6,.8),new THREE.MeshBasicMaterial({map:ctex(60,80,c=>{
@@ -33,7 +34,7 @@ async function start(){
   await camTo(14.5,17.0,0,-.02,1000);
   handAct('knock',900);await sleep(480);A.click();stopAlarm();await sleep(500);
   setClock('6:55 AM');drawClock(5,55);await say(sp('YOU','5:55.'),1400);
-  await say(sp('YOU','Atuk said six. It is already dark outside.'),2400);
+  await say(sp('YOU','Six o\'clock, Atuk said. It is already dark outside.'),2600);
   await Promise.all([tween(k=>{EYE.y=.62+(1.6-.62)*k},1200),camTo(13.1,18.2,Math.PI,0,1200)]);
   EYE.y=1.6;CINE.noclip=false;await cineOut();
   G.state='d2_go';objT('Go to the kopitiam');G.busy=false}
@@ -54,11 +55,11 @@ async function greet(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
 
 WPS.d2_go={x:2.8,z:3.05,r:.6,go:1,fn:greet};
 /* chores today: wipe the table, clear the cups */
-const CH=[{x:2.8,z:-.8,obj:'Wipe the table',run:async()=>{await chWipe()}},
-          {x:-2.0,z:-1.8,obj:'Clear the cups',run:async()=>{await chCups();
+const CH=[{x:2.8,z:-.8,tx:2.8,tz:-1.8,obj:'Wipe the table',run:async()=>{await chWipe()}},
+          {x:-2.0,z:-1.8,tx:-3,tz:-1.8,obj:'Clear the cups',run:async()=>{await chCups();
             await say('Still full. Cold. Nobody drank a drop.',2600);await say(sp('YOU','Nobody ever touches the kopi.'),2200)}}];
 let ci=0;
-WPS.d2_chores={get x(){return CH[Math.min(ci,1)].x},get z(){return CH[Math.min(ci,1)].z},r:.6,go:1,get fn(){return choreRun}};
+WPS.d2_chores={get x(){return CH[Math.min(ci,1)].x},get z(){return CH[Math.min(ci,1)].z},get tx(){return CH[Math.min(ci,1)].tx},get tz(){return CH[Math.min(ci,1)].tz},get lab(){return CH[Math.min(ci,1)].obj},manual:true,r:.6,go:1,get fn(){return choreRun}};
 async function choreRun(){if(G.busy||CINE.on)return;G.busy=true;const i=ci;A.click();await cineIn();await CH[i].run();
   ci++;setClock(['8:05 AM','9:10 AM'][i]);
   if(ci>=CH.length){G.state='d2_radio';objT('Check the radio')}else objT(CH[ci].obj);
@@ -67,7 +68,7 @@ async function choreRun(){if(G.busy||CINE.on)return;G.busy=true;const i=ci;A.cli
 /* ---------- the radio ---------- */
 WPS.d2_radio={x:3.5,z:.1,r:.6,go:1,fn:radioScene};
 async function radioScene(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
-  await camTo(3.5,.05,yawTo(4.15,-.2),-.55,1100);
+  await camTo(3.5,.05,yawFrom(3.5,.05,4.15,-.2),-.55,1100);
   A.static(.14);await say('The radio is on. Nobody touched it.',2200);A.static(.22);
   await say('"...berita terkini. Sebuah lori hilang kawalan di..."',3000);
   A.static(.45);await csleep(500);
@@ -89,7 +90,7 @@ async function radioScene(){if(G.busy||CINE.on)return;G.busy=true;await cineIn()
   const back=(async()=>{const x0=atuk.position.x,z0=atuk.position.z,tx=3.9,tz=3.5;atuk.rotation.y=Math.atan2(-(tx-x0),-(tz-z0));
     await tween(k=>{atuk.position.set(x0+(tx-x0)*k,0,z0+(tz-z0)*k);pose(atuk,performance.now()/170,'walk')},2200);
     atuk.rotation.y=1.0;pose(atuk,0,'stand')})();
-  await camTo(1.0,2.5,yawTo(-7,2.5),0,1500);
+  await camTo(1.0,2.5,yawFrom(1.0,2.5,-7,2.5),0,1500);
   tapOn();await csleep(600);
   for(const v of[.8,.2,.7,.1,.9]){bulbSet(v);await csleep(130)}
   bulbSet(1);
@@ -101,18 +102,18 @@ async function radioScene(){if(G.busy||CINE.on)return;G.busy=true;await cineIn()
 /* ---------- the bathroom: tap, mirror ---------- */
 WPS.d2_bath={x:-7.7,z:2.5,r:.6,go:1,fn:bathScene};
 async function bathScene(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
-  await camTo(-7.7,2.5,yawTo(-7.7,1.1),-.05,1300);
+  await camTo(-7.7,2.5,yawFrom(-7.7,2.5,-7.7,1.1),-.05,1300);
   await say(sp('YOU','Again. I turned this off yesterday.'),2200);
   handAct('reach',1400);await csleep(700);tapOff();A.click();await csleep(900);
   A.tone(1300,900,.04,.04);await csleep(800);
-  await camTo(-7.7,1.95,yawTo(-7.7,1.0),.03,1200);
+  await camTo(-7.7,1.95,yawFrom(-7.7,1.95,-7.7,1.0),.03,1200);
   await csleep(500);
   flicker([.5,1,.3,.9],80);await csleep(500);
   A.nz(.04,6500,3000,.3,'highpass');A.tone(170,80,.09,.22,'sine');[[70,4300,.18],[150,5300,.14],[260,3700,.12],[430,4900,.09]].forEach(([t,f,v])=>setTimeout(()=>A.nz(.05,f,f*.6,v,'bandpass',6),t));A.tone(5400,5000,.18,.012,'sine');crack.visible=true;
   await csleep(1400);
   await say('A crack. Right where your face should be.',2800);
   await say(sp('YOU',"It wasn't there yesterday."),2200);
-  await camTo(-7.9,2.6,yawTo(-6,2.5),0,1000);
+  await camTo(-7.9,2.6,yawFrom(-7.9,2.6,-6,2.5),0,1000);
   applyLights(1);bulbSet(1);
   G.state='d2_back';setClock('10:25 AM');objT('Tell Atuk');G.busy=false;await cineOut()}
 
@@ -127,7 +128,7 @@ async function atukDay(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
   $('fade').style.transition='opacity 1.4s';$('fade').style.opacity=1;await sleep(1600);
   showCrowd(false);atuk.visible=true;atuk.position.set(3.9,0,3.5);atuk.rotation.y=1.0;
   setTime('dusk');setClock('5:40 PM');P.x=.6;P.z=2.3;P.yaw=-2.14;P.pitch=0;P.tx=null;
-  await card('EVENING','5:40 PM',1800);
+  await card('LATE NIGHT',G.tm('5:40 PM'),1800);
   $('fade').style.opacity=0;G.state='d2_rule';objT('Talk to Atuk');G.busy=false;await cineOut()}
 async function atukRule(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
   await pace(2.95,3.05);await camTo(P.x,P.z,yawTo(atuk.position.x,atuk.position.z),.02,500);
@@ -142,16 +143,16 @@ async function atukRule(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
 /* ---------- lock up, go home ---------- */
 WPS.d2_lock={x:.3,z:5.3,r:.6,go:1,fn:lockUp};
 async function lockUp(){if(G.busy||CINE.on||D.walking)return;G.busy=true;await cineIn();
-  await camTo(.3,5.2,yawTo(0,3.9),.1,900);
+  await camTo(.3,5.2,yawFrom(.3,5.2,0,3.9),.1,900);
   handAct('lift',2000);A.shutter();await tween(k=>{shutter.position.y=3.6-2.4*k;P.pitch=.1-.25*k},1800);shutBlock(true);
   A.click();handAct('reach',1200);await say('You pull the padlock through. Click.',2200);
-  await camTo(.3,5.2,yawTo(6.1,14),0,1200);
+  await camTo(.3,5.2,yawFrom(.3,5.2,6.1,14),0,1200);
   G.state='d2_home';window.__doorG.rotation.y=0;setClock('6:10 PM');objT('Go home');G.busy=false;await cineOut()}
 WPS.d2_home={x:6.1,z:14.0,r:.6,go:1,fn:homeNight};
 
 /* ---------- home, then the knock with a voice ---------- */
 async function homeNight(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();const dg=window.__doorG;dg.rotation.y=0;
-  await camTo(6.1,13.5,yawTo(6.1,15),.03,900);
+  await camTo(6.1,13.5,yawFrom(6.1,13.5,6.1,15),.03,900);
   handAct('knock',2300);for(let i=0;i<3;i++){A.knock();await csleep(650)}
   await csleep(600);A.tone(170,110,.7,.05,'sawtooth');
   atuk.visible=true;atuk.position.set(6.1,0,15.85);atuk.rotation.y=0;pose(atuk,0,'stand');

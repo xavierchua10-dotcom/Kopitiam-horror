@@ -3,6 +3,7 @@ export default function install(G){
 const {THREE,scene,camera,P,EYE,A,CINE,D,WPS,atuk,CROWD,HOME,FEET,shutter,
   $,sleep,say,sp,cineIn,cineOut,camTo,yawTo,csleep,tween,handAct,pose,objT,setClock,setTime,applyLights,bulbSet,flicker,tapOn,tapOff,STREAM,lids,startAlarm,stopAlarm,drawClock,
   showCrowd,drawBoard,day1Props,shutBlock,atukLeave,M,B,box,ctex}=G;
+const yawFrom=G.yawFrom;
 
 const pace=(x,z,sp_=1.7)=>{const x0=P.x,z0=P.z,L=Math.hypot(x-x0,z-z0);if(L<.9)return Promise.resolve();let st=0;
   return tween(k=>{const e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;P.x=x0+(x-x0)*e;P.z=z0+(z-z0)*e;st++;EYE.y=1.6+Math.sin(performance.now()/110)*.035*Math.min(1,Math.min(k,1-k)*8);if(st%16===0)A.step()},Math.max(700,L/sp_*1000)).then(()=>{EYE.y=1.6})};
@@ -197,11 +198,11 @@ async function bathScene(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
   if(!leaf)leaf=scene.children.find(o=>o.isGroup&&Math.abs(o.position.x+7)<.02&&Math.abs(o.position.z-2)<.02);
   const hz0=haze.style.background,sc0=STREAM.material.color.getHex(),lf0=leaf?leaf.rotation.y:0;
   /* in: the water is already running. close the door behind you */
-  await camTo(-7.7,2.5,yawTo(-7.7,1.1),-.05,1100);
+  await camTo(-7.7,2.5,yawFrom(-7.7,2.5,-7.7,1.1),-.05,1100);
   await say('The tap is already running. It has been running all night.',2600);
-  await camTo(-7.7,2.5,yawTo(-6,2.5),0,900);
+  await camTo(-7.7,2.5,yawFrom(-7.7,2.5,-6,2.5),0,900);
   if(leaf){const r0=leaf.rotation.y;await tween(k=>{leaf.rotation.y=r0+(-Math.PI/2-r0)*k},900);A.click();A.tone(120,70,.15,.2,'sine')}
-  await camTo(-7.7,2.5,yawTo(-7.7,1.1),-.05,1000);
+  await camTo(-7.7,2.5,yawFrom(-7.7,2.5,-7.7,1.1),-.05,1000);
   /* try to shut it off: it will not shut off. it overflows */
   await say(sp('YOU','Okay. Off. Off...'),1800);
   handAct('reach',1400);await csleep(700);tapOff();A.click();await csleep(600);
@@ -210,13 +211,13 @@ async function bathScene(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
   flood.visible=true;flood.scale.set(.3,.3,1);
   tween(k=>{const r=.3+k*2.1;flood.scale.set(r,r,1)},7000);
   await say('The handle spins loose. The water will not stop.',2800);
-  await camTo(-7.7,2.5,yawTo(-7.7,1.7),-.75,900);
+  await camTo(-7.7,2.5,yawFrom(-7.7,2.5,-7.7,1.7),-.75,900);
   await say('It is filling the floor. Over the sink, over everything.',2800);
-  await camTo(-7.7,2.5,yawTo(-7.7,1.1),-.05,800);
+  await camTo(-7.7,2.5,yawFrom(-7.7,2.5,-7.7,1.1),-.05,800);
   await say(sp('YOU','...Fucked it. Fine.'),1700);
-  await camTo(-7.7,1.95,yawTo(-7.7,1.0),-.55,1200);
+  await camTo(-7.7,1.95,yawFrom(-7.7,1.95,-7.7,1.0),-.55,1200);
   handAct('reach',2400);await lids(0,500);A.nz(.4,3000,1200,.22,'bandpass');await csleep(1700);
-  await lids(1,900);await camTo(-7.7,1.95,yawTo(-7.7,1.0),.02,800);
+  await lids(1,900);await camTo(-7.7,1.95,yawFrom(-7.7,1.95,-7.7,1.0),.02,800);
   /* the red comes in: the whole room, hard */
   A.rumble();A.tone(55,40,2.6,.3,'sine');shk=1;
   haze.style.background='radial-gradient(ellipse at 50% 50%,rgba(210,25,18,.38) 0%,rgba(120,0,0,.88) 100%)';haze.style.opacity=1;
@@ -224,9 +225,9 @@ async function bathScene(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
   flicker([.5,0,.4,0,0,.3],70);
   const hbL=setInterval(()=>{A.tone(65,40,.16,.34,'sine');setTimeout(()=>A.tone(65,40,.13,.26,'sine'),230)},1000);
   const marks=(async()=>{for(let i=0;i<bm.length;i++){fadeIn(bm[i],900);A.tone(70+i*14,40,.7,.28,'sawtooth');A.nz(.4,2400,300,.22,'bandpass',2);shk=1+i*.35;await csleep(850)}})();
-  await csleep(500);await camTo(-7.7,1.95,yawTo(-9.4,2.2),0,1500);await csleep(700);
-  await camTo(-7.7,1.95,yawTo(-8.4,4.0),0,1300);await csleep(400);
-  await camTo(-7.7,1.95,yawTo(-7.7,1.0),.02,1200);await marks;
+  await csleep(500);await camTo(-7.7,1.95,yawFrom(-7.7,1.95,-9.4,2.2),0,1500);await csleep(700);
+  await camTo(-7.7,1.95,yawFrom(-7.7,1.95,-8.4,4.0),0,1300);await csleep(400);
+  await camTo(-7.7,1.95,yawFrom(-7.7,1.95,-7.7,1.0),.02,1200);await marks;
   await say('Red. On every wall. The water is red.',2400);
   await say(sp('YOU','...No. No, no, no.'),1900);
   /* blink: gone */
@@ -236,7 +237,7 @@ async function bathScene(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
   await lids(1,900);
   await say('A drip. Only that.',2400);
   await say(sp('YOU','Just a dream.'),1800);
-  await camTo(-7.9,2.6,yawTo(-6,2.5),0,1000);
+  await camTo(-7.9,2.6,yawFrom(-7.9,2.6,-6,2.5),0,1000);
   G.state='d3_look';setClock('7:20 AM');ci=0;objT(LK[0].obj);G.busy=false;await cineOut()}
 
 /* ---------- ask each customer: nobody answers straight ---------- */
@@ -259,13 +260,13 @@ async function lookRun(){if(G.busy||CINE.on)return;G.busy=true;const k=LK[ci],c=
 /* ---------- the TV ---------- */
 WPS.d3_tv={x:3.4,z:.5,r:.6,go:1,fn:tvScene};
 async function tvScene(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
-  await camTo(3.4,.5,yawTo(4.9,.5),.27,1200);
+  await camTo(3.4,.5,yawFrom(3.4,.5,4.9,.5),.27,1200);
   tvSet('static');A.static(.2);await say('The TV turned itself on. Static.',2400);
   tvSet('news');A.static(.08);await csleep(600);
   await say('"...sebuah lori hilang kawalan dan melanggar sebuah kedai kopi di Jalan—"',3400);
   tvSet('static');A.static(.5);await csleep(500);
   tvSet('off');A.static(0);A.tone(60,40,.7,.1,'sine');await csleep(900);
-  await camTo(3.4,.5,yawTo(atuk.position.x,atuk.position.z),0,1100);
+  await camTo(3.4,.5,yawFrom(3.4,.5,atuk.position.x,atuk.position.z),0,1100);
   await say(sp('YOU','Atuk... did you hear that?'),2200);
   await say(sp('ATUK','Hear what?'),1800);
   await say('He is staring at the black screen. He did not blink.',2800);
@@ -282,7 +283,7 @@ async function atukTalk(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
   $('fade').style.transition='opacity 1.4s';$('fade').style.opacity=1;await sleep(1600);
   showCrowd(false);atuk.visible=true;atuk.position.set(3.9,0,3.5);atuk.rotation.y=1.0;
   setTime('dusk');setClock('5:40 PM');P.x=.6;P.z=2.3;P.yaw=-2.14;P.pitch=0;P.tx=null;
-  await card('EVENING','5:40 PM',1800);
+  await card('LATE NIGHT',G.tm('5:40 PM'),1800);
   $('fade').style.opacity=0;G.state='d3_rule';objT('Talk to Atuk');G.busy=false;await cineOut()}
 async function atukRule(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
   await pace(2.95,3.05);await camTo(P.x,P.z,yawTo(atuk.position.x,atuk.position.z),.02,500);
@@ -296,17 +297,17 @@ async function atukRule(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
 /* ---------- lock up: someone across the road ---------- */
 WPS.d3_lock={x:.3,z:5.3,r:.6,go:1,fn:lockUp};
 async function lockUp(){if(G.busy||CINE.on||D.walking)return;G.busy=true;await cineIn();
-  await camTo(.3,5.2,yawTo(0,3.9),.1,900);
+  await camTo(.3,5.2,yawFrom(.3,5.2,0,3.9),.1,900);
   handAct('lift',2000);A.shutter();await tween(k=>{shutter.position.y=3.6-2.4*k;P.pitch=.1-.25*k},1800);shutBlock(true);
   A.click();handAct('reach',1200);await say('You pull the padlock through. Click.',2200);
   /* the quiet before it: dim light, a heartbeat, a footstep behind you */
   applyLights(.4);await csleep(1300);
-  await camTo(.3,5.2,yawTo(6.1,14),0,1500);
+  await camTo(.3,5.2,yawFrom(.3,5.2,6.1,14),0,1500);
   for(let i=0;i<2;i++){A.tone(52,44,.22,.22,'sine');await csleep(380);A.tone(52,44,.22,.22,'sine');await csleep(1000)}
   A.step();await csleep(600);A.step();await csleep(1100);
   /* you spin round: he is right there, face to face */
   FIG.position.set(.3,0,4.05);FIG.rotation.y=0;FIG.visible=true;
-  await camTo(.3,5.2,yawTo(.3,4.05),.12,260);
+  await camTo(.3,5.2,yawFrom(.3,5.2,.3,4.05),.12,260);
   A.sting();A.nz(.6,1200,200,.4,'lowpass');applyLights(0);
   await tween(k=>{P.pitch=.12+Math.sin(k*46)*.05*(1-k);P.yaw+=Math.sin(k*60)*.004*(1-k)},520);
   await csleep(1100);
@@ -315,14 +316,14 @@ async function lockUp(){if(G.busy||CINE.on||D.walking)return;G.busy=true;await c
   $('fade').style.transition='opacity .06s';$('fade').style.opacity=1;await sleep(240);FIG.visible=false;applyLights(1);$('fade').style.opacity=0;
   await csleep(1000);
   await say(sp('YOU','...He was crying.'),2200);
-  await camTo(.3,5.2,yawTo(6.1,14),0,1100);
+  await camTo(.3,5.2,yawFrom(.3,5.2,6.1,14),0,1100);
   G.state='d3_home';window.__doorG.rotation.y=0;setClock('6:10 PM');objT('Go home');G.busy=false;await cineOut()}
 WPS.d3_home={x:6.1,z:14.0,r:.6,go:1,fn:homeNight};
 
 /* ---------- home, then a man crying outside ---------- */
 async function cry(n){for(let i=0;i<n;i++){A.tone(170+Math.random()*40,140,.55,.05,'sine');A.tone(340+Math.random()*60,280,.4,.018,'sine');await csleep(520+Math.random()*260)}}
 async function homeNight(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();const dg=window.__doorG;dg.rotation.y=0;
-  await camTo(6.1,13.5,yawTo(6.1,15),.03,900);
+  await camTo(6.1,13.5,yawFrom(6.1,13.5,6.1,15),.03,900);
   handAct('knock',2300);for(let i=0;i<3;i++){A.knock();await csleep(650)}
   await csleep(600);A.tone(170,110,.7,.05,'sawtooth');
   atuk.visible=true;atuk.position.set(6.1,0,15.85);atuk.rotation.y=0;pose(atuk,0,'stand');

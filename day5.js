@@ -3,6 +3,7 @@ export default function install(G){
 const {THREE,scene,P,EYE,A,CINE,D,WPS,atuk,CROWD,HOME,FEET,shutter,
   $,sleep,say,sp,cineIn,cineOut,camTo,yawTo,csleep,tween,handAct,pose,objT,setClock,setTime,applyLights,bulbSet,tapOff,lids,
   drawBoard,day1Props,shutBlock,M}=G;
+const yawFrom=G.yawFrom;
 
 const card=async(h,sm,ms=2400)=>{const dc=$('dcard');dc.innerHTML=h+'<small>'+sm+'</small>';dc.style.opacity=1;await sleep(ms);dc.style.opacity=0};
 const pace=(x,z,sp_=1.7)=>{const x0=P.x,z0=P.z,L=Math.hypot(x-x0,z-z0);if(L<.9)return Promise.resolve();let st=0;
@@ -77,7 +78,7 @@ async function serveRun(){if(G.busy||CINE.on)return;G.busy=true;const k=LAST[ci]
   const L=k.L,say2=(i)=>say(sp(L[i][0],L[i][1]),i===2||i===4?3400:2300);
   await say2(0);await say2(1);
   /* make it */
-  await camTo(2.9,3.0,yawTo(3.9,3.5),-.12,1100);
+  await camTo(2.9,3.0,yawFrom(2.9,3.0,3.9,3.5),-.12,1100);
   handAct('reach',1500);A.nz(.5,2500,1500,.08,'highpass');A.click();await csleep(1500);
   await pace(k.m[0],k.m[1],1.9);await camTo(k.m[0],k.m[1],yawTo(c.position.x,c.position.z),k.pit,600);
   cupMesh(k,k.cp);A.tone(500,520,.15,.06,'sine');

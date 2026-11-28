@@ -2,6 +2,7 @@
 export default function install(G){
 const {THREE,scene,camera,P,EYE,A,CINE,WPS,ZONES,AABB,cupsD,M,B,box,ctex,
   $,sleep,say,sp,cineIn,cineOut,camTo,yawTo,csleep,tween,handAct,objT,setClock,applyLights,flicker}=G;
+const yawFrom=G.yawFrom;
 const T=THREE;
 
 /* ---------- the back lane (east of the kitchen) ---------- */
@@ -65,11 +66,11 @@ const look=(x,z,pitch=0,ms=650)=>camTo(P.x,P.z,yawTo(x,z),pitch,ms);
 
 /* ---------- the three chores ---------- */
 const CL=[
- {x:.6,z:1.0,obj:'Mop the floor',fn:()=>run(0)},
- {x:-3.0,z:-.2,obj:'Clear the cups',fn:()=>run(1)},
- {x:1.5,z:-2.4,obj:'Take the trash out',fn:()=>run(2)}];
+ {x:.6,z:1.0,tx:-1.0,tz:1.0,obj:'Mop the floor',fn:()=>run(0)},
+ {x:-3.0,z:-.2,tx:-3.7,tz:-.2,obj:'Clear the cups',fn:()=>run(1)},
+ {x:1.5,z:-2.4,tx:1.5,tz:-3.3,obj:'Take the trash out',fn:()=>run(2)}];
 let ci=0;
-WPS.d1_close={get x(){return CL[ci].x},get z(){return CL[ci].z},r:.6,go:1,get fn(){return CL[ci].fn}};
+WPS.d1_close={get x(){return CL[ci].x},get z(){return CL[ci].z},get tx(){return CL[ci].tx},get tz(){return CL[ci].tz},get lab(){return CL[ci].obj},manual:true,r:.6,go:1,get fn(){return CL[ci].fn}};
 G.closeJump=n=>{ci=n;objT(CL[n].obj)};
 G.closeInit=()=>{ci=0;SBIN.visible=true;CUPS2.forEach(m=>m.visible=true);BAGW.visible=false;setClock('6:05 PM');objT(CL[0].obj)};
 async function run(i){if(G.busy||CINE.on||i!==ci)return;G.busy=true;A.click();await cineIn();
@@ -125,7 +126,7 @@ async function cups(){
 
 /* 3. trash — carry the bag to the lane. something is standing in the kitchen door behind you. */
 async function trash(){
-  await camTo(3.9,-2.45,yawTo(4.5,-2.2),-.6,700);
+  await camTo(3.9,-2.45,yawFrom(3.9,-2.45,4.5,-2.2),-.6,700);
   handAct('reach',1200);await csleep(500);BAGW.visible=false;A.nz(.3,500,300,.1);G.SFX&&G.SFX.play('bag',{g:.7,wet:.15});
   TB.visible=true;TB.position.set(.22,-.42,-.62);
   await say('Take the bag out the back.',1800);
