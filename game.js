@@ -1100,7 +1100,7 @@ const G={KC,flo,wall,doorLeaf,regDoor,tm:nightClock,yawFrom,ZONES,AABB,AMB,perso
   AEV,AMBD,get ac(){return ac},get master(){return master},get ambG(){return ambG},
   get state(){return state},set state(v){state=v},get busy(){return busy},set busy(v){busy=v},
   setLights(v){lightsOn=v},setBlur(v){cv.style.transition='filter 1.4s';cv.style.filter=v?'blur(8px)':''}};
-const V=new URL(import.meta.url).search,BUILD='202611282225';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+const V=new URL(import.meta.url).search,BUILD='202611282240';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));
@@ -1172,7 +1172,7 @@ async function chapter(key){
   goFull();$('title').style.display='none';$('chap').style.display='none';initAudio();if(ac&&ac.state==='suspended')ac.resume();
   if(key==='d1')return beginDay1();
   if(key==='d2'&&G.day2)return G.day2();if(key==='d3'&&G.day3)return G.day3();if(key==='d4'&&G.day4)return G.day4();if(key==='d5'&&G.day5)return G.day5();
-  if(key.startsWith('s2_')){const d2b=(t,c)=>{dayBase(t,c);drawBoard(2);day1Props(true);SERVED.forEach(x=>x.visible=false)};
+  if(key.startsWith('s2_')){const d2b=(t,c)=>{state='d2_scene';dayBase(t,c);drawBoard(2);day1Props(true);SERVED.forEach(x=>x.visible=false)};
     if(key==='s2_chores'){d2b('day','7:10 AM');showCrowd(true);D.crowd=true;CROWD.forEach((c,i)=>{c.position.set(HOME[i][0],0,HOME[i][1]);c.rotation.y=HOME[i][2];pose(c,0,'sit')});atuk.visible=true;pose(atuk,0,'stand');P.x=2.95;P.z=3.05;P.yaw=-2;state='d2_chores';objT('Wipe the table')}
     else if(key==='s2_bath'){d2b('day','10:15 AM');atuk.visible=true;pose(atuk,0,'stand');tapOn();P.x=-1.2;P.z=2.5;P.yaw=Math.PI/2;state='d2_bath';objT('The tap is running again')}
     else if(key==='s2_rules'){d2b('dusk','5:40 PM');atuk.visible=true;P.x=.6;P.z=2.3;P.yaw=-2.14;state='d2_rule';objT('Talk to Atuk')}
