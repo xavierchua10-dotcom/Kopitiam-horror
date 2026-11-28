@@ -72,13 +72,14 @@ const CL=[
  {x:3.0,z:-2.3,tx:4.5,tz:-2.2,obj:'Take the trash out',fn:()=>run(2)},
  {x:4.15,z:-5.1,tx:5.0,tz:-5.1,obj:'Open the back door',fn:()=>run(3)},
  {x:8.1,z:-7.5,tx:8.9,tz:-8.7,obj:'Throw the trash',fn:()=>run(4)}];
-let ci=0;
+let ci=0,CLD=1;
 WPS.d1_close={get x(){return CL[ci].x},get z(){return CL[ci].z},get tx(){return CL[ci].tx},get tz(){return CL[ci].tz},get lab(){return CL[ci].obj},manual:true,r:.6,go:1,get fn(){return CL[ci].fn}};
+WPS.d2_close=WPS.d1_close;
 G.closeJump=n=>{ci=n;objT(CL[n].obj)};
-G.closeInit=()=>{lkDone=false;ci=0;CFALL.position.set(3.3,.97,-6.45);CFALL.rotation.set(0,0,0);CFALL.scale.setScalar(1.7);CFALL.visible=true;dAt(0);if(AABB.indexOf(doorBlock)<0)AABB.push(doorBlock);SBIN.visible=true;CUPS2.forEach(m=>m.visible=true);BAGW.visible=false;setClock('6:05 PM');objT(CL[0].obj)};
+G.closeInit=(dn=1)=>{CLD=dn;lkDone=false;ci=0;CFALL.position.set(3.3,.97,-6.45);CFALL.rotation.set(0,0,0);CFALL.scale.setScalar(1.7);CFALL.visible=true;dAt(0);if(AABB.indexOf(doorBlock)<0)AABB.push(doorBlock);SBIN.visible=true;CUPS2.forEach(m=>m.visible=true);BAGW.visible=false;setClock('6:05 PM');objT(CL[0].obj)};
 async function run(i){if(G.busy||CINE.on||i!==ci)return;G.busy=true;A.click();await cineIn();
   await [mop,cups,bagUp,backDoor,throwBag][i]();
-  setClock(['6:12 PM','6:20 PM','6:24 PM','6:27 PM','6:36 PM'][i]);ci++;if(ci>=CL.length){G.state='d1_lock';objT('Lock up')}else objT(CL[ci].obj);
+  setClock(['6:12 PM','6:20 PM','6:24 PM','6:27 PM','6:36 PM'][i]);ci++;if(ci>=CL.length){G.state='d'+CLD+'_lock';objT('Lock up')}else objT(CL[ci].obj);
   await camTo(P.x,P.z,P.yaw,0,500);G.busy=false;await cineOut()}
 
 /* 1. mop — something stands at the back of the dark shop */

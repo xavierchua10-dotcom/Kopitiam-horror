@@ -2,7 +2,7 @@
 export default function install(G){
 const {THREE,scene,P,EYE,A,CINE,D,WPS,atuk,CROWD,HOME,FEET,shutter,radio,BULB,STREAM,stain,cupsD,
   $,sleep,say,sp,cineIn,cineOut,camTo,yawTo,csleep,tween,handAct,pose,objT,setClock,setTime,applyLights,bulbSet,flicker,tapOn,tapOff,lids,startAlarm,stopAlarm,drawClock,
-  showCrowd,drawBoard,day1Props,shutBlock,chWipe,chCups,ctex,atukLeave}=G;
+  showCrowd,drawBoard,day1Props,shutBlock,chWipe,chCups,chStock,chRefill,ctex,atukLeave}=G;
 const yawFrom=G.yawFrom;
 
 /* the crack in the bathroom mirror (hidden until the bathroom scene) */
@@ -13,6 +13,28 @@ const crack=new THREE.Mesh(new THREE.PlaneGeometry(.6,.8),new THREE.MeshBasicMat
   c.lineWidth=.8;L(30,38,34,30,36,22);L(22,46,12,44,3,48)}),transparent:true,depthWrite:false,fog:false}));
 crack.position.set(-7.7,1.65,1.045);crack.visible=false;scene.add(crack);
 
+/* live bathroom mirror: only switched on during the bathroom scene (it costs one extra scene render per frame) */
+const MIR=(()=>{const T=THREE,mp=new T.Vector3(-7.7,1.65,1.04),n=new T.Vector3(0,0,1);
+  const rt=new T.WebGLRenderTarget(320,400);
+  const ck=document.createElement('canvas');ck.width=120;ck.height=160;{const x=ck.getContext('2d');x.strokeStyle='rgba(240,245,250,.95)';x.lineCap='round';
+    const L=(w,...p)=>{x.lineWidth=w;x.beginPath();x.moveTo(p[0],p[1]);for(let i=2;i<p.length;i+=2)x.lineTo(p[i],p[i+1]);x.stroke()};
+    L(2.6,62,60,48,44,36,26,22,4);L(2.6,62,60,78,40,90,22,104,2);L(2.6,62,60,44,78,26,98,10,140);L(2.6,62,60,82,82,92,108,100,150);L(2.2,62,60,60,96,52,124,58,158);L(1.6,48,44,28,46,6,54);L(1.6,78,40,100,44,118,36);L(1.6,44,78,22,74,2,84);L(1.4,36,26,30,12,34,2)}
+  const mat=new T.ShaderMaterial({uniforms:{tex:{value:rt.texture},crk:{value:new T.CanvasTexture(ck)},tm:{value:new T.Matrix4()},amt:{value:0}},
+    vertexShader:'uniform mat4 tm;varying vec4 vU;varying vec2 vV;void main(){vV=uv;vU=tm*vec4(position,1.);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+    fragmentShader:'uniform sampler2D tex;uniform sampler2D crk;uniform float amt;varying vec4 vU;varying vec2 vV;void main(){vec4 c=texture2DProj(tex,vU);c.rgb*=1.5*vec3(.9,1.0,1.05);vec4 k=texture2D(crk,vV);c.rgb=mix(c.rgb,k.rgb,k.a*amt);gl_FragColor=vec4(c.rgb,1.);}'});
+  const m=new T.Mesh(new T.PlaneGeometry(.62,.8),mat);m.position.copy(mp);m.visible=false;scene.add(m);
+  const body=G.person(-7.7,1.85,0,0x3b5a7a,0x1a1a1a,0xc9a27e,{});body.visible=false;
+  const vc=new T.PerspectiveCamera(),pl=new T.Plane(new T.Vector3(0,0,1),-1.047);
+  const refl=v=>{const dd=v.clone().sub(mp).dot(n);return v.clone().sub(n.clone().multiplyScalar(2*dd))};
+  m.onBeforeRender=(r,sc,cam)=>{
+    const pos=new T.Vector3().setFromMatrixPosition(cam.matrixWorld),dir=new T.Vector3(0,0,-1).applyQuaternion(cam.quaternion),up=new T.Vector3(0,1,0).applyQuaternion(cam.quaternion);
+    const tgt=pos.clone().add(dir);vc.position.copy(refl(pos));
+    vc.up.copy(up.clone().sub(n.clone().multiplyScalar(2*up.dot(n))));vc.lookAt(refl(tgt));
+    vc.projectionMatrix.copy(cam.projectionMatrix);vc.updateMatrixWorld();vc.matrixWorldInverse.copy(vc.matrixWorld).invert();
+    const tm=mat.uniforms.tm.value;tm.set(.5,0,0,.5,0,.5,0,.5,0,0,.5,.5,0,0,0,1);tm.multiply(vc.projectionMatrix).multiply(vc.matrixWorldInverse).multiply(m.matrixWorld);
+    m.visible=false;body.visible=true;const prev=r.getRenderTarget();r.clippingPlanes=[pl];r.setRenderTarget(rt);r.clear();r.render(sc,vc);r.setRenderTarget(prev);r.clippingPlanes=[];body.visible=false;m.visible=true};
+  return {m,mat,on:v=>{m.visible=v;if(!v)mat.uniforms.amt.value=0}}})();
+
 const pace=(x,z,sp_=1.7)=>{const x0=P.x,z0=P.z,L=Math.hypot(x-x0,z-z0);if(L<.9)return Promise.resolve();let st=0;
   return tween(k=>{const e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;P.x=x0+(x-x0)*e;P.z=z0+(z-z0)*e;st++;EYE.y=1.6+Math.sin(performance.now()/110)*.035*Math.min(1,Math.min(k,1-k)*8);if(st%16===0)A.step()},Math.max(700,L/sp_*1000)).then(()=>{EYE.y=1.6})};
 const card=async(h,sm,ms=2400)=>{const dc=$('dcard');dc.innerHTML=h+'<small>'+sm+'</small>';dc.style.opacity=1;await sleep(ms);dc.style.opacity=0};
@@ -20,7 +42,7 @@ const card=async(h,sm,ms=2400)=>{const dc=$('dcard');dc.innerHTML=h+'<small>'+sm
 /* ---------- opening: same alarm, same minute ---------- */
 async function start(){
   G.busy=true;G.state='d2_intro';objT('');
-  setTime('day');G.setLights(true);applyLights(1);bulbSet(1);tapOff();setClock('6:30 AM');crack.visible=false;
+  setTime('day');G.setLights(true);applyLights(1);bulbSet(1);tapOff();setClock('6:30 AM');crack.visible=false;MIR.on(false);
   shutter.position.y=3.6;shutBlock(false);drawBoard(2);day1Props(true);
   showCrowd(true);D.crowd=true;CROWD.forEach((c,i)=>{c.position.set(HOME[i][0],0,HOME[i][1]);c.rotation.y=HOME[i][2];pose(c,0,'sit')});
   atuk.position.set(3.9,0,3.5);atuk.rotation.y=1.0;pose(atuk,0,'stand');FEET.visible=false;
@@ -57,11 +79,18 @@ WPS.d2_go={x:2.8,z:3.05,r:.6,go:1,fn:greet};
 /* chores today: wipe the table, clear the cups */
 const CH=[{x:2.8,z:-.8,tx:2.8,tz:-1.8,obj:'Wipe the table',run:async()=>{await chWipe()}},
           {x:-2.0,z:-1.8,tx:-3,tz:-1.8,obj:'Clear the cups',run:async()=>{await chCups();
-            await say('Still full. Cold. Nobody drank a drop.',2600);await say(sp('YOU','Nobody ever touches the kopi.'),2200)}}];
+            await say('Still full. Cold. Nobody drank a drop.',2600);await say(sp('YOU','Nobody ever touches the kopi.'),2200)}},
+          {x:-3.4,z:-5.45,tx:-3.75,tz:-6.6,obj:'Get kopi powder from the store room',run:async()=>{await chStock();
+            await say(sp('YOU','Already the last bag? I filled the shelf yesterday.'),2800)}},
+          {x:-1.4,z:-5.7,tx:-1.4,tz:-6.4,obj:'Refill the machine',run:async()=>{await chRefill();
+            await say(sp('ATUK','Kopi powder habis laju, kan? Atuk make extra every night.'),3200);
+            await say(sp('YOU','Extra? For who? Nobody drinks it.'),2400);
+            await csleep(700);
+            await say(sp('ATUK','...Just fill the machine, cucu.'),2600)}}];
 let ci=0;
-WPS.d2_chores={get x(){return CH[Math.min(ci,1)].x},get z(){return CH[Math.min(ci,1)].z},get tx(){return CH[Math.min(ci,1)].tx},get tz(){return CH[Math.min(ci,1)].tz},get lab(){return CH[Math.min(ci,1)].obj},manual:true,r:.6,go:1,get fn(){return choreRun}};
+WPS.d2_chores={get x(){return CH[Math.min(ci,CH.length-1)].x},get z(){return CH[Math.min(ci,CH.length-1)].z},get tx(){return CH[Math.min(ci,CH.length-1)].tx},get tz(){return CH[Math.min(ci,CH.length-1)].tz},get lab(){return CH[Math.min(ci,CH.length-1)].obj},manual:true,r:.6,go:1,get fn(){return choreRun}};
 async function choreRun(){if(G.busy||CINE.on)return;G.busy=true;const i=ci;A.click();await cineIn();await CH[i].run();
-  ci++;setClock(['8:05 AM','9:10 AM'][i]);
+  ci++;setClock(['8:05 AM','9:10 AM','9:25 AM','9:40 AM'][i]);
   if(ci>=CH.length){G.state='d2_radio';objT('Check the radio')}else objT(CH[ci].obj);
   await camTo(P.x,P.z,P.yaw,0,500);G.busy=false;await cineOut()}
 
@@ -104,14 +133,27 @@ WPS.d2_bath={x:-7.7,z:2.5,r:.6,go:1,fn:bathScene};
 async function bathScene(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
   await camTo(-7.7,2.5,yawFrom(-7.7,2.5,-7.7,1.1),-.05,1300);
   await say(sp('YOU','Again. I turned this off yesterday.'),2200);
-  handAct('reach',1400);await csleep(700);tapOff();A.click();await csleep(900);
-  A.tone(1300,900,.04,.04);await csleep(800);
-  await camTo(-7.7,1.95,yawFrom(-7.7,1.95,-7.7,1.0),.03,1200);
-  await csleep(500);
-  flicker([.5,1,.3,.9],80);await csleep(500);
-  A.nz(.04,6500,3000,.3,'highpass');A.tone(170,80,.09,.22,'sine');[[70,4300,.18],[150,5300,.14],[260,3700,.12],[430,4900,.09]].forEach(([t,f,v])=>setTimeout(()=>A.nz(.05,f,f*.6,v,'bandpass',6),t));A.tone(5400,5000,.18,.012,'sine');crack.visible=true;
-  await csleep(1400);
+  /* the water keeps running while you look up into the mirror */
+  MIR.on(true);
+  await camTo(-7.7,1.75,yawFrom(-7.7,1.75,-7.7,1.0),-.02,1500);
+  await csleep(900);
+  await say('Your own face. Tired.',2000);
+  A.tone(60,45,2.4,.1,'sine');
+  await flicker([.5,1,.3,.9,.2],80);applyLights(.4);bulbSet(.4);
+  const F=G.FIG;F.position.set(-7.4,0,2.3);F.rotation.y=Math.PI;F.visible=true;
+  await csleep(1700);
+  A.nz(.04,6500,3000,.3,'highpass');A.tone(170,80,.09,.22,'sine');[[70,4300,.18],[150,5300,.14],[260,3700,.12],[430,4900,.09]].forEach(([t,f,v])=>setTimeout(()=>A.nz(.05,f,f*.6,v,'bandpass',6),t));A.tone(5400,5000,.18,.012,'sine');
+  MIR.mat.uniforms.amt.value=1;
+  await csleep(1500);
+  await flicker([.15,0,.5,0,.2,0]);F.visible=false;applyLights(1);bulbSet(1);
+  await csleep(800);
   await say('A crack. Right where your face should be.',2800);
+  await say(sp('YOU','...Was someone behind me?'),2200);
+  await csleep(500);
+  await say(sp('YOU',"No. I'm just tired."),2400);
+  handAct('reach',1400);await csleep(700);tapOff();A.click();await csleep(900);
+  A.tone(1300,900,.04,.04);await csleep(600);
+  crack.visible=true;MIR.on(false);
   await say(sp('YOU',"It wasn't there yesterday."),2200);
   await camTo(-7.9,2.6,yawFrom(-7.9,2.6,-6,2.5),0,1000);
   applyLights(1);bulbSet(1);
@@ -138,8 +180,10 @@ async function atukRule(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
   await say(sp('YOU>ATUK','Even if they call my name?'),2000);
   await csleep(900);
   await say(sp('ATUK','...Especially if they call your name.'),3000);
-  await say(sp('ATUK','Atuk balik dulu. Lock properly.'),2400);
-  G.state='d2_lock';objT('Lock up');setClock('6:00 PM');G.busy=false;atukLeave();await cineOut()}
+  await say(sp('ATUK','Atuk balik dulu. Before you lock: mop the floor, clear the cups, rubbish go out the back.'),3800);
+  G.busy=false;atukLeave();
+  if(G.closeInit){G.state='d2_close';G.closeInit(2)}else{G.state='d2_lock';objT('Lock up');setClock('6:00 PM')}
+  await cineOut()}
 
 /* ---------- lock up, go home ---------- */
 WPS.d2_lock={x:.3,z:5.3,r:.6,go:1,fn:lockUp};
