@@ -169,6 +169,7 @@ async function lockStare(cine){
   await say(sp('YOU>HIM','We... we are closing.'),2200);
   await csleep(500);
   await flicker([.45,1]);F.visible=false;await csleep(900);
+  await say(sp('YOU','...Did I not sleep enough?'),2600);
   G.busy=was}
 G.lockStare=lockStare;
 G.tick.push(dt=>{

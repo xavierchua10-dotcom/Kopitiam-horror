@@ -202,3 +202,4 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 - 202611273027: Wake-up: held alarm clock now centred at eye level, no longer cut off at the top.
 - 202611273028: Closing chores: no stray cups left on tables (morning cups hidden, the falling cup only appears when the camera turns to it).
 - 202611273029: Closing chores: the served kopi cup left on the table since the morning is now picked up with the other cups at the first stop. Reverted the earlier stray-cup tweaks (falling cup stays on the counter).
+- 202611273030: Day 1: after the kitchen figure vanishes you wonder if you slept enough; at midnight Atuk is already standing behind the door and is revealed as it opens (no pop-in).

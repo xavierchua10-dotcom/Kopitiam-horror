@@ -612,7 +612,7 @@ async function midnight(){
 async function midnightDoor(){
   if(busy||CINE.on)return;busy=true;A.click();await cineIn();
   await camTo(13.1,18.4,yawFrom(13.1,18.4,13.1,19.6),.02,800);
-  A.door();await tween(k=>{D_ME.rotation.y=1.45*k*k*(3-2*k)},800);HALLGLOW.intensity=1.3;atuk.visible=true;atuk.position.set(13.1,0,19.7);atuk.rotation.y=0;pose(atuk,0,'stand');await csleep(500);
+  atuk.visible=true;atuk.position.set(13.1,0,19.7);atuk.rotation.y=0;pose(atuk,0,'stand');A.door();await tween(k=>{const e=k*k*(3-2*k);D_ME.rotation.y=1.45*e;HALLGLOW.intensity=1.3*Math.min(1,e*1.6)},800);HALLGLOW.intensity=1.3;await csleep(500);
   await say(sp('YOU>ATUK','Atuk...? What time is it?'),2200);
   await say(sp('ATUK','Listen. From tomorrow, shop open six in the evening. Close one in the morning.'),3600);
   await say(sp('YOU>ATUK','Six? But we always open seven to five...'),2600);
@@ -1038,7 +1038,7 @@ const G={KC,tm:nightClock,yawFrom,ZONES,AABB,AMB,person,THREE,scene,camera,P,EYE
   AEV,AMBD,get ac(){return ac},get master(){return master},get ambG(){return ambG},
   get state(){return state},set state(v){state=v},get busy(){return busy},set busy(v){busy=v},
   setLights(v){lightsOn=v},setBlur(v){cv.style.transition='filter 1.4s';cv.style.filter=v?'blur(8px)':''}};
-const V=new URL(import.meta.url).search,BUILD='202611273029';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+const V=new URL(import.meta.url).search,BUILD='202611273030';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));
