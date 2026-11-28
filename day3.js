@@ -397,7 +397,7 @@ async function homeNight(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
   CINE.noclip=false;EYE.y=1.6;await cineOut();
   if(G.day4){G.busy=false;G.state='d4_intro';G.day4();return}
   haze.style.opacity=0;
-  $('endh').textContent='END OF DAY 3';$('endp').textContent='Somebody was crying at the door. Atuk did not answer.';$('endl').textContent='Last Order · Day 4 is coming';
+  $('endh').textContent='END OF DAY 3';$('endp').textContent='Somebody was crying at the door. Atuk did not answer.';$('endl').textContent='Kopitiam Horror · Day 4 is coming';
   $('end').style.display='flex';G.busy=false;G.state='end'}
 
 G.gore=goreDetails;G.goreVis=v=>goreFloor.forEach(o=>o.visible=v);G.details=details;G.FIG=FIG;G.tvSet=tvSet;G.haze=haze;

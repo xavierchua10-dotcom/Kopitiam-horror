@@ -622,7 +622,7 @@ async function cineHome(){if(busy||CINE.on)return;busy=true;await cineIn();const
   if(SCONLY){busy=false;return}
   await midnight();
   if(G.day2){busy=false;state='d2_intro';G.day2();return}
-  $('endh').textContent='END OF DAY 1';$('endp').textContent='Nothing strange happened today. Remember the rule: three knocks.';$('endl').textContent='Last Order · Day 2 is coming';
+  $('endh').textContent='END OF DAY 1';$('endp').textContent='Nothing strange happened today. Remember the rule: three knocks.';$('endl').textContent='Kopitiam Horror · Day 2 is coming';
   $('end').style.display='flex';busy=false;state='end'}
 /* ---- midnight: three knocks, Atuk at your bedroom door ---- */
 const HALLGLOW=new THREE.PointLight(0xffb36b,0,7);HALLGLOW.position.set(13.1,2.1,21.2);scene.add(HALLGLOW);
@@ -661,7 +661,7 @@ async function midnightDoor(){
 async function houseAct(){
   if(/^d[1-5]_go$/.test(state)){const i=AABB.indexOf(DOORBLK);if(i>=0)AABB.splice(i,1);doorSeen[state]=1;return doorOut()}
   busy=true;A.click();
-  if(state==='d1_home'){await say('The door is locked. Atuk is already home.',2200);handAct('knock',2300);for(let i=0;i<3;i++){A.knock();await sleep(650)}await say(sp('ATUK','Three knock. Okay. Masuk.'),2400);$('endh').textContent='END OF DAY 1';$('endp').textContent='Nothing strange happened today. Remember the rule: three knocks.';$('endl').textContent='Last Order · Day 2 is coming'}
+  if(state==='d1_home'){await say('The door is locked. Atuk is already home.',2200);handAct('knock',2300);for(let i=0;i<3;i++){A.knock();await sleep(650)}await say(sp('ATUK','Three knock. Okay. Masuk.'),2400);$('endh').textContent='END OF DAY 1';$('endp').textContent='Nothing strange happened today. Remember the rule: three knocks.';$('endl').textContent='Kopitiam Horror · Day 2 is coming'}
   $('fade').style.transition='opacity 1.6s';$('fade').style.opacity=1;await sleep(1800);$('end').style.display='flex';busy=false;state='end'}
 
 /* ---------- DAY 1 ---------- */
@@ -1300,7 +1300,7 @@ let FXM='auto';try{const v=localStorage.lo_fx;if(v==='full'||v==='off')FXM=v}cat
    const r=new THREE.BufferGeometry();r.setAttribute('position',new THREE.Float32BufferAttribute(p,3));r.setAttribute('normal',new THREE.Float32BufferAttribute(n,3));r.setAttribute('uv',new THREE.Float32BufferAttribute(u,2));r.setIndex(ix);return r};
  const MATS={trim:TRIM,dark:DARK,win:WIN,int:INT};
  for(const k in L){if(!L[k].length)continue;const m=new THREE.Mesh(merge(L[k]),MATS[k]);m.userData.noSoot=true;m.name='thick_'+k;scene.add(m)}}
-const V=new URL(import.meta.url).search,BUILD='202611290552';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+const V=new URL(import.meta.url).search,BUILD='202611290610';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));

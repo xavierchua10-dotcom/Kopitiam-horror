@@ -79,7 +79,7 @@ body.cine #sub{bottom:calc(12% + 12px)!important;z-index:8}
 
 /* ---- horror cards: title screen + day cards ---- */
 #title{background:linear-gradient(rgba(0,0,0,.35),rgba(0,0,0,.55)),url(cards/title.jpg) center/cover no-repeat}
-#title h1{font-family:Georgia,'Times New Roman',serif;font-weight:700;font-size:46px;letter-spacing:12px;color:#c21818;text-shadow:0 0 30px rgba(200,0,10,.55),0 4px 18px #000;position:relative;display:inline-block}
+#title h1{font-family:Georgia,'Times New Roman',serif;font-weight:700;font-size:clamp(24px,8.5vh,46px);letter-spacing:.2em;color:#c21818;text-shadow:0 0 30px rgba(200,0,10,.55),0 4px 18px #000;position:relative;display:inline-block}
 #title h1:before,#title h1:after{position:absolute;left:0;top:0;width:100%;mix-blend-mode:screen;background:none;margin:0;height:auto}
 #title h1:before{content:attr(data-t);color:#ff1a1a;transform:translate(-3px,0);clip-path:inset(0 0 56% 0);opacity:.8}
 #title h1:after{content:attr(data-t);display:block;color:#1ab7ff;transform:translate(3px,0);clip-path:inset(52% 0 0 0);opacity:.5;width:100%;height:auto;margin:0}

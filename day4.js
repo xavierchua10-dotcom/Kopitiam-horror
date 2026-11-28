@@ -539,7 +539,7 @@ async function atukEnd(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();G.
   beepQuiet();await sleep(3200);beepSoft=false;
   CINE.noclip=false;EYE.y=1.6;await cineOut();
   if(G.day5){G.busy=false;G.state='d5_intro';G.day5();return}
-  $('endh').textContent='END OF DAY 4';$('endp').textContent='"Still one more. Tomorrow."';$('endl').textContent='Last Order · Day 5 is coming';
+  $('endh').textContent='END OF DAY 4';$('endp').textContent='"Still one more. Tomorrow."';$('endl').textContent='Kopitiam Horror · Day 5 is coming';
   $('end').style.display='flex';G.busy=false;G.state='end'}
 
 G.day4=start}
