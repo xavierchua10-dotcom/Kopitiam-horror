@@ -193,6 +193,9 @@ function sign(txt,x,bg,fg){const m=new THREE.Mesh(new THREE.PlaneGeometry(3.4,.5
 [[-20,'KEDAI RUNCIT','#3f8fd0','#2d6aa0','#1d4f86','#ffffff'],[-10,'FARMASI','#2fae8a','#1f8a6c','#0e6e52','#f4fff8'],[10,'GUNTING RAMBUT','#d9577f','#b23f64','#9a2a50','#fff2f6'],[20,'KEDAI EMAS','#e89a2a','#c27a18','#8a1f1f','#ffe08a']].forEach(([cx,t,c1,c2,sb,sf])=>{
   wall(10,3,cx,1.5,4,0);const sh=new THREE.Mesh(new THREE.PlaneGeometry(4.2,2.4),shutTex());sh.position.set(cx,1.2,4.04);scene.add(sh);sign(t,cx,sb,sf);facade(cx,10,c1);
   wall(10,.01,cx,.01,4.05,0).visible=false});
+/* the CCTV camera in the back corner: its red light blinks all through Day 1 */
+box(.22,.16,.4,M(0x2a2a2e),3.0,2.72,-3.42);box(.06,.2,.06,M(0x222222),3.0,2.9,-3.55);
+const CCLED=new THREE.Mesh(new THREE.SphereGeometry(.03,6,5),B(0xff2a1a,{fog:false}));CCLED.position.set(3.07,2.74,-3.22);scene.add(CCLED);
 /* A-frame chalkboard beside the door (fades day by day) */
 const boardCv=document.createElement('canvas');boardCv.width=256;boardCv.height=336;
 const boardTex=new THREE.CanvasTexture(boardCv);boardTex.magFilter=boardTex.minFilter=THREE.NearestFilter;boardTex.colorSpace=THREE.SRGBColorSpace;
@@ -202,7 +205,7 @@ function drawBoard(day){const c=boardCv.getContext('2d'),w=256,h=336;c.clearRect
   c.font='bold 44px "Noto Sans CJK SC","Noto Sans SC","PingFang SC","Microsoft YaHei","Heiti SC",sans-serif';c.fillText('\u963f\u516c\u8336\u9910\u9986',w/2,110);
   c.font='bold 23px monospace';c.fillText('ATUK KOPITIAM',w/2,148);c.fillRect(48,168,160,2);
   c.font='bold 18px monospace';c.fillText('Kopi  Teh  Roti Bakar',w/2,206);
-  if(day<3){c.font='bold 19px monospace';c.fillText('7am - 5pm',w/2,244)}
+  if(day<4){c.font='bold 19px monospace';c.fillText(day<2?'7am - 5pm':'6pm - 1am',w/2,244)}
   if(day<2){c.beginPath();c.arc(w/2-8,278,12,0,Math.PI);c.lineWidth=2;c.strokeStyle='#f3ead0';c.stroke();c.fillRect(w/2+4,268,8,2)}
   c.globalAlpha=1;boardTex.needsUpdate=true}
 drawBoard(1);
@@ -406,7 +409,7 @@ const BALC=[];
  /* lit upstairs window (warm) */
  const lw=new THREE.Mesh(new THREE.PlaneGeometry(.8,.65),B(0xf2d48a));lw.position.set(9,4.55,14.93);lw.rotation.y=Math.PI;scene.add(lw)}
 /* ---- waypoint: walk-to marker ---- */
-const WPS={d1_go:{x:.9,z:5.5,r:.6,go:1,fn:d1Knock},d1_greet:{x:2.8,z:3.05,r:.6,go:1,fn:cineAtuk},d1_report:{x:2.8,z:3.05,r:.6,go:1,fn:cineAtuk},d1_back:{x:2.8,z:3.05,r:.6,go:1,fn:cineAtuk},d1_rule:{x:2.8,z:3.05,r:.6,go:1,fn:cineAtuk},d1_bath:{x:-8.2,z:2.5,r:.6,go:1,fn:cineBath},d1_lock:{x:.3,z:5.3,r:.6,go:1,fn:cineLock},d1_home:{x:6.1,z:14.0,r:.6,go:1,fn:cineHome}};
+const WPS={d1_go:{x:.9,z:5.5,r:.6,go:1,fn:d1Knock},d1_greet:{x:2.8,z:3.05,r:.6,go:1,fn:cineAtuk},d1_report:{x:2.8,z:3.05,r:.6,go:1,fn:cineAtuk},d1_back:{x:2.8,z:3.05,r:.6,go:1,fn:cineAtuk},d1_rule:{x:2.8,z:3.05,r:.6,go:1,fn:cineAtuk},d1_bath:{x:-8.2,z:2.5,r:.6,go:1,fn:cineBath},d1_fuse:{x:-4.0,z:.5,r:.7,go:1,fn:d1FuseAct},d1_lock:{x:.3,z:5.3,r:.6,go:1,fn:cineLock},d1_home:{x:6.1,z:14.0,r:.6,go:1,fn:cineHome}};
 const WP={x:0,z:0,r:.6};
 const WPG=new THREE.Group();WPG.position.set(WP.x,0,WP.z);scene.add(WPG);
 {const ring=new THREE.Mesh(new THREE.RingGeometry(WP.r-.05,WP.r,40),new THREE.MeshBasicMaterial({color:0xE0A526,transparent:true,opacity:.6,depthWrite:false,fog:false,side:THREE.DoubleSide}));ring.rotation.x=-Math.PI/2;ring.position.y=.04;WPG.add(ring);
@@ -486,7 +489,7 @@ let lightF=0,lightsOn=false,TIME='night',AB=.02,AK=.4,SK=26,HK=16,LK=8;
 const SKY={day:{bg:0xb4d2e6,fd:.012,amb:0xf2f5fa,ab:1.5,ak:.15,sk:0,hk:2,lk:2,lamp:0,star:0,drone:.012},
  dusk:{bg:0xc9805e,fd:.026,amb:0xffc4a0,ab:.8,ak:.2,sk:10,hk:8,lk:4,lamp:.6,star:0,drone:.03},
  night:{bg:0x05070a,fd:.075,amb:0x6070a0,ab:.02,ak:.4,sk:26,hk:16,lk:8,lamp:1,star:1,drone:.05}};
-function setTime(t){TIME=t;const k=SKY[t];scene.background.setHex(k.bg);scene.fog.density=k.fd;if(t!=='night')scene.fog.color.setHex(k.bg);amb.color.setHex(k.amb);AB=k.ab;AK=k.ak;SK=k.sk;HK=k.hk;LK=k.lk;
+function setTime(t,raw){{const d=(/^d([1-5])_/.exec(state)||[])[1]|0;if(!raw&&d>=2&&d<=4&&(t==='day'||t==='dusk'))t='night'}TIME=t;const k=SKY[t];scene.background.setHex(k.bg);scene.fog.density=k.fd;if(t!=='night')scene.fog.color.setHex(k.bg);amb.color.setHex(k.amb);AB=k.ab;AK=k.ak;SK=k.sk;HK=k.hk;LK=k.lk;
  GLOWS.forEach(g=>{g.visible=k.lamp>0;g.material.opacity=k.lamp});if(DOME){DOME.visible=t!=='night';if(SKYT[t]){DOME.material.map=SKYT[t];DOME.material.needsUpdate=true}}STARS.visible=MOON.visible=k.star>0;if(droneG)droneG.gain.value=k.drone;applyLights(lightF)}
 function applyLights(f){lightF=f;{const k=(.16+.3*Math.min(1,f))*({day:1,dusk:.6,night:.2})[TIME];HCEIL.color.setRGB(.81*k,.78*k,.72*k)}L1.intensity=f*LK;L2.intensity=f*LK;LZ.intensity=f*ZK;amb.intensity=AB+f*AK+(f>0&&TIME==='day'?.12:0);tubeMat.forEach(m=>m.color.setRGB(.2+.8*f,.22+.8*f,.25+.8*f));if(TIME==='night')scene.fog.color.setRGB(.02+.01*f,.027+.01*f,.04+.01*f);A.humv&&ac&&A.humv(f*.014)}
 async function flicker(pat,gap=70){for(const v of pat){applyLights(v);await sleep(gap+Math.random()*50)}}
@@ -570,9 +573,30 @@ async function cineHome(){if(busy||CINE.on)return;busy=true;await cineIn();const
   await say(sp('ATUK','Jangan buka. Go sleep.'),2600);await csleep(600);
   $('fade').style.transition='opacity 1.6s';$('fade').style.opacity=1;await sleep(1800);
   FEET.visible=false;await cineOut();
+  await midnight();
   if(G.day2){busy=false;state='d2_intro';G.day2();return}
   $('endh').textContent='END OF DAY 1';$('endp').textContent='Nothing strange happened today. Remember the rule: three knocks.';$('endl').textContent='Last Order · Day 2 is coming';
   $('end').style.display='flex';busy=false;state='end'}
+/* ---- midnight: three knocks, Atuk at your bedroom door ---- */
+const HALLGLOW=new THREE.PointLight(0xffb36b,0,7);HALLGLOW.position.set(13.1,2.1,21.2);scene.add(HALLGLOW);
+async function midnight(){
+  busy=true;setTime('night');lightsOffNow();setClock('12:00 AM');atuk.visible=false;
+  CINE.noclip=true;EYE.y=.62;P.x=14.5;P.z=17.0;P.yaw=Math.PI;P.pitch=.9;P.tx=null;P.fy=null;
+  await cineIn();
+  const dc=$('dcard');dc.innerHTML='MIDNIGHT<small>12:00 AM</small>';dc.style.opacity=1;$('fade').style.transition='opacity 1.2s';$('fade').style.opacity=0;await sleep(2200);dc.style.opacity=0;
+  await sleep(900);for(let i=0;i<3;i++){A.knock();await sleep(700)}
+  await say(sp('ATUK','Cucu. Bangun.'),1800);
+  await camTo(14.5,17.0,yawTo(13.1,19.55),.02,1100);
+  HALLGLOW.intensity=1.3;atuk.visible=true;atuk.position.set(13.1,0,19.55);atuk.rotation.y=0;pose(atuk,0,'stand');A.door();await sleep(900);
+  await say(sp('YOU','Atuk...? What time is it?'),2200);
+  await say(sp('ATUK','Listen. From tomorrow, shop open six in the evening. Close one in the morning.'),3600);
+  await say(sp('YOU','Six? But we always open seven to five...'),2600);
+  await say(sp('ATUK','Customers still here, cucu. Tomorrow, six o\'clock. Do not be late.'),3400);
+  await tween(k=>{HALLGLOW.intensity=1.3*(1-k)},900);atuk.visible=false;A.door();await sleep(900);
+  await say('He is gone before you can ask anything.',2400);
+  await say(sp('YOU','Six to one...? That is not how Atuk runs the shop.'),2800);
+  $('fade').style.transition='opacity 1.6s';$('fade').style.opacity=1;await sleep(1800);
+  EYE.y=1.6;CINE.noclip=false;P.pitch=0;await cineOut();busy=false}
 async function houseAct(){
   busy=true;A.click();
   if(state==='d1_home'){await say('The door is locked. Atuk is already home.',2200);handAct('knock',2300);for(let i=0;i<3;i++){A.knock();await sleep(650)}await say(sp('ATUK','Three knock. Okay. Masuk.'),2400);$('endh').textContent='END OF DAY 1';$('endp').textContent='Nothing strange happened today. Remember the rule: three knocks.';$('endl').textContent='Last Order · Day 2 is coming'}
@@ -581,7 +605,15 @@ async function houseAct(){
 /* ---------- DAY 1 ---------- */
 const NIGHT=/[?&]night/.test(location.search);
 const D={crowd:false,n:0,wipe:0,cups:0,kopi:0,serve:0,sugar:0,bath:0,walking:false};
-const clk=$('clk'),setClock=t=>{clk.textContent=t};
+const clk=$('clk');
+/* Days 2-4 run the night shift (6 PM - 1 AM): old shop-day clock strings are remapped on the fly */
+const dayNo=()=>(/^d([1-5])_/.exec(state)||[])[1]|0;
+function nightClock(t){const m=/^(\d+):(\d\d) (AM|PM)$/.exec(t);if(!m)return t;let h=+m[1];const mi=m[2],ap=m[3];
+  if(ap==='AM'&&h>=6&&h<=11)return ((h+11)%12||12)+':'+mi+' PM';
+  if(ap==='PM'&&h===12)return '11:'+mi+' PM';
+  if(ap==='PM'&&(h===5||h===6))return ((h+7)%12||12)+':'+mi+' AM';
+  return t}
+const setClock=t=>{const d=dayNo();clk.textContent=d>=2&&d<=4?nightClock(t):t};
 /* ---- cinematic cutscenes: bars, auto camera, tap to skip a line ---- */
 const CINE={on:false,skipR:null,skip(){const r=this.skipR;if(r){this.skipR=null;r()}}};
 function csleep(ms){return new Promise(r=>{const t=setTimeout(()=>{CINE.skipR=null;r()},ms);CINE.skipR=()=>{clearTimeout(t);r()}})}
@@ -719,13 +751,56 @@ async function atukAct(){busy=true;A.click();
   if(state==='d1_greet'){await say(sp('ATUK','Eh, late ah today. Customers all waiting outside.'),2800);await say(sp('ATUK','Kopi ready. But the tables nobody wipe. Go go.'),2900);state='d1_chores';setClock('7:10 AM');refreshObj();busy=false;return}
   if(state==='d1_report'){await say(sp('ATUK','Okay lah, not bad. Sit, eat roti bakar first.'),2800);await say(sp('ATUK','Eh, bathroom light kelip-kelip again. Go see.'),2800);state='d1_bath';setClock('10:15 AM');objT('Check the bathroom light');busy=false;return}
   if(state==='d1_back'){await say(sp('ATUK','Fixed? Good boy.'),2200);await say(sp('ATUK','Now sit. Let Atuk look at the customers a while.'),2800);await toEvening();return}
-  if(state==='d1_rule'){await say(sp('ATUK','Dengar ah. Shop tutup now. Tonight, if anybody knock our door...'),3200);await say(sp('ATUK',"Don't open. Don't care who. Don't care what they say."),3200);await say(sp('ATUK','Only three knock. Same like this morning. That one is us. Faham?'),3400);await say(sp('YOU','Faham, Atuk.'),1800);await say(sp('ATUK','Good. Atuk balik dulu. Before you lock: mop the floor, clear the cups, rubbish go out the back.'),3800);if(G.closeInit){state='d1_close';G.closeInit()}else{state='d1_lock';objT('Lock up');setClock('6:00 PM')}busy=false;atukLeave()}}
+  if(state==='d1_rule'){await d1Evening();return}}
 async function toEvening(){busy=true;await say('The day goes by. Kopi, toast, the same faces.',2200);
   $('fade').style.transition='opacity 1.4s';$('fade').style.opacity=1;await sleep(1600);
-  showCrowd(false);atuk.visible=true;atuk.position.set(3.9,0,3.5);atuk.rotation.y=1.0;
+  showCrowd(true);atuk.position.set(3.9,0,3.5);atuk.rotation.y=1.0;
   setTime('dusk');setClock('5:40 PM');P.x=.6;P.z=2.3;P.yaw=-2.14;P.pitch=0;P.tx=null;
   const dc=$('dcard');dc.innerHTML='EVENING<small>5:40 PM</small>';dc.style.opacity=1;await sleep(1800);dc.style.opacity=0;
   $('fade').style.opacity=0;state='d1_rule';objT('Talk to Atuk');busy=false}
+/* ---- Day 1 evening: the hints, the blackout (the crash, unseen), the fuse box, the customers leave ---- */
+async function d1Evening(){
+  await say(sp('ATUK','Still full house, hah. Nobody want go home today.'),2800);
+  await say(sp('YOU','It is nearly six, Atuk. Should I tell them we are closing?'),3000);
+  await say(sp('ATUK','Let them sit. Customers are customers.'),2400);
+  await say(sp('ATUK','See? The kopi still hot. Since morning, never cold.'),3000);
+  await say(sp('YOU','Atuk... what did we do before we opened today?'),2800);
+  await say(sp('ATUK','Hm? ...Cucu. Atuk want to tell you one thing. Whatever happen later, you must not--'),3600);
+  A.tone(190,184,1.1,.04,'sawtooth');await sleep(900);A.tone(190,184,1.6,.05,'sawtooth');await sleep(1000);
+  await d1Blackout()}
+async function d1Blackout(){
+  setTime('night');lightsOffNow();torch.intensity=12;
+  A.rumble();A.tone(46,36,1.8,.32,'sine');try{G.SFX&&G.SFX.play&&G.SFX.play('drone_doom',{g:.5})}catch(_){}
+  CROWD.forEach((c,i)=>{const n=CROWD[(i+1)%CROWD.length];c.rotation.y=Math.atan2(-(n.position.x-c.position.x),-(n.position.z-c.position.z))});
+  await sleep(2800);
+  await say('The whole shop is dark. Nobody screams.',2600);
+  await say('They are all staring at each other.',2600);
+  await say(sp('YOU','Atuk...?'),1500);
+  await say(sp('ATUK','Power cut, cucu. Go check the fuse box. Same place.'),3200);
+  state='d1_fuse';setClock('5:48 PM');objT('Check the fuse box');busy=false}
+async function d1FuseAct(){if(busy||CINE.on)return;busy=true;await cineIn();
+  await camTo(-4.0,.5,yawTo(-4.9,.5),0,800);A.click();
+  await say('The breaker is warm to the touch.',2000);handAct('reach',900);await csleep(500);A.click();
+  torch.intensity=0;await lightsOnNow();setClock('5:55 PM');
+  await camTo(-4.0,.5,yawTo(-1.5,-.5),0,900);
+  await say('The lights are back.',1600);
+  await crowdWake();
+  await camTo(-4.0,.5,yawTo(atuk.position.x,atuk.position.z),0,900);
+  await say(sp('ATUK','Okay. Shop tutup now. Tonight, if anybody knock our door...'),3200);
+  await say(sp('ATUK',"Don't open. Don't care who. Don't care what they say."),3200);
+  await say(sp('ATUK','Only three knock. Same like this morning. That one is us. Faham?'),3400);
+  await say(sp('YOU','Faham, Atuk.'),1800);
+  await say(sp('ATUK','Good. Atuk balik dulu. Before you lock: mop the floor, clear the cups, rubbish go out the back.'),3800);
+  if(G.closeInit){state='d1_close';G.closeInit()}else{state='d1_lock';objT('Lock up');setClock('6:00 PM')}
+  busy=false;atukLeave();await cineOut()}
+async function crowdWake(){
+  await sleep(1500);
+  await Promise.all(QUEUE.map(async(q,i)=>{await sleep(i*1700);pose(q,0,'stand');
+    const path=[...QROUTE[i].slice().reverse(),[-.6,2.6],[-.9+i*.05,4.7],[-1.1,8.5]];let cx=q.position.x,cz=q.position.z;
+    for(const [tx,tz] of path){const dx=tx-cx,dz=tz-cz,L=Math.hypot(dx,dz);if(L<.01)continue;const x0=cx,z0=cz,ry=q.rotation.y,ty=Math.atan2(-dx,-dz),dyy=((ty-ry+Math.PI*3)%(Math.PI*2))-Math.PI;
+      await tween(k=>{q.position.set(x0+dx*k,0,z0+dz*k);q.rotation.y=ry+dyy*Math.min(1,k*5);pose(q,performance.now()/220,'walk')},L/1.25*1000);cx=tx;cz=tz}
+    q.visible=false;pose(q,0,'stand')}));
+  await sleep(600)}
 async function d1Knock(){busy=true;state='d1_knock';await cineIn();
   await camTo(.3,4.6,0,.04,1800);
   handAct('knock',2300);for(let i=0;i<3;i++){A.knock();await sleep(650)}
@@ -789,6 +864,7 @@ let chatT=4,ambT=1;
 function revealCrowd(){if(D.crowd)return;D.crowd=true;CROWD.forEach(c=>c.visible=true)}
 function d1tick(dt){
   for(const f of G.tick)f(dt);
+  CCLED.visible=Math.sin(performance.now()/420)>-.2;
   if(state==='d1_bath'&&!CINE.on){const t=performance.now()/1000;bulbSet(Math.sin(t*23)+Math.sin(t*37)>1.3?.15:.85)}
   {const w=WPS[state];if(w&&w.fn&&!busy&&!CINE.on&&Math.hypot(P.x-w.x,P.z-w.z)<w.r)w.fn()}
   wpTick();
@@ -917,13 +993,13 @@ function frame(t){requestAnimationFrame(frame);const raw=t-last;if(raw<30)return
   update(dt);renderer.render(scene,camera)}
 
 /* ---------- hook for the later days (day2.js ...) ---------- */
-const G={ZONES,AABB,AMB,person,THREE,scene,camera,P,EYE,A,CINE,D,WPS,atuk,CROWD,HOME,QUEUE,FEET,shutter,radio,BULB,STREAM,ALK,stain,cupsD,tick:[],day2:null,day3:null,day4:null,day5:null,stools,fan,
+const G={tm:nightClock,ZONES,AABB,AMB,person,THREE,scene,camera,P,EYE,A,CINE,D,WPS,atuk,CROWD,HOME,QUEUE,FEET,shutter,radio,BULB,STREAM,ALK,stain,cupsD,tick:[],day2:null,day3:null,day4:null,day5:null,stools,fan,
   $,sleep,say,sp,cineIn,cineOut,camTo,yawTo,csleep,tween,handAct,pose,objT,setClock,setTime,applyLights,bulbSet,flicker,tapOn,tapOff,lids,startAlarm,stopAlarm,drawClock,
   showCrowd,drawBoard,day1Props,shutBlock,chWipe,chCups,ctex,isLand,atukLeave,M,B,box,
   AEV,AMBD,get ac(){return ac},get master(){return master},get ambG(){return ambG},
   get state(){return state},set state(v){state=v},get busy(){return busy},set busy(v){busy=v},
   setLights(v){lightsOn=v},setBlur(v){cv.style.transition='filter 1.4s';cv.style.filter=v?'blur(8px)':''}};
-const V=new URL(import.meta.url).search,BUILD='202611273009';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+const V=new URL(import.meta.url).search,BUILD='202611273010';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));

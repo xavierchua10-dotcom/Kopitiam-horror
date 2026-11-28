@@ -109,13 +109,13 @@ async function start(){
   G.haze.style.background='radial-gradient(ellipse at 50% 55%,rgba(170,60,40,.08) 0%,rgba(140,30,22,.5) 100%)';G.haze.style.opacity=1;
   window.__doorG.rotation.y=0;CINE.noclip=true;EYE.y=.62;P.x=14.5;P.z=17.0;P.yaw=0;P.pitch=1.1;P.tx=null;P.fy=null;lids(0,0);G.setBlur(true);
   $('fade').style.transition='opacity 1s';$('fade').style.opacity=1;
-  await card('DAY 4','6:30 AM',2200);
+  await card('DAY 4',G.tm('6:30 AM'),2200);
   await cineIn();
   $('fade').style.transition='opacity 1.4s';$('fade').style.opacity=0;beepLoop();await sleep(2000);
   await lids(.25,600);await sleep(300);await lids(0,260);await sleep(400);G.setBlur(false);await lids(1,1000);
   await camTo(14.5,17.0,0,-.02,1000);
   await say('The alarm is slow now. Steady. Like a machine.',2800);
-  beep=false;setClock('6:55 AM');drawClock(6,55);
+  beep=false;setClock('6:55 AM');drawClock(5,55);
   await say(sp('YOU','...This is not a dream.'),2400);
   await say('Dust on everything. The air tastes of smoke.',2600);
   await Promise.all([tween(k=>{EYE.y=.62+(1.6-.62)*k},1200),camTo(13.1,18.2,Math.PI,0,1200)]);
@@ -188,16 +188,16 @@ async function footage(){
   const cv=$('c'),fov0=G.camera.fov,P0={x:P.x,z:P.z,yaw:P.yaw,pitch:P.pitch},ey0=EYE.y,cl=$('cctime');
   /* hide the real, wrecked shop; show a clean one */
   CROWD.forEach(c=>c.visible=false);atuk.visible=false;RED.visible=false;G.goreVis&&G.goreVis(false);setWreck(false);
-  G.haze.style.opacity=0;setTime('day');applyLights(1);bulbSet(1);
+  G.haze.style.opacity=0;setTime('dusk',1);applyLights(1);bulbSet(1);
   FAKE.crowd.forEach((c,i)=>{c.visible=true;c.position.set(HOME[i][0],0,HOME[i][1]);c.rotation.set(0,HOME[i][2],0);pose(c,0,'sit')});
   const me=FAKE.me,ak=FAKE.atuk;me.visible=ak.visible=true;me.position.set(2.9,0,2.7);me.rotation.set(0,-2.4,0);ak.position.set(3.9,0,3.5);ak.rotation.set(0,1.0,0);pose(ak,0,'stand');pose(me,0,'stand');
   LOR.position.set(0,0,14);LOR.visible=true;FAKE.fl.intensity=0;
-  const tm=(s)=>{cl.textContent='12:'+(40+((51+s)/60|0))+':'+String(Math.floor(51+s)%60).padStart(2,'0')};tm(0);
+  const tm=(s)=>{cl.textContent='17:'+(47+((51+s)/60|0))+':'+String(Math.floor(51+s)%60).padStart(2,'0')};tm(0);
   cv.style.transition='none';cv.style.filter='grayscale(.78) contrast(1.15) brightness(1.1)';
   G.camera.fov=72;G.camera.updateProjectionMatrix();
   P.x=3.0;P.z=-3.5;EYE.y=2.75;P.yaw=Math.atan2(2.6,-7.2);P.pitch=-.2;CINE.noclip=true;
   cc.style.opacity=1;await csleep(600);
-  /* 1: a normal morning, you are serving coffee */
+  /* 1: the last normal minutes: you and Atuk talking at the counter, the customers still in their seats */
   await tween(k=>{tm(k*8);const t=performance.now()/1000;const u=me.userData;u.aR&&(u.aR.up=1.1+Math.sin(t*3)*.35);FAKE.crowd.forEach((c,i)=>{const q=c.userData;q.aR&&(q.aR.up=.7+Math.max(0,Math.sin(t*1.2+i*1.7))*.6)})},3600);
   /* 2: headlights through the shutter */
   A.tone(55,70,2.4,.18,'sawtooth');
@@ -232,7 +232,7 @@ async function newsScene(){
   await camTo(3.9,.5,yawTo(4.9,.5),.27,1400);
   G.tvSet('static');A.static(.25);await csleep(900);
   G.tvSet('crash');A.static(.05);await csleep(500);
-  await newsLine('Breaking news. This morning, a lorry lost control and crashed into a kopitiam on Jalan Besar. This is CCTV from inside the shop.',4600);
+  await newsLine('Breaking news. This evening, a lorry lost control and crashed into a kopitiam on Jalan Besar. This is CCTV from inside the shop.',4600);
   A.static(0);await footage();
   G.tvSet('static');A.static(.3);await csleep(900);G.tvSet('crash');A.static(.05);
   await newsLine('The lorry burst into flames. The driver survived and is in police custody.',3600);

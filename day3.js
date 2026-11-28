@@ -136,7 +136,7 @@ async function start(){
   atuk.position.set(3.9,0,3.5);atuk.rotation.y=1.0;pose(atuk,0,'stand');FEET.visible=false;
   window.__doorG.rotation.y=0;CINE.noclip=true;EYE.y=.62;P.x=14.5;P.z=17.0;P.yaw=0;P.pitch=1.1;P.tx=null;P.fy=null;lids(0,0);G.setBlur(true);
   $('fade').style.transition='opacity 1s';$('fade').style.opacity=1;
-  await card('DAY 3','6:30 AM',2200);
+  await card('DAY 3',G.tm('6:30 AM'),2200);
   await cineIn();haze.style.opacity=1;
   $('fade').style.transition='opacity 1.2s';$('fade').style.opacity=0;startAlarm();await sleep(1600);
   await lids(.2,500);await sleep(240);await lids(0,220);await sleep(300);await lids(.6,560);await lids(0,200);await sleep(200);
@@ -145,7 +145,7 @@ async function start(){
   handAct('knock',900);await sleep(480);A.click();stopAlarm();await sleep(500);
   await say(sp('YOU','...A dream. There was fire. Everyone was...'),2800);
   await say(sp('YOU','Just a dream.'),1500);
-  setClock('6:55 AM');drawClock(6,55);await say(sp('YOU','6:55.'),1300);
+  setClock('6:55 AM');drawClock(5,55);await say(sp('YOU','5:55.'),1300);
   await say('A faint smell of smoke.',2200);
   await Promise.all([tween(k=>{EYE.y=.62+(1.6-.62)*k},1200),camTo(13.1,18.2,Math.PI,0,1200)]);
   EYE.y=1.6;CINE.noclip=false;await cineOut();
@@ -244,7 +244,7 @@ let ci=0;
 const Y=t=>say(sp('YOU',t),2200);
 const LK=[
  {obj:'Ask Mak Cik Salmah',m:[-2.2,-2.6],c:1,pit:-.45,clk:'8:05 AM',run:async c=>{await Y('Mak Cik... your hand. Are you okay?');await say('"Teh tarik, adik. Panas-panas."',2600,c);await say('She slides her hand under the table. A shiny red mark, up to the wrist.',3000)}},
- {obj:'Ask Ah Seng',m:[-2.15,-.85],c:0,pit:-.55,clk:'8:40 AM',run:async c=>{await Y('Ah Seng, your watch stopped.');await say('"Teh-C peng."',2200,c);await say('The hands are frozen at 12:41.',2600)}},
+ {obj:'Ask Ah Seng',m:[-2.15,-.85],c:0,pit:-.55,clk:'8:40 AM',run:async c=>{await Y('Ah Seng, your watch stopped.');await say('"Teh-C peng."',2200,c);await say('The hands are frozen at 5:48.',2600)}},
  {obj:'Ask Mei Ling',m:[-.9,1.15],c:4,pit:-.3,clk:'9:50 AM',run:async c=>{await Y('Mei Ling, how is your daughter?');await say('"Her birthday is next week. I must buy a cake..."',3000,c);await say('"Milo dinosaur."',1800,c);await say('She said "next week" yesterday too.',2600);await say(sp('YOU','It is just a bad dream. It has to be.'),2600)}}];
 WPS.d3_look={get x(){return LK[Math.min(ci,LK.length-1)].m[0]},get z(){return LK[Math.min(ci,LK.length-1)].m[1]},r:.6,go:1,get fn(){return lookRun}};
 async function lookRun(){if(G.busy||CINE.on)return;G.busy=true;const k=LK[ci],c=CROWD[k.c];A.click();await cineIn();

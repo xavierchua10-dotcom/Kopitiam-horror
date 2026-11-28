@@ -57,7 +57,7 @@ async function greet(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
 const CUP={tehc:[0xe6c8a0,.13],tarik:[0xd9b88a,.1],kopio:[0x2a1a10,.09],kopi:[0x2a1a10,.09],milo:[0x6a4a30,.13]};
 const LAST=[
  {obj:'Take Ah Seng\'s order',m:[-2.15,-.85],c:0,pit:-.4,clk:'7:40 AM',cup:'tehc',cp:[-3.12,-1.5],it:'watch',nm:'AH SENG',
-  L:[['AH SENG','"Teh-C peng, please. Last one, ya?"'],['YOU','Last one, Ah Seng.'],['AH SENG','"Cold. Just how I like it. ...You know, 12:41 never bothered me. Time was only tired."'],['YOU','Thank you for every morning.'],['AH SENG','"Eh, do not cry. Go and wake up, boy."']]},
+  L:[['AH SENG','"Teh-C peng, please. Last one, ya?"'],['YOU','Last one, Ah Seng.'],['AH SENG','"Cold. Just how I like it. ...You know, 5:48 never bothered me. Time was only tired."'],['YOU','Thank you for every morning.'],['AH SENG','"Eh, do not cry. Go and wake up, boy."']]},
  {obj:'Take Mak Cik\'s order',m:[-2.2,-2.6],c:1,pit:-.4,clk:'8:30 AM',cup:'tarik',cp:[-2.85,-2.1],it:'glass',nm:'MAK CIK',
   L:[['MAK CIK','"Teh tarik, adik. Panas-panas."'],['YOU','Not too hot this time, Mak Cik.'],['MAK CIK','"Your Atuk pulled it higher than anyone. Do not forget how."'],['YOU','I will not.'],['MAK CIK','"Good boy. My arm does not hurt anymore."']]},
  {obj:'Take Raj\'s order',m:[-2.15,.45],c:2,pit:-.4,clk:'9:20 AM',cup:'kopio',cp:[-3.0,.95],it:'shoe',nm:'RAJ',
@@ -118,6 +118,8 @@ async function atukLast(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
   /* Atuk's goodbye */
   await camTo(P.x,P.z,yawTo(CA.position.x,CA.position.z),.02,1100);
   await say(sp('ATUK','That was the last one.'),2400);
+  await say(sp('ATUK','That evening, Atuk never finish what Atuk want to say.'),3200);
+  await say(sp('ATUK','Whatever happen, cucu... do not be angry.'),3200);
   await say(sp('ATUK','You did well, cucu. Atuk is proud.'),2800);
   await say(sp('YOU','Atuk... I do not want to go.'),2600);
   await say(sp('ATUK','I know, cucu. But your mama is waiting. Somebody is holding your hand.'),3600);

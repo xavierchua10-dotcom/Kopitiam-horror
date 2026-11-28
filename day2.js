@@ -25,15 +25,15 @@ async function start(){
   atuk.position.set(3.9,0,3.5);atuk.rotation.y=1.0;pose(atuk,0,'stand');FEET.visible=false;
   window.__doorG.rotation.y=0;CINE.noclip=true;EYE.y=.62;P.x=14.5;P.z=17.0;P.yaw=0;P.pitch=1.1;P.tx=null;P.fy=null;lids(0,0);G.setBlur(true);
   $('fade').style.transition='opacity 1s';$('fade').style.opacity=1;
-  await card('DAY 2','6:30 AM',2200);
+  await card('DAY 2',G.tm('6:30 AM'),2200);
   await cineIn();
   $('fade').style.transition='opacity 1.2s';$('fade').style.opacity=0;startAlarm();await sleep(1600);
   await lids(.2,500);await sleep(240);await lids(0,220);await sleep(300);await lids(.6,560);await lids(0,200);await sleep(200);
   G.setBlur(false);await lids(1,800);
   await camTo(14.5,17.0,0,-.02,1000);
   handAct('knock',900);await sleep(480);A.click();stopAlarm();await sleep(500);
-  setClock('6:55 AM');drawClock(6,55);await say(sp('YOU','6:55.'),1400);
-  await say(sp('YOU','Same as yesterday. Exactly.'),2200);
+  setClock('6:55 AM');drawClock(5,55);await say(sp('YOU','5:55.'),1400);
+  await say(sp('YOU','Atuk said six. It is already dark outside.'),2400);
   await Promise.all([tween(k=>{EYE.y=.62+(1.6-.62)*k},1200),camTo(13.1,18.2,Math.PI,0,1200)]);
   EYE.y=1.6;CINE.noclip=false;await cineOut();
   G.state='d2_go';objT('Go to the kopitiam');G.busy=false}
