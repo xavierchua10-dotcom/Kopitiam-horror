@@ -511,6 +511,7 @@ function npcTick(dt){for(const g of NPCS){if(!g.visible)continue;const u=g.userD
   u.head.rotation.y+=(tgt-u.head.rotation.y)*Math.min(1,dt*5);u.head.rotation.x=tgt?.06:0;
   let m=0;const tk=u.talk;if(tk){const t=(performance.now()-tk.t0)/1000;if(t>tk.end+.2)u.talk=null;else for(const [st,dd,a] of tk.syl){if(t>=st&&t<=st+dd){m=Math.sin((t-st)/dd*Math.PI)*a;break}}}
   u.mouth.visible=m>.08;u.mouth.scale.y=.08+m;u.mouth.scale.x=1.5-m*.3}}
+let lastNpc=null,lastNpcT=0;
 const NCOL={'YOU':'#bfe3ff','ATUK':'#f2b531','AH SENG':'#7fe0a8','MAK CIK':'#ff9fc0','RAJ':'#ffb26b','PAK HASSAN':'#c4a6ff','MEI LING':'#ff7f7f','DRIVER':'#b8b8b8'};
 const TR=[['kopi-o kurang manis, ya?','Black coffee, less sugar, yes?'],['kopi-o kurang manis','Black coffee, less sugar.'],['kopi, roti bakar. kurang butter.','Coffee, toast. Less butter.'],['teh tarik, adik. panas-panas.','Pulled tea, young one. Piping hot.'],['teh-c peng','Iced tea with milk.'],['faham, atuk','Understood, Atuk.'],['faham?','Understood?'],['atuk balik dulu','Atuk is going home first.'],['siapa tu?','Who is it?'],['belum buka lagi ke?','Not open yet?'],['petrol naik lagi, you tau?','Petrol went up again, you know?'],['semalam punya bola, tak tengok ke?',"Last night's football, you didn't watch?"],['roti bakar sini memang best.','The toast here is really the best.'],['dulu satu roti bakar, lima puluh sen je.','Before, one toast was only fifty sen.'],['panas betul hari ni.','So hot today.'],['kopi sini sama macam dulu-dulu.','The coffee here is the same as always.'],['kopi sini sama macam dulu','The coffee here is the same as before.'],['adik, rajin betul. seorang je jaga ke?','Young one, so hardworking. Looking after it alone?'],['boss, cepat sikit boleh? nak pergi kerja.','Boss, can you hurry a bit? I need to go to work.'],['eh, gula habis ke?','Eh, is the sugar finished?'],['tidur cepat','Sleep early.'],['jangan buka','Do not open.'],['jangan jawab','Do not answer.'],['dengar ah','Listen.'],['dia datang! lari, cucu! lari!',"He's coming! Run, grandchild! Run!"],['cucu! tolong! tolong!','Grandchild! Help! HELP!'],['cucu... tolong...','Grandchild... help...'],['maaf... tolong... buka pintu...','Sorry... help... open the door...'],['buka! buka pintu!','OPEN! OPEN THE DOOR!'],['sebuah lori hilang kawalan dan melanggar sebuah kedai kopi di jalan','a lorry lost control and crashed into a coffee shop on Jalan'],['balik rumah','Go home.'],['terima kasih','Thank you.'],['maaf','Sorry.'],['bangun','Wake up.'],['masuk','Come in.'],['tutup','closed'],
 ['eh... dah pukul berapa?','Eh... what time is it?'],['dah lewat... anak saya tunggu.','It is late... my child is waiting.'],['bos... kopi saya belum habis.',"Boss... my coffee isn't finished."],['muka surat tujuh... belum sempat.',"Page seven... haven't got to it yet."],['saya kena balik. hari jadi anak saya.',"I have to go home. It's my child's birthday."],['hati-hati balik, ya.','Take care going home, okay?']].sort((a,b)=>b[0].length-a[0].length);
@@ -520,8 +521,9 @@ function transOf(t){let w=t.toLowerCase().replace(/[“”"]/g,'').replace(/\s+/
   return out.map(([k,v])=>whole?v:'“'+k+'” = '+v).join(' · ')}
 async function say(t,ms=2600,who){const s=$('sub');{const w=t.startsWith('ATUK:')?atuk:who;if(w&&w.visible)speak(w,Math.max(.8,Math.min(ms/1000-.4,t.length*.06)),w.userData.f0,Math.max(.15,Math.min(1,2.2/(1+Math.hypot(P.x-w.position.x,P.z-w.position.z)))))}const mm=/^([A-Z][A-Z ]{1,11})(?:>([A-Z][A-Z ]{0,11}))?: (.*)$/.exec(t),nm=who&&NAMEOF.get(who);let nme=null,body=t,tgt=null;if(mm){nme=mm[1];tgt=mm[2]||null;body=mm[3]}else if(nm)nme=nm;
   if(nme==='ATUK'&&!tgt)tgt='YOU';
-  let self=false;if(nme==='YOU'&&!tgt){if(/^\.*Atuk(\.\.\.|\?|,)/.test(body)||/,\s*Atuk[.?!,]/.test(body))tgt='ATUK';else if(!/^[^a-z]*[A-Z]{3,}[^a-z]*$/.test(body))self=true}
-  const tr=transOf(body),esc=x=>x.replace(/&/g,'&amp;').replace(/</g,'&lt;'),col=nme&&(NCOL[nme]||'var(--acc)'),tl=tgt==='YOU'?'you':tgt==='ALL'?'everyone':tgt?tgt.charAt(0)+tgt.slice(1).toLowerCase():'';
+  let self=false;if(nme==='YOU'&&!tgt){if(/^\.*Atuk(\.\.\.|\?|,)/.test(body)||/,\s*Atuk[.?!,]/.test(body))tgt='ATUK';else{const cm=/(Mak Cik|Ah Seng|Mei Ling|Raj|Pak Hassan)/.exec(body);if(cm)tgt=cm[1].toUpperCase();else if(/^d(3_look|4_find|5_serve)/.test(state)&&lastNpc&&performance.now()-lastNpcT<30000)tgt=lastNpc;else if(!/^[^a-z]*[A-Z]{3,}[^a-z]*$/.test(body))self=true}}
+  const tr=transOf(body),esc=x=>x.replace(/&/g,'&amp;').replace(/</g,'&lt;'),col=nme&&(NCOL[nme]||'var(--acc)'),tl=tgt==='YOU'?'you':tgt==='ALL'?'everyone':tgt?tgt.toLowerCase().replace(/(^|\s)\w/g,m=>m.toUpperCase()):'';
+  if(nme&&nme!=='YOU'&&nme!=='ATUK'&&NAMEOF.size&&[...NAMEOF.values()].includes(nme)){lastNpc=nme;lastNpcT=performance.now()}
   s.className='';s.classList.toggle('nar',!nme);s.classList.toggle('self',self);
   s.innerHTML=(nme&&!self?'<b style="color:'+col+'">'+nme+(tl?'<span class="to"> to '+tl+'</span>':'')+'</b>':'')+(self?'<span class="sf">('+esc(body)+')</span>':esc(body))+(tr?'<i>'+esc(tr)+'</i>':'');s.dataset.k=t;s.classList.add('on');if(tr)ms+=900;await(CINE.on?csleep(ms):sleep(ms));if(s.dataset.k===t)s.classList.remove('on')}
 const ITS=[];const lab=o=>typeof o.label==='function'?o.label():o.label;
@@ -553,10 +555,10 @@ async function cineLock(){if(busy||CINE.on||D.walking)return;busy=true;await cin
   handAct('lift',2000);A.scrape();await tween(k=>{shutter.position.y=3.6-2.4*k;P.pitch=.1-.25*k},1800);shutBlock(true);
   A.click();handAct('reach',1200);await say('You pull the padlock through. Click.',2200);
   await camTo(.3,5.2,yawFrom(.3,5.2,6.1,14),0,1200);
-  state='d1_home';window.__doorG.rotation.y=0;setClock('6:10 PM');objT('Go home');busy=false;await cineOut()}
+  state='d1_home';window.__doorG.rotation.y=0;setClock('6:45 PM');objT('Go home');busy=false;await cineOut()}
 async function shutterAct(){A.click();
   if(state==='d1_open'){busy=true;A.shutter();shutBlock(false);atuk.visible=true;await tween(k=>{shutter.position.y=1.2+2.4*k},1700);state='d1_greet';setClock('7:02 AM');objT('Talk to Atuk');busy=false;queueIn();say('Warm air. Toast. The queue shuffles in behind you.',2800);return}
-  if(state==='d1_lock'){if(P.z<4.3){say('Lock up from the outside.',2200);return}busy=true;A.shutter();await tween(k=>{shutter.position.y=3.6-2.4*k},1700);shutBlock(true);A.jiggle();await sleep(1200);A.click();await say('You pull the padlock through. Click.',2400);state='d1_home';window.__doorG.rotation.y=0;setClock('6:10 PM');objT('Go home');busy=false;return}
+  if(state==='d1_lock'){if(P.z<4.3){say('Lock up from the outside.',2200);return}busy=true;A.shutter();await tween(k=>{shutter.position.y=3.6-2.4*k},1700);shutBlock(true);A.jiggle();await sleep(1200);A.click();await say('You pull the padlock through. Click.',2400);state='d1_home';window.__doorG.rotation.y=0;setClock('6:45 PM');objT('Go home');busy=false;return}
   busy=true;await say('It will not come down. Like something is holding it from outside.',2800);busy=false}
 /* ---- Day 1 ending cutscene: knock, Atuk opens, step in, the fourth knock ---- */
 const FEET=new THREE.Group();FEET.visible=false;scene.add(FEET);
@@ -1032,7 +1034,7 @@ const G={tm:nightClock,yawFrom,ZONES,AABB,AMB,person,THREE,scene,camera,P,EYE,A,
   AEV,AMBD,get ac(){return ac},get master(){return master},get ambG(){return ambG},
   get state(){return state},set state(v){state=v},get busy(){return busy},set busy(v){busy=v},
   setLights(v){lightsOn=v},setBlur(v){cv.style.transition='filter 1.4s';cv.style.filter=v?'blur(8px)':''}};
-const V=new URL(import.meta.url).search,BUILD='202611273019';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+const V=new URL(import.meta.url).search,BUILD='202611273020';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));

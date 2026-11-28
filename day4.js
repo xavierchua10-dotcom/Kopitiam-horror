@@ -100,7 +100,7 @@ G.tick.push(()=>{if(!FFR)return;const t=performance.now()/1000;for(const f of FI
 let beep=false,atukMats=[];
 async function beepLoop(){beep=true;while(beep){A.tone(900,900,.14,.1,'sine');await sleep(1250)}}
 async function start(){
-  G.busy=true;G.state='d4_intro';
+  G.busy=true;G.state='d4_intro';objT('');
   setTime('dusk');G.setLights(true);applyLights(1);bulbSet(1);tapOff();setClock('6:30 AM');
   shutter.position.y=3.6;shutBlock(false);drawBoard(5);day1Props(true);G.tvSet('off');G.FIG.visible=false;
   G.details();G.gore();buildRed();RED.visible=true;
@@ -137,7 +137,7 @@ async function greet(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
   await say(sp('YOU','Atuk, what happened to the shop?'),2200);
   await csleep(900);
   await say(sp('ATUK','Which shop? ...Same like always.'),2600);
-  await say(sp('YOU','Look around!'),1600);
+  await say(sp('YOU>ATUK','Look around!'),1600);
   await say(sp('ATUK','...Don\'t look too long, cucu.'),2600);
   await camTo(P.x,P.z,0,0,600);
   G.state='d4_look';setClock('12:30 PM');objT('Look at the customers');G.busy=false;await cineOut()}
@@ -255,7 +255,7 @@ async function newsScene(){
    const look=(x,z,ms=500)=>camTo(P.x,P.z,yawTo(x,z),0,ms);
    await look(0,5,600);
    await flicker([.1,0,.2]);applyLights(.45);FIG.position.set(.2,0,13.5);FIG.rotation.y=Math.PI;FIG.visible=true;cry();
-   await say('...maaf...',1800);
+   await say(sp('DRIVER','...maaf...'),1800);
    await flicker([0,.3,0,.2]);applyLights(.35);FIG.position.set(.1,0,7.8);cry();await csleep(700);
    await flicker([0,0,.3,0]);applyLights(.3);FIG.position.set(-.4,0,-3.0);FIG.rotation.y=0;
    await look(-.4,-3.0,350);A.sting();

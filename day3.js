@@ -130,7 +130,7 @@ function goreDetails(){if(goreDone)return;goreDone=true;
 
 /* ---------- opening: same alarm, with smoke ---------- */
 async function start(){
-  G.busy=true;G.state='d3_intro';
+  G.busy=true;G.state='d3_intro';objT('');
   setTime('day');G.setLights(true);applyLights(1);bulbSet(1);tapOff();setClock('6:30 AM');
   shutter.position.y=3.6;shutBlock(false);drawBoard(3);day1Props(true);tvSet('off');FIG.visible=false;details();
   showCrowd(true);D.crowd=true;CROWD.forEach((c,i)=>{c.position.set(HOME[i][0],0,HOME[i][1]);c.rotation.y=HOME[i][2];pose(c,0,'sit')});

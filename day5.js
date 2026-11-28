@@ -20,7 +20,7 @@ function cast(){if(CL)return;const pp=G.person;
 
 /* ---------- opening: no beep, no smoke ---------- */
 async function start(){
-  G.busy=true;G.state='d5_intro';
+  G.busy=true;G.state='d5_intro';objT('');
   G.unwreck&&G.unwreck();G.goreVis&&G.goreVis(false);G.haze.style.opacity=0;G.haze.style.background='';
   G.FIG.visible=false;(G.d4meshes||[]).forEach(m=>m.visible=false);
   setTime('day');G.setLights(true);applyLights(1);bulbSet(1);tapOff();setClock('6:30 AM');
@@ -87,7 +87,7 @@ async function serveRun(){if(G.busy||CINE.on)return;G.busy=true;const k=LAST[ci]
   await tween(t=>{fadeP(c,1-t)},2600);c.visible=false;A.tone(660,330,1.2,.08,'sine');
   await csleep(900);
   ci++;setClock(k.clk);
-  if(ci>=LAST.length){G.state='d5_door';setTime('dusk');applyLights(.7);setClock('5:40 PM');
+  if(ci>=LAST.length){G.state='d5_door';setTime('dusk');applyLights(.7);setClock('5:40 PM');objT('Answer the knock');
     /* the shop empties. the shutter comes down by itself, and someone knocks. Atuk is already standing by it. */
     CA.position.set(1.5,0,3.1);CA.rotation.y=Math.PI;
     await csleep(900);(A.shutter||A.scrape)();await tween(k=>{shutter.position.y=3.6-2.4*k},1800);shutBlock(true);

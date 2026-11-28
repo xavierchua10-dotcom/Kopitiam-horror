@@ -19,7 +19,7 @@ const card=async(h,sm,ms=2400)=>{const dc=$('dcard');dc.innerHTML=h+'<small>'+sm
 
 /* ---------- opening: same alarm, same minute ---------- */
 async function start(){
-  G.busy=true;G.state='d2_intro';
+  G.busy=true;G.state='d2_intro';objT('');
   setTime('day');G.setLights(true);applyLights(1);bulbSet(1);tapOff();setClock('6:30 AM');crack.visible=false;
   shutter.position.y=3.6;shutBlock(false);drawBoard(2);day1Props(true);
   showCrowd(true);D.crowd=true;CROWD.forEach((c,i)=>{c.position.set(HOME[i][0],0,HOME[i][1]);c.rotation.y=HOME[i][2];pose(c,0,'sit')});
