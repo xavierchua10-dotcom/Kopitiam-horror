@@ -163,8 +163,9 @@ let lkDone=false;const LKX=3.8,LKZ=-4.75;
 async function lockStare(cine){
   if(lkDone)return;lkDone=true;const F=G.FIG,was=G.busy;G.busy=true;
   F.position.set(LKX,0,LKZ);F.rotation.y=yawFrom(LKX,LKZ,P.x,P.z)+Math.PI;
+  F.visible=true;
   if(cine)await camTo(P.x,P.z,yawFrom(P.x,P.z,LKX,LKZ),0,900);
-  F.visible=true;try{G.AMB.duck(4000)}catch(_){}A.tone(48,40,2.2,.14,'sine');
+  try{G.AMB.duck(4000)}catch(_){}A.tone(48,40,2.2,.14,'sine');
   await csleep(2200);
   await say(sp('YOU>HIM','We... we are closing.'),2200);
   await csleep(500);
@@ -172,8 +173,12 @@ async function lockStare(cine){
   await say(sp('YOU','...Did I not sleep enough?'),2600);
   G.busy=was}
 G.lockStare=lockStare;
+G.lockReveal=()=>{if(!lkDone){G.FIG.position.set(LKX,0,LKZ);G.FIG.visible=true}};
 G.tick.push(dt=>{
   if(G.state!=='d1_lock'||lkDone||CINE.on||G.busy)return;
+  {const F=G.FIG,d=Math.hypot(P.x-LKX,P.z-LKZ);let a=Math.atan2(-(LKX-P.x),-(LKZ-P.z))-P.yaw;a=Math.abs(Math.atan2(Math.sin(a),Math.cos(a)));
+   if(!F.visible&&d>6&&a>1.0){F.position.set(LKX,0,LKZ);F.visible=true}   /* it is already standing there before you ever turn */
+   if(F.visible)F.rotation.y=Math.atan2(P.x-LKX,P.z-LKZ)}
   if(P.z<2.0||P.z>4.6)return;
   const dy=Math.abs(Math.atan2(Math.sin(P.yaw),Math.cos(P.yaw)));
   if(dy<.6)lockStare(false)});
