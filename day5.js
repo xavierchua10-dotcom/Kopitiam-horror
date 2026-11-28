@@ -28,7 +28,7 @@ async function start(){
   CROWD.forEach(c=>c.visible=false);atuk.visible=false;FEET.visible=false;D.crowd=true;cast();
   window.__doorG.rotation.y=0;CINE.noclip=true;EYE.y=.62;P.x=14.5;P.z=17.0;P.yaw=0;P.pitch=1.1;P.tx=null;P.fy=null;lids(0,0);
   $('fade').style.transition='opacity 1s';$('fade').style.opacity=1;
-  await card('DAY 5','Last Order',2600);
+  await G.dayCard(5,'5:48 PM',2800);
   await cineIn();
   $('fade').style.transition='opacity 1.8s';$('fade').style.opacity=0;await sleep(2000);
   await lids(.3,900);await lids(1,1400);

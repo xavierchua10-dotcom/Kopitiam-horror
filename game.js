@@ -970,7 +970,7 @@ async function beginDay1(){
   shutter.position.y=1.2;shutBlock(true);showCrowd(false);D.crowd=false;QUEUE.forEach((q,i)=>{q.visible=true;q.position.set(QPOS[i][0],0,QPOS[i][1]);q.rotation.y=QPOS[i][2];pose(q,0,'stand')});drawBoard(1);day1Props(true);
   P.x=13;P.z=17.4;P.yaw=Math.PI/2;P.pitch=0;P.tx=null;
   window.__doorG.rotation.y=0;if(AABB.indexOf(DOORBLK)<0)AABB.push(DOORBLK);
-  state='d1_intro';const dc=$('dcard');dc.innerHTML='DAY 1<small>6:30 AM</small>';dc.style.opacity=1;await sleep(2600);dc.style.opacity=0;
+  state='d1_intro';await dayCard(1,'6:30 AM',2800);
   if(/[?&]skipwake/.test(location.search)){setClock('6:55 AM');$('fade').style.transition='opacity 1.6s';$('fade').style.opacity=0;P.x=13.1;P.z=18.2;P.yaw=Math.PI}else await wakeUp();
   state='d1_go';objT('Go to the kopitiam');$('hint').textContent=isLand()?'Left thumb: move · Right thumb: look':'Tap the floor to walk · drag to look';$('hint').classList.add('on');setTimeout(()=>$('hint').classList.remove('on'),8000);
   setTimeout(()=>{if(state==='d1_go')say("Atuk's bed is empty. He always opens the shop early.",3200)},1500)}
@@ -1120,7 +1120,11 @@ function regDoor(g,closed,open,pos,aabb,lock){const d={g,closed,open,aabb,anim:f
   d.it=it('door'+n,[pos[0],1.2,pos[1]],()=>Math.abs(g.rotation.y-closed)<.3?'Open the door':'Close the door',()=>!busy&&!CINE.on&&!d.anim&&!(lock&&lock()),()=>toggleDoor(d),[g]);
   d.it.noMark=true;HMODE['door'+n]=['reach',700];ICF['door'+n]='knock';DOORS.push(d);return d}
 function doorTick(){for(const d of DOORS){const closed=Math.abs(d.g.rotation.y-d.closed)<.3;if(closed&&!d.inb){AABB.push(d.aabb);d.inb=true}else if(!closed&&d.inb){const i=AABB.indexOf(d.aabb);if(i>=0)AABB.splice(i,1);d.inb=false}}}
-const G={KC,flo,wall,doorLeaf,regDoor,tm:nightClock,yawFrom,ZONES,AABB,AMB,person,THREE,scene,camera,P,EYE,A,CINE,D,WPS,atuk,CROWD,HOME,QUEUE,FEET,shutter,radio,BULB,STREAM,ALK,stain,cupsD,tick:[],day2:null,day3:null,day4:null,day5:null,stools,fan,
+/* day title cards (horror style); every day calls this */
+async function dayCard(n,tm,ms=2600){const T=['','Opening','Again','The Knock','The Fire','Goodbye'],S=['','A NORMAL DAY','SOMETHING IS WRONG','DO NOT ANSWER','FIND WHAT IS LEFT','ONE LAST ORDER'],el=$('dday');
+  el.className=n===5?'five':'';el.innerHTML=`<i class="bgi" style="background-image:url(cards/d${n}.jpg)"></i><b class="bar"></b><b class="bar b"></b><div class="ct"><div class="k">DAY</div><div class="n" data-t="${n}">${n}</div><div class="t">${T[n]}</div><div class="s">${S[n]}</div></div><div class="cl">${tm}</div>`;
+  el.style.opacity=1;await sleep(ms);el.style.opacity=0}
+const G={dayCard,KC,flo,wall,doorLeaf,regDoor,tm:nightClock,yawFrom,ZONES,AABB,AMB,person,THREE,scene,camera,P,EYE,A,CINE,D,WPS,atuk,CROWD,HOME,QUEUE,FEET,shutter,radio,BULB,STREAM,ALK,stain,cupsD,tick:[],day2:null,day3:null,day4:null,day5:null,stools,fan,
   $,sleep,say,sp,cineIn,cineOut,camTo,yawTo,csleep,tween,handAct,pose,objT,setClock,setTime,applyLights,bulbSet,flicker,tapOn,tapOff,lids,startAlarm,stopAlarm,drawClock,
   showCrowd,drawBoard,day1Props,shutBlock,chWipe,chCups,chStock,chRefill,DRINKS,SERVED,mkDrink,svDrink,ctex,isLand,atukLeave,M,B,box,
   AEV,AMBD,get ac(){return ac},get master(){return master},get ambG(){return ambG},
@@ -1296,7 +1300,7 @@ let FXM='auto';try{const v=localStorage.lo_fx;if(v==='full'||v==='off')FXM=v}cat
    const r=new THREE.BufferGeometry();r.setAttribute('position',new THREE.Float32BufferAttribute(p,3));r.setAttribute('normal',new THREE.Float32BufferAttribute(n,3));r.setAttribute('uv',new THREE.Float32BufferAttribute(u,2));r.setIndex(ix);return r};
  const MATS={trim:TRIM,dark:DARK,win:WIN,int:INT};
  for(const k in L){if(!L[k].length)continue;const m=new THREE.Mesh(merge(L[k]),MATS[k]);m.userData.noSoot=true;m.name='thick_'+k;scene.add(m)}}
-const V=new URL(import.meta.url).search,BUILD='202611290530';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+const V=new URL(import.meta.url).search,BUILD='202611290552';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));
