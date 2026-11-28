@@ -513,13 +513,13 @@ const AMB={duck(ms){if(!ac||!ambG)return;const t=ac.currentTime;ambG.gain.cancel
   ev(k){if(AEV[k])AEV[k](1,Math.random()<.5?-.6:.6)}};
 
 /* ---------- lights ---------- */
-let lightF=0,lightsOn=false,TIME='night',AB=.02,AK=.4,SK=26,HK=16,LK=8;
+let DIM=1,lightF=0,lightsOn=false,TIME='night',AB=.02,AK=.4,SK=26,HK=16,LK=8;
 const SKY={day:{bg:0xb4d2e6,fd:.012,amb:0xf2f5fa,ab:1.5,ak:.15,sk:0,hk:2,lk:2,lamp:0,star:0,drone:.012},
  dusk:{bg:0xc9805e,fd:.026,amb:0xffc4a0,ab:.8,ak:.2,sk:10,hk:8,lk:4,lamp:.6,star:0,drone:.03},
  night:{bg:0x05070a,fd:.075,amb:0x6070a0,ab:.02,ak:.4,sk:26,hk:16,lk:8,lamp:1,star:1,drone:.05}};
 function setTime(t,raw){{const d=(/^d([1-5])_/.exec(state)||[])[1]|0;if(!raw&&d>=2&&d<=4&&(t==='day'||t==='dusk'))t='night'}TIME=t;const k=SKY[t];LAMPK=k.lamp;scene.background.setHex(k.bg);scene.fog.density=k.fd;if(t!=='night')scene.fog.color.setHex(k.bg);amb.color.setHex(k.amb);AB=k.ab;AK=k.ak;SK=k.sk;HK=k.hk;LK=k.lk;
  GLOWS.forEach(g=>{g.visible=k.lamp>0;g.material.opacity=k.lamp});if(DOME){DOME.visible=t!=='night';if(SKYT[t]){DOME.material.map=SKYT[t];DOME.material.needsUpdate=true}}STARS.visible=MOON.visible=k.star>0;if(droneG)droneG.gain.value=k.drone;applyLights(lightF)}
-function applyLights(f){lightF=f;POOLS.forEach(p=>{p.m.material.opacity=p.b*(p.st?LAMPK:Math.min(1,f)*({day:.22,dusk:.7,night:1})[TIME])});{const k=(.16+.3*Math.min(1,f))*({day:1,dusk:.6,night:.2})[TIME];HCEIL.color.setRGB(.81*k,.78*k,.72*k)}L1.intensity=f*LK;L2.intensity=f*LK;LZ.intensity=f*ZK;amb.intensity=AB+f*AK+(f>0&&TIME==='day'?.12:0);tubeMat.forEach(m=>m.color.setRGB(.2+.8*f,.22+.8*f,.25+.8*f));if(TIME==='night')scene.fog.color.setRGB(.02+.01*f,.027+.01*f,.04+.01*f);A.humv&&ac&&A.humv(f*.014)}
+function applyLights(f){lightF=f;POOLS.forEach(p=>{p.m.material.opacity=p.b*(p.st?LAMPK:Math.min(1,f)*({day:.22,dusk:.7,night:1})[TIME])});{const k=(.16+.3*Math.min(1,f))*({day:1,dusk:.6,night:.2})[TIME];HCEIL.color.setRGB(.81*k,.78*k,.72*k)}L1.intensity=f*LK*DIM;L2.intensity=f*LK*DIM;LZ.intensity=f*ZK*DIM;amb.intensity=AB+f*AK+(f>0&&TIME==='day'?.12:0);tubeMat.forEach(m=>m.color.setRGB(.2+.8*f,.22+.8*f,.25+.8*f));if(TIME==='night')scene.fog.color.setRGB(.02+.01*f,.027+.01*f,.04+.01*f);A.humv&&ac&&A.humv(f*.014)}
 async function flicker(pat,gap=70){for(const v of pat){applyLights(v);await sleep(gap+Math.random()*50)}}
 async function lightsOnNow(){await flicker([.3,0,.8,0,0,.6,1,.2,1]);lightsOn=true}
 function lightsOffNow(){lightsOn=false;applyLights(0)}
@@ -1236,7 +1236,33 @@ let FXM='auto';try{const v=localStorage.lo_fx;if(v==='full'||v==='off')FXM=v}cat
     G.tick.push(()=>{const v=FXM==='off'?0:Math.min(1,lightF)*({day:.05,dusk:.45,night:.75})[TIME||'night'];hs.forEach(s=>{s.material.opacity=v;s.visible=v>.01})})
   }catch(e){}
 }
-const V=new URL(import.meta.url).search,BUILD='202611290424';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+/* ---- scary night: dimmer, colder, foggier on the night days, plus a figure that is sometimes just standing there ---- */
+{
+  const T=THREE;let amb=0,ambT=0,seenT=0,spawnAt=0,nextAmb=performance.now()/1000+40,lookT=0,lastScript=-100;
+  const SP=[[-6.3,2.5],[3.8,-3.0],[-4.2,-3.0]];
+  const scaryNow=()=>TIME==='night'&&/^d[23]_/.test(state)||TIME==='night'&&/^d4_/.test(state)&&!/^d4_(find|driver|atuk)/.test(state);
+  window.__ambNow=()=>{nextAmb=0};
+  G.tick.push(dt=>{
+    const sc=scaryNow();
+    const tg=sc?.55:1;if(Math.abs(DIM-tg)>.005){DIM+=(tg-DIM)*Math.min(1,dt*1.5);applyLights(lightF)}
+    if(sc){scene.fog.color.lerp(new T.Color(0x0b1218),Math.min(1,dt*1.2));if(scene.fog.density<.04)scene.fog.density=Math.min(.04,scene.fog.density+dt*.02)}
+    const F=G.FIG;if(!F)return;const now=performance.now()/1000;
+    if(F.visible&&!amb)lastScript=now;
+    if(amb){
+      if(!F.visible||Math.abs(F.position.x-amb[0])>.05||Math.abs(F.position.z-amb[1])>.05){amb=0;return}
+      const a=Math.atan2(-(amb[0]-P.x),-(amb[1]-P.z)),d=Math.abs(Math.atan2(Math.sin(a-P.yaw),Math.cos(a-P.yaw)));
+      F.rotation.y=Math.atan2(P.x-F.position.x,P.z-F.position.z);
+      if(d<.5)lookT+=dt;else lookT=Math.max(0,lookT-dt);
+      if(lookT>.55||now-spawnAt>28||CINE.on||busy){F.visible=false;amb=0;nextAmb=now+55+Math.random()*50;
+        if(lookT>.55&&!CINE.on){const l=lightF;applyLights(.08);setTimeout(()=>{if(Math.abs(lightF-.08)<.001)applyLights(l)},260)}lookT=0}
+      return}
+    if(!sc||!/^d[23]_/.test(state)||CINE.on||busy||F.visible||now<nextAmb||now-lastScript<25)return;
+    const inShop=P.x>-4.5&&P.x<5&&P.z>-3.5&&P.z<3.8;if(!inShop)return;
+    const cand=SP.filter(p=>{const dd=Math.hypot(p[0]-P.x,p[1]-P.z);if(dd<3.6)return false;const a=Math.atan2(-(p[0]-P.x),-(p[1]-P.z)),d=Math.abs(Math.atan2(Math.sin(a-P.yaw),Math.cos(a-P.yaw)));return d>1.05});
+    if(!cand.length){nextAmb=now+6;return}
+    const p=cand[Math.random()*cand.length|0];F.userData.hunch=0;F.userData.up=0;F.userData.sit=0;F.position.set(p[0],0,p[1]);F.rotation.y=Math.atan2(P.x-p[0],P.z-p[1]);F.visible=true;amb=[p[0],p[1]];spawnAt=now;lookT=0})
+}
+const V=new URL(import.meta.url).search,BUILD='202611290448';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));
