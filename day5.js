@@ -160,18 +160,14 @@ function buildHospital(){if(HOSP)return;const T=THREE,S=scene,X=HX;HOSP={};
   bx(.04,.35,1.9,L(0xb9bec2),-.58,.78,-.2);bx(.04,.35,1.9,L(0xb9bec2),.58,.78,-.2);
   bx(.05,1.9,.05,L(0xaaaaaa),.95,.95,-1.15);bx(.14,.28,.05,L(0xdbe9ef),.95,1.75,-1.15);
   const mon=new T.Mesh(new T.PlaneGeometry(.7,.45),new T.MeshBasicMaterial({map:mk(128,80,(x,W,H)=>{x.fillStyle='#04120a';x.fillRect(0,0,W,H);x.strokeStyle='#31ff7a';x.lineWidth=2;x.beginPath();x.moveTo(0,50);for(let i=0;i<W;i++){const k=i%32;x.lineTo(i,k===10?18:k===12?64:50)}x.stroke();x.fillStyle='#31ff7a';x.font='bold 14px monospace';x.fillText('72',100,16)})}));mon.position.set(X-2.0,1.45,-3.05);mon.rotation.y=.35;S.add(mon);bx(.75,.5,.1,L(0x222428),-2.0,1.45,-3.12);
-  /* the TV: the same still, three headlines */
-  const draw=beat=>mk(384,216,(x,W,H)=>{
-    const g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,'#1a1410');g.addColorStop(1,'#2b1a10');x.fillStyle=g;x.fillRect(0,0,W,H);
-    x.fillStyle='#0d0907';x.fillRect(40,70,220,120);x.fillStyle='#5a1414';x.fillRect(60,86,150,24);x.fillStyle='#e8c35a';x.font='bold 15px sans-serif';x.fillText('ATUK KOPITIAM',72,104);
-    for(let i=0;i<7;i++){x.fillStyle=`rgba(255,${120+i*15},30,.85)`;x.beginPath();x.moveTo(70+i*28,190);x.quadraticCurveTo(66+i*28,150-i%3*14,84+i*28,126-i%2*20);x.quadraticCurveTo(100+i*28,160,98+i*28,190);x.fill()}
-    x.fillStyle='rgba(255,140,40,.18)';x.fillRect(0,0,W,H);
-    x.fillStyle='#b01010';x.fillRect(0,H-62,W,62);x.fillStyle='#fff';x.font='bold 13px sans-serif';x.fillText('BREAKING NEWS',12,H-44);
-    x.font='bold 17px sans-serif';x.fillText(['LORRY CRASHES INTO KOPITIAM, JALAN BESAR','7 DEAD IN KOPITIAM CRASH','1 SURVIVOR: OWNER’S GRANDSON'][beat],12,H-24);
-    x.font='13px sans-serif';x.fillText(['4 days ago · driver also killed','Owner, five customers and the driver','Critical condition · pulled from the fire'][beat],12,H-8);
-    x.fillStyle='#fff';x.fillRect(W-86,8,78,22);x.fillStyle='#b01010';x.font='bold 13px sans-serif';x.fillText('LIVE  ●',W-80,24)});
-  HOSP.draw=draw;
-  const tv=new T.Mesh(new T.PlaneGeometry(1.5,.85),new T.MeshBasicMaterial({map:draw(0),side:T.DoubleSide}));tv.position.set(X+2.84,1.9,-.5);tv.rotation.y=-Math.PI/2;S.add(tv);bx(.08,.95,1.6,L(0x111111),2.9,1.9,-.5);HTV=tv;
+  /* the TV: three baked news stills (the wrecked shop, police tape, the seven bags) + a headline banner, slow push-in */
+  HOSP.imgs=[0,1,2].map(i=>{const t=new T.TextureLoader().load('news'+i+'.jpg');t.colorSpace=T.SRGBColorSpace;return t});
+  const HL=[['LORRY CRASHES INTO KOPITIAM','4 days ago · Jalan Besar'],['7 DEAD IN KOPITIAM CRASH','Owner, five customers and the driver'],['1 SURVIVOR: OWNER’S GRANDSON','Critical condition · pulled from the fire']];
+  const bann=n=>mk(512,72,(x,W,H)=>{x.fillStyle='rgba(176,16,16,.94)';x.fillRect(0,0,W,H);x.fillStyle='#fff';x.font='bold 15px sans-serif';x.fillText('BREAKING NEWS',14,20);x.font='bold 22px sans-serif';x.fillText(HL[n][0],14,46);x.font='15px sans-serif';x.fillText(HL[n][1],14,64);x.fillStyle='#fff';x.fillRect(W-84,8,76,19);x.fillStyle='#b01010';x.font='bold 12px sans-serif';x.fillText('FOOTAGE',W-76,22)});
+  const tv=new T.Mesh(new T.PlaneGeometry(1.5,.85),new T.MeshBasicMaterial({map:HOSP.imgs[0],side:T.DoubleSide}));tv.position.set(X+2.84,1.9,-.5);tv.rotation.y=-Math.PI/2;S.add(tv);bx(.08,.95,1.6,L(0x111111),2.9,1.9,-.5);HTV=tv;
+  const bn=new T.Mesh(new T.PlaneGeometry(1.5,.211),new T.MeshBasicMaterial({map:bann(0),transparent:true}));bn.position.set(X+2.835,1.9-.425+.1055,-.5);bn.rotation.y=-Math.PI/2;S.add(bn);
+  HOSP.show=n=>{const t=HOSP.imgs[n];HTV.material.map=t;HTV.material.needsUpdate=true;bn.material.map=bann(n);bn.material.needsUpdate=true;
+    const dx=[.03,-.03,0][n],dy=[.02,0,-.02][n];tween(k=>{const r=1-.16*k;t.repeat.set(r,r);t.offset.set((1-r)/2+dx*k,(1-r)/2+dy*k)},4400)};
   const lg=new T.PointLight(0xfff2de,14,10,1.4);lg.position.set(X,2.7,0);S.add(lg);const l2=new T.PointLight(0xdfeeff,8,8,1.5);l2.position.set(X-2.3,1.7,-.4);S.add(l2);
   const pp=G.person;
   HOSP.mama=pp(X-.95,-1.3,0,0xc77a8a,0x1a1210,0xc9a27e,{long:true,bot:0x4a4a58});HOSP.papa=pp(X+.95,-1.5,0,0x4a6a8a,0x1a1a1a,0xc9a27e,{bot:0x2a2a30});
@@ -200,11 +196,11 @@ async function hospital(w){
   await sw('Mama does not answer. She only holds your hand tighter.',3400);
   /* the TV */
   w.remove();c.style.filter='';HOSP.papa.position.set(X+.5,0,-3.0);
-  await camTo(X,-.8,G.yawFrom(X,-.8,X+3,-.5),.2,2600);
-  HTV.material.map=HOSP.draw(0);HTV.material.map.needsUpdate=true;A.tone(300,300,.05,.05,'square');
+  await camTo(X+1.1,-.5,G.yawFrom(X+1.1,-.5,X+3,-.5),.5,2600);
+  HOSP.show(0);A.tone(300,300,.05,.05,'square');
   await say(sp('NEWS','Four days ago, a lorry lost control and crashed into a kopitiam on Jalan Besar.'),4200);
-  HTV.material.map=HOSP.draw(1);await say(sp('NEWS','Seven people died: the owner, five customers, and the lorry driver.'),4000);
-  HTV.material.map=HOSP.draw(2);await say(sp('NEWS','The owner’s grandson was pulled from the fire. He is the only survivor.'),4200);
+  HOSP.show(1);await say(sp('NEWS','Seven people died: the owner, five customers, and the lorry driver.'),4000);
+  HOSP.show(2);await say(sp('NEWS','The owner’s grandson was pulled from the fire. He is the only survivor.'),4200);
   await csleep(900);
   HOSP.papa.position.set(X+.85,0,-2.0);await camTo(X,-.8,G.yawFrom(X,-.8,X-.75,-1.9),.42,1800);
   await say(sp('YOU','...I was there.'),2400);
