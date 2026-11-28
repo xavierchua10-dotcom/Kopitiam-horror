@@ -689,7 +689,7 @@ async function cineBath(){if(busy||CINE.on)return;busy=true;await cineIn();
   A.tone(1300,900,.04,.04);await csleep(900);A.tone(1200,850,.04,.03);await csleep(900);
   applyLights(1);bulbSet(1);await say(sp('YOU','Okay. Done.'),1600);
   await camTo(-8.2,2.6,yawFrom(-8.2,2.6,-6,2.5),0,1000);
-  state='d1_back';setClock('10:20 AM');objT('Tell Atuk');busy=false;await cineOut()}
+  state='d1_back';setClock('11:50 AM');objT('Tell Atuk');busy=false;await cineOut()}
 const sp=(w,t)=>w+': '+t;
 const SHB=[-2,2,3.8,4.1];
 function shutBlock(on){const i=AABB.indexOf(SHB);if(on&&i<0)AABB.push(SHB);if(!on&&i>=0)AABB.splice(i,1)}
@@ -746,6 +746,26 @@ async function svDrink(d){
   handAct('serve',1);A.tone(2400,1800,.06,.05);await csleep(350);cup.visible=true;await csleep(450);
   await say(sp(d.who,d.line),3000)}
 DRINKS.forEach(d=>{const i=CH.length;CH.push({k:d.k+'m',x:-1.4,z:-5.7,tx:-1.4,tz:-6.4,obj:'Make '+d.name,fn:()=>runChore(i),run:()=>mkDrink(d)});const j=CH.length;CH.push({k:d.k+'s',x:d.px,z:d.pz,tx:d.sx,tz:d.sz,obj:'Serve '+d.who.replace(/^(\w)(\w*)/,(m,a,b)=>a+b.toLowerCase()).replace(/ (\w)(\w*)/,(m,a,b)=>' '+a+b.toLowerCase()),fn:()=>runChore(j),run:()=>svDrink(d)})});
+const KBAG=new THREE.Group();KBAG.visible=false;scene.add(KBAG);box(.15,.22,.08,M(0x5a3a22),0,0,0,KBAG);box(.155,.07,.085,M(0xc8a050),0,.02,0,KBAG);
+async function chStock(){
+  await camTo(-3.45,-5.55,yawFrom(-3.45,-5.55,-3.75,-6.6),-.12,1100);
+  KBAG.visible=true;KBAG.rotation.set(0,0,0);KBAG.position.set(-3.75,1.05,-6.5);await csleep(300);
+  handAct('reach',2200);A.click();await tween(k=>{KBAG.position.set(-3.75+.19*k,1.05+.33*k,-6.5+.3*k)},700);
+  await say('The last bag of kopi powder.',1900);
+  await say('Taped to the sack, in Atuk\'s writing: "Driver always tired. Give him free kopi."',3800);
+  KBAG.visible=false}
+async function chRefill(){
+  await camTo(-.95,-5.7,yawFrom(-.95,-5.7,-1.4,-6.4),-.35,1100);
+  GRAN.forEach(g=>g.material.color.setHex(0x2a1608));
+  KBAG.visible=true;KBAG.rotation.set(0,0,0);await tween(k=>{KBAG.position.set(-1.1-.3*k,1.2+.3*k,-6.0-.4*k)},500);
+  handAct('reach',3000);A.nz(2.3,2600,1800,.05,'highpass');
+  const t0=performance.now();let gi=0;
+  await tween(k=>{KBAG.rotation.z=1.0*Math.min(1,k*4);KBAG.position.y=1.5+Math.sin(k*20)*.01;
+    if((performance.now()-t0)/70>gi){const g=GRAN[gi%GRAN.length];g.visible=true;g.userData.t=performance.now();g.userData.x=-1.4+(Math.random()-.5)*.03;gi++}
+    for(const g of GRAN)if(g.visible){const a=(performance.now()-g.userData.t)/260;if(a>=1)g.visible=false;else g.position.set(g.userData.x,1.45-.3*a*a,-6.4)}},2300);
+  GRAN.forEach(g=>{g.visible=false;g.material.color.setHex(0xffffff)});KBAG.visible=false;A.click();
+  await say('Full again. The machine never runs dry, somehow.',2600)}
+{const i=CH.length;CH.push({k:'xstk',x:-3.4,z:-5.45,tx:-3.75,tz:-6.6,obj:'Get kopi powder from the store room',fn:()=>runChore(i),run:chStock});const j=CH.length;CH.push({k:'xrf',x:-1.4,z:-5.7,tx:-1.4,tz:-6.4,obj:'Refill the kopi machine',fn:()=>runChore(j),run:chRefill})}
 WPS.d1_chores={get x(){return CH[ci].x},get z(){return CH[ci].z},get tx(){return CH[ci].tx},get tz(){return CH[ci].tz},get lab(){return CH[ci].obj},manual:true,r:.6,go:1,get fn(){return CH[ci].fn}};
 const BAG=new THREE.Group();BAG.visible=false;scene.add(BAG);box(.14,.2,.07,M(0xe0d2a8),0,0,0,BAG);box(.15,.05,.075,M(0xb8452e),0,.06,0,BAG);
 const GRAN=[];for(let i=0;i<18;i++){const g=new THREE.Mesh(new THREE.BoxGeometry(.012,.012,.012),B(0xffffff));g.visible=false;scene.add(g);GRAN.push(g)}
@@ -793,13 +813,13 @@ async function chServe(){
   await say('"Kopi-O kurang manis, ya?" He nods without looking up.',2800)}
 async function runChore(i){if(busy||CINE.on||i!==ci)return;busy=true;A.click();await cineIn();
   await (CH[i].run||[chSugar,chWipe,chCups,chKopi,chServe][i])();
-  const key=CH[i].k;D[key]=1;if(key!=='kopi'&&key[0]!=='x'){D.n++;setClock(CLK[D.n-1])}if(i===CH.length-1)setClock('10:12 AM');
+  const key=CH[i].k;D[key]=1;if(key!=='kopi'&&key[0]!=='x'){D.n++;setClock(CLK[D.n-1])}if(key==='xmeis')setClock('10:40 AM');if(i===CH.length-1)setClock('11:30 AM');
   ci++;if(ci>=CH.length){state='d1_report';objT('Tell Atuk')}else objT(CH[ci].obj);
   await camTo(P.x,P.z,P.yaw,0,500);busy=false;await cineOut()}
 it('bath',[-8.25,1.4,2.5],'Check the light',()=>false,bathAct,[]);
 it('note',[-4.9,1.5,-2.2],'Read the note',()=>state==='d1_lock',noteAct,[noteM]);
 it('atuk',[3.9,1.2,3.5],'Talk to Atuk',()=>false,cineAtuk,[atuk]);
-async function bathAct(){busy=true;A.click();flicker([.5,1,.35,1],80);await say('Click. The light holds.',1800);A.nz(1.4,3000,2000,.08,'highpass');await say("The tap is running. You didn't turn it on.",2800);A.click();await say('You turn it off.',1800);state='d1_back';setClock('10:20 AM');objT('Tell Atuk');busy=false}
+async function bathAct(){busy=true;A.click();flicker([.5,1,.35,1],80);await say('Click. The light holds.',1800);A.nz(1.4,3000,2000,.08,'highpass');await say("The tap is running. You didn't turn it on.",2800);A.click();await say('You turn it off.',1800);state='d1_back';setClock('11:50 AM');objT('Tell Atuk');busy=false}
 async function noteAct(){busy=true;A.click();await say("Taped to the wall. Atuk's handwriting.",2300);await say('1. Shutter down by 6.',1900);await say('2. Nobody comes in after dark.',2100);await say('3. Open only when Atuk knocks. Three times.',2700);await say('4. Kopi for everyone. Even the ones you do not see.',3000);busy=false}
 async function queueIn(){QUEUE.forEach(q=>pose(q,0,'stand'));let left=QUEUE.length;for(let i=0;i<QUEUE.length;i++){(async()=>{const q=QUEUE[i],h=HOME[QI[i]];await sleep(i*1000);let cx=q.position.x,cz=q.position.z;const path=[[-.9+i*.05,4.7],[-.6,2.6],...QROUTE[i],[h[0],h[1]]];for(const [tx,tz] of path){const dx=tx-cx,dz=tz-cz,L=Math.hypot(dx,dz),x0=cx,z0=cz;if(L<.01)continue;const ry=q.rotation.y,ty=Math.atan2(-dx,-dz),dy=((ty-ry+Math.PI*3)%(Math.PI*2))-Math.PI;await tween(k=>{q.position.set(x0+dx*k,0,z0+dz*k);q.rotation.y=ry+dy*Math.min(1,k*5);pose(q,performance.now()/170,'walk')},L/1.8*1000);cx=tx;cz=tz}
     q.rotation.y=h[2];pose(q,0,'sit');if(--left===0)D.crowd=true})()}}
@@ -808,7 +828,7 @@ async function atukLeave(){D.walking=true;const path=[[1.0,3.6],[.9,5],[5.8,13.2
   atuk.visible=false;pose(atuk,0,'stand');D.walking=false}
 async function atukAct(){busy=true;A.click();
   if(state==='d1_greet'){await say(sp('ATUK','Eh, late ah today. Customers all waiting outside.'),2800);await say(sp('ATUK','Kopi ready. But the tables nobody wipe. Go go.'),2900);state='d1_chores';setClock('7:10 AM');refreshObj();busy=false;return}
-  if(state==='d1_report'){SERVED.forEach(c=>c.visible=false);await say(sp('ATUK','Okay lah, not bad. Sit, eat roti bakar first.'),2800);await say(sp('ATUK','Eh, bathroom light kelip-kelip again. Go see.'),2800);state='d1_bath';setClock('10:15 AM');objT('Check the bathroom light');busy=false;return}
+  if(state==='d1_report'){SERVED.forEach(c=>c.visible=false);await say(sp('ATUK','Okay lah, not bad. Sit, eat roti bakar first.'),2800);await say(sp('ATUK','Eh, bathroom light kelip-kelip again. Go see.'),2800);state='d1_bath';setClock('11:40 AM');objT('Check the bathroom light');busy=false;return}
   if(state==='d1_back'){await say(sp('ATUK','Fixed? Good boy.'),2200);await say(sp('ATUK','Now sit. Let Atuk look at the customers a while.'),2800);await toEvening();return}
   if(state==='d1_rule'){await d1Evening();return}}
 async function toEvening(){busy=true;await say('The day goes by. Kopi, toast, the same faces.',2200);
@@ -1080,7 +1100,7 @@ const G={KC,flo,wall,doorLeaf,regDoor,tm:nightClock,yawFrom,ZONES,AABB,AMB,perso
   AEV,AMBD,get ac(){return ac},get master(){return master},get ambG(){return ambG},
   get state(){return state},set state(v){state=v},get busy(){return busy},set busy(v){busy=v},
   setLights(v){lightsOn=v},setBlur(v){cv.style.transition='filter 1.4s';cv.style.filter=v?'blur(8px)':''}};
-const V=new URL(import.meta.url).search,BUILD='202611281820';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+const V=new URL(import.meta.url).search,BUILD='202611281905';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));
@@ -1122,8 +1142,8 @@ const SCENES=[
  ['Day 1',[
   ['d1','Start: wake-up, front door',null],
   ['s_greet','Atuk greets you',()=>{dayBase('day','7:02 AM');atuk.visible=true;P.x=2.8;P.z=3.05;P.yaw=-2;state='d1_greet'}],
-  ['s_report','Report to Atuk',()=>{dayBase('day','10:00 AM');atuk.visible=true;P.x=2.8;P.z=3.05;P.yaw=-2;state='d1_report'}],
-  ['s_bath','Bathroom light',()=>{dayBase('day','10:15 AM');P.x=-1.2;P.z=2.5;P.yaw=Math.PI/2;state='d1_bath'}],
+  ['s_report','Report to Atuk',()=>{dayBase('day','11:30 AM');atuk.visible=true;P.x=2.8;P.z=3.05;P.yaw=-2;state='d1_report'}],
+  ['s_bath','Bathroom light',()=>{dayBase('day','11:40 AM');P.x=-1.2;P.z=2.5;P.yaw=Math.PI/2;state='d1_bath'}],
   ['s_back','Atuk: "Fixed? Good boy" then evening',()=>{dayBase('day','2:00 PM');atuk.visible=true;P.x=2.8;P.z=3.05;P.yaw=-2;state='d1_back'}],
   ['s_evening','Evening talk then blackout',()=>{dayBase('dusk','5:40 PM');showCrowd(true);atuk.visible=true;P.x=.6;P.z=2.3;P.yaw=-2.14;state='d1_rule'}],
   ['s_fuse','Fuse box, crowd wakes, the rules',()=>{dayBase('dusk','5:48 PM');showCrowd(true);atuk.visible=true;lightsOffNow();torch.intensity=12;P.x=-3.0;P.z=.6;P.yaw=yawFrom(-3.0,.6,-4.9,.5);state='d1_fuse'}],
