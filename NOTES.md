@@ -219,3 +219,4 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 - build 044 (202611281610): fuse box scene: after the lights return the camera steps back to a wide view so customers no longer stand in your face.
 - build 045 (202611281650): lamps: warm light pools on floor/ceiling for house, street, kitchen and bathroom lamps (visible from far); the moving zone light now fades between lamps instead of popping; 'Open the door' icon at the front door on Days 2-5 (door blocks until tapped).
 - build 047 (202611281735): reverted build 046 (the fixed house light looked chopped); house lighting is back to the lamp-pool version from build 045.
+- build 048 (202611281820): Day 1 drinks: after Raj's kopi, four more orders (teh tarik Mak Cik, kopi susu Ah Seng, kopi-O kosong Pak Hassan, Milo ais Mei Ling): make each drink at the counter, walk it over; each customer drops a hint line. Served cups vanish when you report to Atuk.
