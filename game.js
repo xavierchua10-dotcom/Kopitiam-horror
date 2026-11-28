@@ -101,7 +101,7 @@ const L1=new THREE.PointLight(0xcfe8ff,0,16,2);L1.position.set(0,2.6,1.4);scene.
 const L2=new THREE.PointLight(0xcfe8ff,0,16,2);L2.position.set(0,2.6,-1.7);scene.add(L2);
 box(1.4,.05,.14,(tubeMat[2]=B(0xdff3ff)),1.25,2.94,-5.5);box(.7,.05,.12,(tubeMat[3]=B(0xdff3ff)),-8.25,2.94,2.5);
 const LZ=new THREE.PointLight(0xdfeee0,0,18,2);LZ.position.set(1.25,2.5,-5.5);scene.add(LZ);
-let ZK=0;
+let ZK=0,ZKc=0;var POOLS=[],LAMPK=0;
 const amb=new THREE.AmbientLight(0x6070a0,.02);scene.add(amb);
 const torch=new THREE.SpotLight(0xfff4d6,0,14,.45,.55,1.4);torch.position.set(.15,-.1,0);camera.add(torch);torch.target.position.set(0,0,-5);camera.add(torch.target);
 const dawn=new THREE.PointLight(0x7f9bff,0,10,2);dawn.position.set(0,1.6,4.6);scene.add(dawn);
@@ -251,8 +251,11 @@ const SKYT={};let DOME;
  for(const x of[-65,-55,-45,-35,35,45,55,65])box(.35,3,.35,M(0x5d5a52),x,1.5,6.4)}
 /* lamps (cheap glow, no extra lights) */
 const GLOWS=[];
+const POOLT=(()=>{const c=document.createElement('canvas');c.width=c.height=64;const x=c.getContext('2d'),g=x.createRadialGradient(32,32,0,32,32,32);g.addColorStop(0,'rgba(255,205,125,.85)');g.addColorStop(.45,'rgba(255,185,100,.32)');g.addColorStop(1,'rgba(255,170,90,0)');x.fillStyle=g;x.fillRect(0,0,64,64);return new THREE.CanvasTexture(c)})();
+function lightPool(x,y,z,r,b,st,down){const m=new THREE.Mesh(new THREE.PlaneGeometry(r*2,r*2),new THREE.MeshBasicMaterial({map:POOLT,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending,fog:false}));m.rotation.x=down?Math.PI/2:-Math.PI/2;m.position.set(x,y,z);scene.add(m);POOLS.push({m,b,st});return m}
+lightPool(-8.25,.04,2.5,2.0,.6,0);lightPool(1.25,.04,-5.5,2.6,.5,0);
 for(const x of LAMPS){box(.12,3.6,.12,M(0x222428),x,1.8,13.6);box(.5,.1,.2,M(0x222428),x,3.6,13.4);box(.3,.08,.14,B(0xffd27a),x,3.52,13.3);
-  const g=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,fog:false}));g.position.set(x,3.45,13.3);g.scale.set(4,4,1);scene.add(g);GLOWS.push(g)}
+  const g=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,fog:false}));g.position.set(x,3.45,13.3);g.scale.set(4,4,1);scene.add(g);GLOWS.push(g);lightPool(x,.04,12.6,3.6,.7,1)}
 /* empty city blocks (dark windows) */
 const winTex=(rx,ry,col='#15171d')=>M(0xffffff,{map:ctex(16,16,c=>{c.fillStyle=col;c.fillRect(0,0,16,16);c.fillStyle='#41627f';c.fillRect(3,3,10,10);c.fillStyle='rgba(255,255,255,.35)';c.fillRect(3,8,10,1)},rx,ry)});
 (()=>{let sd=7;const R=()=>{sd=(sd*16807)%2147483647;return sd/2147483647};
@@ -302,7 +305,8 @@ function roomLamp(x,z){const g=new THREE.Group();g.position.set(x,2.97,z);scene.
  box(.012,.34,.012,M(0x222222),0,-.17,0,g);
  const sh=new THREE.Mesh(new THREE.CylinderGeometry(.07,.24,.17,12,1,true),new THREE.MeshLambertMaterial({color:0xe6dcc4,side:THREE.DoubleSide,flatShading:true}));sh.position.y=-.43;g.add(sh);
  const bb=new THREE.Mesh(new THREE.SphereGeometry(.065,8,6),B(0xfff0c0,{fog:false}));bb.position.y=-.5;g.add(bb);
- const gl=new THREE.Sprite(new THREE.SpriteMaterial({map:RLGT,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,fog:false}));gl.scale.set(.55,.55,1);gl.material.opacity=.55;gl.position.y=-.52;g.add(gl);ROOMLAMPS.push(g)}
+ const gl=new THREE.Sprite(new THREE.SpriteMaterial({map:RLGT,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,fog:false}));gl.scale.set(.55,.55,1);gl.material.opacity=.55;gl.position.y=-.52;g.add(gl);ROOMLAMPS.push(g);
+ lightPool(x,.04,z,2.6,.75,0);lightPool(x,2.94,z,1.9,.55,0,1)}
 roomLamp(5.2,19);roomLamp(9.1,17.2);roomLamp(13.1,17.2);roomLamp(11,21.2);
 fl(3,15,15,23,chk('#6b5a44','#5e4e3a',24,16));const HCEIL=new THREE.MeshBasicMaterial({color:0xcfc8b8});cl(3,15,15,23,HCEIL,2.97);
 {const g=new THREE.Group();g.position.set(5.5,0,15);g.rotation.y=-1.25;scene.add(g);box(1.2,2.1,.06,M(0x5a3a28),.6,1.05,0,g);g.traverse(n=>{});window.__doorG=g}
@@ -487,9 +491,9 @@ let lightF=0,lightsOn=false,TIME='night',AB=.02,AK=.4,SK=26,HK=16,LK=8;
 const SKY={day:{bg:0xb4d2e6,fd:.012,amb:0xf2f5fa,ab:1.5,ak:.15,sk:0,hk:2,lk:2,lamp:0,star:0,drone:.012},
  dusk:{bg:0xc9805e,fd:.026,amb:0xffc4a0,ab:.8,ak:.2,sk:10,hk:8,lk:4,lamp:.6,star:0,drone:.03},
  night:{bg:0x05070a,fd:.075,amb:0x6070a0,ab:.02,ak:.4,sk:26,hk:16,lk:8,lamp:1,star:1,drone:.05}};
-function setTime(t,raw){{const d=(/^d([1-5])_/.exec(state)||[])[1]|0;if(!raw&&d>=2&&d<=4&&(t==='day'||t==='dusk'))t='night'}TIME=t;const k=SKY[t];scene.background.setHex(k.bg);scene.fog.density=k.fd;if(t!=='night')scene.fog.color.setHex(k.bg);amb.color.setHex(k.amb);AB=k.ab;AK=k.ak;SK=k.sk;HK=k.hk;LK=k.lk;
+function setTime(t,raw){{const d=(/^d([1-5])_/.exec(state)||[])[1]|0;if(!raw&&d>=2&&d<=4&&(t==='day'||t==='dusk'))t='night'}TIME=t;const k=SKY[t];LAMPK=k.lamp;scene.background.setHex(k.bg);scene.fog.density=k.fd;if(t!=='night')scene.fog.color.setHex(k.bg);amb.color.setHex(k.amb);AB=k.ab;AK=k.ak;SK=k.sk;HK=k.hk;LK=k.lk;
  GLOWS.forEach(g=>{g.visible=k.lamp>0;g.material.opacity=k.lamp});if(DOME){DOME.visible=t!=='night';if(SKYT[t]){DOME.material.map=SKYT[t];DOME.material.needsUpdate=true}}STARS.visible=MOON.visible=k.star>0;if(droneG)droneG.gain.value=k.drone;applyLights(lightF)}
-function applyLights(f){lightF=f;{const k=(.16+.3*Math.min(1,f))*({day:1,dusk:.6,night:.2})[TIME];HCEIL.color.setRGB(.81*k,.78*k,.72*k)}L1.intensity=f*LK;L2.intensity=f*LK;LZ.intensity=f*ZK;amb.intensity=AB+f*AK+(f>0&&TIME==='day'?.12:0);tubeMat.forEach(m=>m.color.setRGB(.2+.8*f,.22+.8*f,.25+.8*f));if(TIME==='night')scene.fog.color.setRGB(.02+.01*f,.027+.01*f,.04+.01*f);A.humv&&ac&&A.humv(f*.014)}
+function applyLights(f){lightF=f;POOLS.forEach(p=>{p.m.material.opacity=p.b*(p.st?LAMPK:Math.min(1,f)*({day:.22,dusk:.7,night:1})[TIME])});{const k=(.16+.3*Math.min(1,f))*({day:1,dusk:.6,night:.2})[TIME];HCEIL.color.setRGB(.81*k,.78*k,.72*k)}L1.intensity=f*LK;L2.intensity=f*LK;LZ.intensity=f*ZK;amb.intensity=AB+f*AK+(f>0&&TIME==='day'?.12:0);tubeMat.forEach(m=>m.color.setRGB(.2+.8*f,.22+.8*f,.25+.8*f));if(TIME==='night')scene.fog.color.setRGB(.02+.01*f,.027+.01*f,.04+.01*f);A.humv&&ac&&A.humv(f*.014)}
 async function flicker(pat,gap=70){for(const v of pat){applyLights(v);await sleep(gap+Math.random()*50)}}
 async function lightsOnNow(){await flicker([.3,0,.8,0,0,.6,1,.2,1]);lightsOn=true}
 function lightsOffNow(){lightsOn=false;applyLights(0)}
@@ -542,7 +546,7 @@ const MAN=it('man',[0,1.1,0],()=>{const w=WPS[state];return (w&&w.lab)||OBJB},()
 it('photo',[4.55,1.2,22.45],'Look at the photo',()=>!busy&&!CINE.on&&P.x>3&&P.x<15.5&&P.z>15,photoAct,PHOTO);
 const hatchIt=ITS[3];
 const DOORBLK=[5.5,6.7,14.85,15.2];
-it('housedoor',[6.1,1.2,15.1],()=>state==='d1_go'?'Open the door':'Go inside',()=>state==='leave'||(state==='d1_go'&&!busy&&!CINE.on&&P.z>15.3&&P.x>4.3&&P.x<7.9),houseAct,[doorMesh]);
+it('housedoor',[6.1,1.2,15.1],()=>/^d[1-5]_go$/.test(state)?'Open the door':'Go inside',()=>state==='leave'||(/^d[1-5]_go$/.test(state)&&!busy&&!CINE.on&&P.z>15.3&&P.x>4.3&&P.x<7.9),houseAct,[doorMesh]);
 async function radioAct(){busy=true;A.click();A.static(.12);await say('The radio hisses. Nobody tuned it.',2400);A.static(.2);await say('"...order forty-two..."',2300);A.static(.28);await say('"...still waiting..."',2300);A.static(0);A.sting();lightsOffNow();torch.intensity=26;state='dark';objT('Find the fuse box');busy=false;say('Something scrapes, far off in the dark.',2800);setTimeout(()=>A.scrape(),600)}
 async function fuseAct(){busy=true;A.click();await say('The breaker is warm to the touch.',1800);torch.intensity=0;await lightsOnNow();state='lit2';fig.visible=true;objT('Check the kitchen hatch');busy=false;say('The lights are back.',1800)}
 async function doScare(){busy=true;lightsOffNow();A.sting();await sleep(800);fig.visible=false;seat.position.set(2.45,.23,-.55);seat.rotation.y=.7;A.scrape();await sleep(500);await lightsOnNow();scareDone=true;await say('The stool is still swaying.',2300);busy=false}
@@ -629,7 +633,7 @@ async function midnightDoor(){
   $('fade').style.transition='opacity 1.6s';$('fade').style.opacity=1;await sleep(1800);
   EYE.y=1.6;CINE.noclip=false;P.pitch=0;await cineOut();busy=false;const r=midDone;midDone=null;if(r)r()}
 async function houseAct(){
-  if(state==='d1_go'){const i=AABB.indexOf(DOORBLK);if(i>=0)AABB.splice(i,1);doorSeen.d1_go=1;return doorOut()}
+  if(/^d[1-5]_go$/.test(state)){const i=AABB.indexOf(DOORBLK);if(i>=0)AABB.splice(i,1);doorSeen[state]=1;return doorOut()}
   busy=true;A.click();
   if(state==='d1_home'){await say('The door is locked. Atuk is already home.',2200);handAct('knock',2300);for(let i=0;i<3;i++){A.knock();await sleep(650)}await say(sp('ATUK','Three knock. Okay. Masuk.'),2400);$('endh').textContent='END OF DAY 1';$('endp').textContent='Nothing strange happened today. Remember the rule: three knocks.';$('endl').textContent='Last Order · Day 2 is coming'}
   $('fade').style.transition='opacity 1.6s';$('fade').style.opacity=1;await sleep(1800);$('end').style.display='flex';busy=false;state='end'}
@@ -996,7 +1000,7 @@ let last=0,acc=0,flickT=3;
 function update(dt){
   {const inside=P.x>3&&P.x<15&&P.z>15&&P.z<23;if(BALC[0].visible===inside)BALC.forEach(m=>m.visible=!inside)}
   animAltar(performance.now()/1000);
-  if(!busy&&!CINE.on&&/^d[2-5]_go$/.test(state)&&!doorSeen[state]&&Math.hypot(P.x-6.1,P.z-15.9)<.75){doorSeen[state]=1;doorOut()}
+  if(/^d[2-5]_go$/.test(state)&&!doorSeen[state]&&AABB.indexOf(DOORBLK)<0)AABB.push(DOORBLK)
   let moving=false;
   if(CINE.on){P.tx=null;stk=null;look=null}
   if(P.tx!==null&&state!=='end'){const dx=P.tx-P.x,dz=P.tz-P.z,d=Math.hypot(dx,dz);
@@ -1015,7 +1019,10 @@ function update(dt){
    else if(P.z>=14.8&&P.x>3&&P.x<15.2){zk=({day:3.8,dusk:5.5,night:4.2})[TIME];zy=2.3;if(P.x<7.2){zx=5.2;zz=19}else if(P.z<19.4){zx=P.x<11.2?9.1:13.1;zz=17.2}else{zx=11;zz=21.2}}
    else if(P.z<-4.2&&P.x>-2.7){zx=1.25;zz=-5.5;zk=7}
    else if(P.x<-6.8){zx=-8.25;zz=2.5;zk=6}
-   LZ.position.set(zx,zy,zz);if(zk!==ZK){ZK=zk}LZ.intensity=lightF*ZK}
+   {const cp=LZ.position,dd=Math.hypot(zx-cp.x,zz-cp.z)+Math.abs(zy-cp.y);
+    if(dd>1.5){ZKc+=(0-ZKc)*Math.min(1,dt*9);if(ZKc<.06){cp.set(zx,zy,zz)}}
+    else{const a=Math.min(1,dt*6);cp.x+=(zx-cp.x)*a;cp.y+=(zy-cp.y)*a;cp.z+=(zz-cp.z)*a;ZKc+=(zk-ZKc)*a}
+    ZK=ZKc;LZ.intensity=lightF*ZK}}
   fan.rotation.y+=dt*(lightsOn?2.2:.4);
   d1tick(dt);npcTick(dt);markers(performance.now());handTick(dt);
   if(P.fy!==null){let df=P.fy-P.yaw;df=Math.atan2(Math.sin(df),Math.cos(df));if(Math.abs(df)<.02)P.fy=null;else P.yaw+=df*Math.min(1,dt*6)}
@@ -1051,7 +1058,7 @@ const G={KC,flo,wall,doorLeaf,regDoor,tm:nightClock,yawFrom,ZONES,AABB,AMB,perso
   AEV,AMBD,get ac(){return ac},get master(){return master},get ambG(){return ambG},
   get state(){return state},set state(v){state=v},get busy(){return busy},set busy(v){busy=v},
   setLights(v){lightsOn=v},setBlur(v){cv.style.transition='filter 1.4s';cv.style.filter=v?'blur(8px)':''}};
-const V=new URL(import.meta.url).search,BUILD='202611281610';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+const V=new URL(import.meta.url).search,BUILD='202611281650';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));

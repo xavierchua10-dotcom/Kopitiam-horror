@@ -217,3 +217,4 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 - build 042 (202611281500): after the Day 1 blackout the camera turns to face the fuse box instead of ending on the wall.
 - build 043 (202611281545): test-only Scenes menu (open the game once with ?dev; ?dev=0 turns it off): play any Day 1 cutscene on its own, Replay / Scenes chips after it. Chapters link replaced; hidden for normal players.
 - build 044 (202611281610): fuse box scene: after the lights return the camera steps back to a wide view so customers no longer stand in your face.
+- build 045 (202611281650): lamps: warm light pools on floor/ceiling for house, street, kitchen and bathroom lamps (visible from far); the moving zone light now fades between lamps instead of popping; 'Open the door' icon at the front door on Days 2-5 (door blocks until tapped).
