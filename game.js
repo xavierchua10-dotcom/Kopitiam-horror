@@ -35,8 +35,10 @@ const shutter=new THREE.Mesh(new THREE.PlaneGeometry(4,2.4),M(0xffffff,{map:ctex
 shutter.position.set(0,3.6,3.96);shutter.rotation.y=Math.PI;scene.add(shutter);
 /* menu board + clock */
 const menu=new THREE.Mesh(new THREE.PlaneGeometry(.9,1.1),M(0xffffff,{map:ctex(64,80,c=>{c.fillStyle='#1a1a15';c.fillRect(0,0,64,80);c.fillStyle='#e8c35a';c.font='bold 9px monospace';c.fillText('KOPI  2.20',6,16);c.fillText('TEH   2.00',6,30);c.fillText('MILO  2.80',6,44);c.fillText('ROTI BAKAR',6,58);c.fillText('3.50',6,70)})}));menu.position.set(2.0,1.9,-3.97);scene.add(menu);
-const clock=new THREE.Mesh(new THREE.CircleGeometry(.24,12),B(0x9a9a98));clock.position.set(-3.2,2.3,-3.96);scene.add(clock);
-{const h1=box(.025,.12,.01,B(0x111111),-3.2,2.34,-3.95);const h2=box(.02,.17,.01,B(0x111111),-3.17,2.29,-3.95);h1.rotation.z=-1.6;h2.rotation.z=-.3}
+const clock=new THREE.Mesh(new THREE.CircleGeometry(.24,20),new THREE.MeshBasicMaterial({map:ctex(64,64,c=>{c.fillStyle='#f3efe2';c.beginPath();c.arc(32,32,30,0,7);c.fill();c.strokeStyle='#222';c.lineWidth=3;c.stroke();c.fillStyle='#222';for(let i=0;i<12;i++){const a=i/12*Math.PI*2;c.fillRect(32+Math.sin(a)*24-1.4,32-Math.cos(a)*24-1.4,2.8,2.8)}})}));clock.position.set(-3.2,2.3,-3.96);scene.add(clock);
+{const gp=new THREE.Group();gp.position.set(-3.2,2.3,-3.95);gp.name='shopClock';scene.add(gp);
+ const hh=new THREE.Group(),mh=new THREE.Group();gp.add(hh,mh);box(.028,.11,.008,B(0x111111),0,.05,0,hh);box(.016,.17,.008,B(0x111111),0,.08,0,mh);box(.04,.04,.01,B(0x111111),0,0,0,gp);
+ gp.userData={hh,mh}}
 /* tables + stools */
 const TABLES=[[-3,-1.8],[-3,1.2],[2.8,-1.8],[-1.7,0.3]],AABB=[];
 const stools=[];
@@ -1303,7 +1305,13 @@ let FXM='auto';try{const v=localStorage.lo_fx;if(v==='full'||v==='off')FXM=v}cat
    const r=new THREE.BufferGeometry();r.setAttribute('position',new THREE.Float32BufferAttribute(p,3));r.setAttribute('normal',new THREE.Float32BufferAttribute(n,3));r.setAttribute('uv',new THREE.Float32BufferAttribute(u,2));r.setIndex(ix);return r};
  const MATS={trim:TRIM,dark:DARK,win:WIN,int:INT};
  for(const k in L){if(!L[k].length)continue;const m=new THREE.Mesh(merge(L[k]),MATS[k]);m.userData.noSoot=true;m.name='thick_'+k;scene.add(m)}}
-const V=new URL(import.meta.url).search,BUILD='202611290804';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+/* ---- shop wall clock: shows the shop time on Day 1; from Day 2 on it is stuck at 5:48 (the minute of the crash) ---- */
+{const gp=scene.getObjectByName('shopClock'),el=document.getElementById('clk');let lastTxt='';
+ G.tick.push(()=>{if(!gp)return;const d=(/^d([1-5])_/.exec(state)||[])[1]|0;let H=5,Mn=48;
+   if(d<2||d>4){const m=/(\d+):(\d+)\s*(AM|PM)?/i.exec(el?el.textContent:'');if(m){H=+m[1]%12;Mn=+m[2]}else return}
+   const k=d+'|'+H+':'+Mn;if(k===lastTxt)return;lastTxt=k;
+   gp.userData.hh.rotation.z=-((H%12)+Mn/60)*Math.PI/6;gp.userData.mh.rotation.z=-Mn*Math.PI/30})}
+const V=new URL(import.meta.url).search,BUILD='202611290824';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));
