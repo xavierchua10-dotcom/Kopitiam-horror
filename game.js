@@ -311,13 +311,10 @@ const doorMesh=window.__doorG.children[0];
 {const SC=0x6a5a7a,SD=0x5a4a6a;box(.8,.42,1.8,M(SC),4.6,.21,18.5);box(.2,.58,1.8,M(SC),5.1,.71,18.5);box(.8,.18,.2,M(SD),4.6,.5,17.7);box(.8,.18,.2,M(SD),4.6,.5,19.3);box(.6,.12,.62,M(0x7a6a8a),4.55,.48,18.15);box(.6,.12,.62,M(0x7a6a8a),4.55,.48,18.85);AABB.push([4.0,5.2,17.6,19.4])}
 /* dining table + chairs + clock */
 /* the dining table sits in the kitchen corner, beside the fridge */
-box(1.6,.06,.95,M(0x7a5a38),12.3,.75,21.3);for(const dx of[-.7,.7])for(const dz of[-.4,.4])box(.07,.72,.07,M(0x4a3420),12.3+dx,.36,21.3+dz);AABB.push([11.5,13.100000000000001,20.8,21.8]);
-for(const [cx,cz] of[[11.75,22.150000000000002],[12.850000000000001,22.150000000000002],[11.75,20.45],[12.850000000000001,20.45]]){box(.42,.05,.42,M(0xb0453a),cx,.45,cz);box(.42,.5,.05,M(0xb0453a),cx,.72,cz+(cz>21.3?.2:-.2));for(const dx of[-.17,.17])for(const dz of[-.17,.17])box(.04,.43,.04,M(0x3a2a18),cx+dx,.22,cz+dz)}
+box(1.6,.06,.95,M(0x7a5a38),11.1,.75,21.3);for(const dx of[-.7,.7])for(const dz of[-.4,.4])box(.07,.72,.07,M(0x4a3420),11.1+dx,.36,21.3+dz);AABB.push([10.3,11.9,20.8,21.8]);
+for(const [cx,cz] of[[10.55,22.150000000000002],[11.65,22.150000000000002],[10.55,20.45],[11.65,20.45]]){box(.42,.05,.42,M(0xb0453a),cx,.45,cz);box(.42,.5,.05,M(0xb0453a),cx,.72,cz+(cz>21.3?.2:-.2));for(const dx of[-.17,.17])for(const dz of[-.17,.17])box(.04,.43,.04,M(0x3a2a18),cx+dx,.22,cz+dz)}
 {const ck=ctex(32,32,c=>{c.fillStyle='#f3efe2';c.beginPath();c.arc(16,16,15,0,7);c.fill();c.strokeStyle='#222';c.lineWidth=1.5;c.stroke();c.fillStyle='#222';for(let i=0;i<12;i++){const a=i/12*Math.PI*2;c.fillRect(16+Math.sin(a)*12.5-.8,16-Math.cos(a)*12.5-.8,1.6,1.6)}c.lineWidth=2;c.beginPath();c.moveTo(16,16);c.lineTo(16,6);c.stroke();c.lineWidth=2.6;c.beginPath();c.moveTo(16,16);c.lineTo(22,16);c.stroke();c.strokeStyle='#c4352a';c.lineWidth=1;c.beginPath();c.moveTo(16,16);c.lineTo(10,21);c.stroke()});
- box(.34,.05,.16,M(0x2a2a2e),12.3,.8,21.3);
- {const cg=new THREE.Group();cg.position.set(12.3,.97,21.3);cg.rotation.set(.25,Math.PI,0);scene.add(cg);
-  const cf=new THREE.Mesh(new THREE.CircleGeometry(.15,16),new THREE.MeshBasicMaterial({map:ck}));cf.position.z=.04;cg.add(cf);
-  const rim=new THREE.Mesh(new THREE.CylinderGeometry(.165,.165,.05,16),M(0x2a2a2e));rim.rotation.x=Math.PI/2;cg.add(rim)}
+
  /* big wall clock above sofa */const wc=new THREE.Mesh(new THREE.CircleGeometry(.32,20),new THREE.MeshBasicMaterial({map:ck}));wc.position.set(3.04,2.05,18.5);wc.rotation.y=Math.PI/2;scene.add(wc)}
 /* TV cupboard on the west wall (where the photo table used to be) */
 box(.5,.7,1.4,M(0x5a3a28),3.3,.35,18.5);box(.56,.05,1.5,M(0x6b4a30),3.3,.72,18.5);box(.04,.5,.04,M(0x3a2a18),3.3,.77,18.5);
@@ -618,7 +615,7 @@ async function midnightDoor(){
   await say(sp('YOU>ATUK','Six? But we always open seven to five...'),2600);
   await say(sp('ATUK','Customers still here, cucu. Tomorrow, six o\'clock. Do not be late.'),3400);
   /* he does not vanish: he turns and walks back to his own room */
-  {let cx=13.1,cz=19.7;for(const [tx,tz] of [[13.1,20.5],[9.1,20.4],[9.1,19.4],[9.1,18.3]]){const dx=tx-cx,dz=tz-cz,L=Math.hypot(dx,dz),x0=cx,z0=cz,ry=atuk.rotation.y,ty=Math.atan2(-dx,-dz),dyy=((ty-ry+Math.PI*3)%(Math.PI*2))-Math.PI;
+  {let cx=13.1,cz=19.7;for(const [tx,tz] of [[13.1,20.0],[9.1,20.0],[9.1,19.4],[9.1,18.3]]){const dx=tx-cx,dz=tz-cz,L=Math.hypot(dx,dz),x0=cx,z0=cz,ry=atuk.rotation.y,ty=Math.atan2(-dx,-dz),dyy=((ty-ry+Math.PI*3)%(Math.PI*2))-Math.PI;
     await tween(k=>{atuk.position.set(x0+dx*k,0,z0+dz*k);atuk.rotation.y=ry+dyy*Math.min(1,k*6);pose(atuk,performance.now()/170,'walk');
       if(atuk.position.x>12.3){const w=yawTo(atuk.position.x,atuk.position.z),dy=Math.atan2(Math.sin(w-P.yaw),Math.cos(w-P.yaw));P.yaw+=dy*.08}},L/1.6*1000);cx=tx;cz=tz}}
   atuk.visible=false;pose(atuk,0,'stand');A.door();tween(k=>{HALLGLOW.intensity=1.3*(1-k)},900);await csleep(1000);
@@ -836,7 +833,7 @@ async function crowdWake(){
     q.visible=false;pose(q,0,'stand')};
   for(let i=0;i<QUEUE.length;i++){const q=QUEUE[i];pose(q,0,'stand');const ln=LINES[NAMEOF.get(q)];if(ln)await say(ln,2300,q);walks.push(walk(q,i));await sleep(500)}
   atuk.visible=true;await say(sp('ATUK>ALL','Hati-hati balik, ya.'),2300);
-  await Promise.all(walks);await sleep(600)}
+  await sleep(700)}
 async function d1Knock(){busy=true;state='d1_knock';await cineIn();
   await camTo(.3,4.6,0,.04,1800);
   handAct('knock',2300);for(let i=0;i<3;i++){A.knock();await sleep(650)}
@@ -1035,7 +1032,7 @@ const G={tm:nightClock,yawFrom,ZONES,AABB,AMB,person,THREE,scene,camera,P,EYE,A,
   AEV,AMBD,get ac(){return ac},get master(){return master},get ambG(){return ambG},
   get state(){return state},set state(v){state=v},get busy(){return busy},set busy(v){busy=v},
   setLights(v){lightsOn=v},setBlur(v){cv.style.transition='filter 1.4s';cv.style.filter=v?'blur(8px)':''}};
-const V=new URL(import.meta.url).search,BUILD='202611273016';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+const V=new URL(import.meta.url).search,BUILD='202611273018';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));

@@ -68,20 +68,22 @@ const look=(x,z,pitch=0,ms=650)=>camTo(P.x,P.z,yawTo(x,z),pitch,ms);
 const CL=[
  {x:.6,z:1.0,tx:-1.0,tz:1.0,obj:'Mop the floor',fn:()=>run(0)},
  {x:-3.0,z:-.2,tx:-3.7,tz:-.2,obj:'Clear the cups',fn:()=>run(1)},
- {x:1.5,z:-2.4,tx:1.5,tz:-3.3,obj:'Take the trash out',fn:()=>run(2)}];
+ {x:3.0,z:-2.3,tx:4.5,tz:-2.2,obj:'Take the trash out',fn:()=>run(2)},
+ {x:4.15,z:-5.1,tx:5.0,tz:-5.1,obj:'Open the back door',fn:()=>run(3)},
+ {x:8.1,z:-7.5,tx:8.9,tz:-8.7,obj:'Throw the trash',fn:()=>run(4)}];
 let ci=0;
 WPS.d1_close={get x(){return CL[ci].x},get z(){return CL[ci].z},get tx(){return CL[ci].tx},get tz(){return CL[ci].tz},get lab(){return CL[ci].obj},manual:true,r:.6,go:1,get fn(){return CL[ci].fn}};
 G.closeJump=n=>{ci=n;objT(CL[n].obj)};
-G.closeInit=()=>{ci=0;SBIN.visible=true;CUPS2.forEach(m=>m.visible=true);BAGW.visible=false;setClock('6:05 PM');objT(CL[0].obj)};
+G.closeInit=()=>{ci=0;dAt(0);if(AABB.indexOf(doorBlock)<0)AABB.push(doorBlock);SBIN.visible=true;CUPS2.forEach(m=>m.visible=true);BAGW.visible=false;setClock('6:05 PM');objT(CL[0].obj)};
 async function run(i){if(G.busy||CINE.on||i!==ci)return;G.busy=true;A.click();await cineIn();
-  await [mop,cups,trash][i]();
-  setClock(['5:52 PM','5:58 PM','6:04 PM'][i]);ci++;if(ci>=CL.length){G.state='d1_lock';objT('Lock up')}else objT(CL[ci].obj);
+  await [mop,cups,bagUp,backDoor,throwBag][i]();
+  setClock(['6:12 PM','6:20 PM','6:24 PM','6:27 PM','6:36 PM'][i]);ci++;if(ci>=CL.length){G.state='d1_lock';objT('Lock up')}else objT(CL[ci].obj);
   await camTo(P.x,P.z,P.yaw,0,500);G.busy=false;await cineOut()}
 
 /* 1. mop — something stands at the back of the dark shop */
 async function mop(){
-  MOP.visible=true;
-  await Promise.all([camTo(1.7,.9,Math.PI/2+.1,-.95,1000),tween(k=>{EYE.y=1.6-.35*k},1000)]);
+  MOP.position.set(.24,-.22,-.8);MOP.rotation.set(-.3,0,-.12);MOP.visible=true;
+  await Promise.all([camTo(1.7,.9,Math.PI/2+.1,-.5,1000),tween(k=>{EYE.y=1.6-.28*k},1000)]);
   await say('Mop the floor. Every night, same thing.',2200);
   const t0=performance.now();let nx=0,scared=false;
   await tween(k=>{
@@ -106,7 +108,7 @@ async function mop(){
 async function cups(){
   const stops=[[[-2.2,1.2],[0,1],-3,1.2],[[-1.0,-.1],[2],-1.7,.3],[[2.8,-.8],[3,4],2.8,-1.8]];
   for(let s=0;s<stops.length;s++){const [[px,pz],idx,tx,tz]=stops[s];
-    await camTo(px,pz,yawTo(tx,tz),-.55,s?800:1000);
+    await camTo(px,pz,yawFrom(px,pz,tx,tz),-.55,s?800:1000);
     for(const j of idx){const m=CUPS2[j],p0=m.position.clone();handAct('reach',800);
       await tween(k=>{m.position.set(p0.x+(px-p0.x)*k,p0.y+.4*k,p0.z+(pz-p0.z)*k);m.scale.setScalar(1+.6*k)},520);
       A.clink();m.visible=false;await csleep(220)}
@@ -119,27 +121,31 @@ async function cups(){
       await flicker([.3,0,.7,0,1],80);G.FIG.visible=false;
       await look(2.8,-1.8,-.3,600);await say('...Just a shadow from the street.',2200)}}
   /* to the bin */
-  await Promise.all([pace(3.9,-2.45,1300),camTo(P.x,P.z,yawTo(4.5,-2.2),-.5,900)]);
+  await Promise.all([pace(3.0,-2.3,1300),camTo(3.0,-2.3,yawFrom(3.0,-2.3,4.5,-2.2),-.6,1300)]);
   for(let i=0;i<5;i++){A.tone(2400-i*120,1800,.08,.05);A.nz(.08,3000,1800,.05,'highpass');await csleep(260)}
   BAGW.visible=true;
   await say('All the cups. Into the bin. The bag is full.',2400)}
 
-/* 3. trash — carry the bag to the lane. something is standing in the kitchen door behind you. */
-async function trash(){
-  await camTo(3.9,-2.45,yawFrom(3.9,-2.45,4.5,-2.2),-.6,700);
-  handAct('reach',1200);await csleep(500);BAGW.visible=false;A.nz(.3,500,300,.1);G.SFX&&G.SFX.play('bag',{g:.7,wet:.15});
+/* 3. trash, in three taps: pick up the bag, open the back door, throw it in the lane bin */
+async function bagUp(){
+  await camTo(P.x,P.z,yawFrom(P.x,P.z,4.5,-2.2),-.6,800);
+  handAct('reach',1500);await csleep(500);A.nz(.3,500,300,.1);G.SFX&&G.SFX.play('bag',{g:.7,wet:.15});
+  {const bx=BAGW.position.x,bz=BAGW.position.z;await tween(k=>{BAGW.position.set(bx+(P.x+Math.sin(-P.yaw)*.55-bx)*k,.66+.55*k,bz+(P.z-Math.cos(P.yaw)*.55-bz)*k)},650)}
+  BAGW.visible=false;BAGW.position.set(4.5,.66,-2.2);
   TB.visible=true;TB.position.set(.22,-.42,-.62);
-  await say('Take the bag out the back.',1800);
-  await camTo(P.x,P.z,yawTo(3.8,-4),0,600);
+  await csleep(500);await say('Heavy. Out the back, then.',1900)}
+async function backDoor(){
   CINE.noclip=true;
-  await pace(3.8,-4.7,1800);
-  await camTo(P.x,P.z,yawTo(5.1,-5.1),0,600);
-  /* the back door */
-  handAct('reach',1200);await csleep(500);A.click();A.nz(.8,300,520,.1,'bandpass',4);
+  await camTo(P.x,P.z,yawFrom(P.x,P.z,5.05,-5.1),-.08,700);
+  handAct('reach',1500);await csleep(600);A.click();A.nz(.8,300,520,.1,'bandpass',4);
   await tween(k=>dAt(Math.min(1,k*1.1)),900);
-  await pace(6.6,-5.1,1900);
-  await camTo(P.x,P.z,yawTo(8.9,-8.2),-.15,900);
-  await pace(8.2,-7.4,1700);
+  const di=AABB.indexOf(doorBlock);if(di>=0)AABB.splice(di,1);
+  CINE.noclip=false;
+  await say('Cold air from the lane.',1700)}
+async function throwBag(){
+  CINE.noclip=true;
+  await camTo(P.x,P.z,yawFrom(P.x,P.z,8.9,-8.7),-.3,800);
+  await pace(8.2,-7.4,900);
   await camTo(P.x,P.z,yawTo(8.9,-8.7),-.3,500);
   await lampFlick([.4,1,.2,.8]);
   /* lid up, bag in */
@@ -166,5 +172,5 @@ async function trash(){
   handAct('reach',1200);await csleep(400);
   await tween(k=>dAt(1-k),700);A.knock();
   await csleep(400);
-  CINE.noclip=false;SBIN.visible=false;}
+  CINE.noclip=false;SBIN.visible=false;TB.visible=false;if(AABB.indexOf(doorBlock)<0)AABB.push(doorBlock)}
 }
