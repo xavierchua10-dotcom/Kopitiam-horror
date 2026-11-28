@@ -21,10 +21,10 @@ function shelf(x,z,len,alongX){
     let u=-len/2+.12;while(u<len/2-.3){const w=.2+rnd()*.26,hh=.14+rnd()*.26,c=cols[Math.floor(rnd()*cols.length)];
       if(rnd()<.18){u+=.28;continue}
       alongX?box(w,hh,dp*.72,c,x+u+w/2,y+.02+hh/2,z):box(dp*.72,hh,w,c,x,y+.02+hh/2,z+u+w/2);u+=w+.05}}}
-shelf(-4.78,-5.5,2.6,false);   /* west wall */
-shelf(-3.75,-6.78,1.9,true);   /* north wall */
-shelf(-3.9,-4.22,1.5,true);    /* south wall */
-AABB.push([-5,-4.5,-6.9,-4.1],[-4.7,-2.8,-7,-6.55],[-4.65,-3.15,-4.45,-4]);
+shelf(-4.72,-5.5,2.6,false);   /* west wall */
+shelf(-3.75,-6.72,1.9,true);   /* north wall */
+shelf(-3.9,-4.3,1.5,true);    /* south wall */
+AABB.push([-5,-4.45,-6.9,-4.1],[-4.7,-2.8,-7,-6.5],[-4.65,-3.15,-4.5,-4]);
 /* floor clutter: a kopi sack stack and a crate by the door */
 box(.5,.18,.4,M(0xc9b98a),-3.0,.09,-6.55);box(.46,.16,.38,M(0xbfae80),-3.02,.26,-6.55);box(.5,.4,.5,M(0x7a5a38),-3.05,.2,-4.5);
 AABB.push([-3.3,-2.7,-6.8,-6.3],[-3.35,-2.75,-4.75,-4.25]);
