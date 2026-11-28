@@ -17,9 +17,9 @@ const KDOOR=new T.Group();KDOOR.position.set(5.05,0,-4.55);KDOOR.rotation.y=DC;s
 {const l=new T.Mesh(new T.BoxGeometry(1.08,2.1,.05),M(0x6b7a80));l.position.set(.54,1.05,0);KDOOR.add(l);
  const h=new T.Mesh(new T.BoxGeometry(.2,.05,.07),M(0xc9c9c9));h.position.set(.95,1.0,.05);KDOOR.add(h)}
 const dAt=k=>{KDOOR.rotation.y=DC+(DO-DC)*k};
-const conc=ctex(64,64,c=>{c.fillStyle='#6e6e6a';c.fillRect(0,0,64,64);c.strokeStyle='rgba(20,20,20,.5)';c.strokeRect(0,0,64,64)},4,3);
+const conc=ctex(64,64,c=>{c.fillStyle='#8d8d88';c.fillRect(0,0,64,64);c.strokeStyle='rgba(20,20,20,.4)';c.strokeRect(0,0,64,64)},4,3);
 const lf=new T.Mesh(new T.PlaneGeometry(5.5,6.5),M(0xffffff,{map:conc}));lf.rotation.x=-Math.PI/2;lf.position.set(7.75,.005,-6.2);scene.add(lf);
-const brick=ctex(64,64,c=>{c.fillStyle='#7a3f2d';c.fillRect(0,0,64,64);for(let y=0;y<64;y+=8)for(let x=(y/8%2)*8;x<64;x+=16){c.fillStyle=`hsl(${12+Math.random()*8},45%,${28+Math.random()*10}%)`;c.fillRect(x+1,y+1,14,6)}},3,1);
+const brick=ctex(64,64,c=>{c.fillStyle='#7a3f2d';c.fillRect(0,0,64,64);for(let y=0;y<64;y+=8)for(let x=(y/8%2)*8;x<64;x+=16){c.fillStyle=`hsl(${12+Math.random()*8},45%,${42+Math.random()*12}%)`;c.fillRect(x+1,y+1,14,6)}},3,1);
 const bm=M(0xffffff,{map:brick,side:T.DoubleSide});
 const bw=(w,x,z,ry)=>{const m=new T.Mesh(new T.PlaneGeometry(w,4.2),bm);m.position.set(x,2.1,z);m.rotation.y=ry;scene.add(m)};
 bw(6.6,10.5,-6.2,-Math.PI/2);bw(5.5,7.75,-9.5,0);bw(2.5,5,-8.25,-Math.PI/2);bw(5.5,7.75,-2.9,0);

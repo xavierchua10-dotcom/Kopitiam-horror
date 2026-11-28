@@ -213,3 +213,4 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 - 202611273038: Store room shelf posts no longer poke through the dining room's back wall (three red poles visible from the dining room).
 - 202611273039: Back to the old door behaviour (reverted 037): doors play the short door scene again; Day 1 front door still starts closed with the door button. Store room shelf fix kept.
 - 202611273040: Store room door only: tap the button to open or close it freely (no scene). Other doors keep the old scenes.
+- build 041 (202611281445): Day 1 polish: home-door camera pulled back (Atuk and No.7 fit), feet shot looks down further, midnight ending camera settles on Atuk's closing door, back lane brick/concrete brightened.
