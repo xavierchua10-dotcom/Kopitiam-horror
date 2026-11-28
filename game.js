@@ -884,9 +884,9 @@ async function wakeUp(){
   handAct('knock',900);await sleep(480);A.click();stopAlarm();ALK.position.z=15.82;await sleep(300);ALK.position.z=15.85;await sleep(700);
   await lids(0,650);setClock('6:55 AM');drawClock(6,55);await sleep(1600);
   await lids(.3,500);await lids(0,160);await lids(1,700);
-  handAct('reach',2300);const p0=ALK.position.clone();await tween(k=>{ALK.position.set(p0.x+(14.5-p0.x)*k,p0.y+(.74-p0.y)*k,p0.z+(16.55-p0.z)*k);ALK.scale.setScalar(1+.6*k)},800);
+  handAct('reach',2300);const p0=ALK.position.clone();await tween(k=>{ALK.position.set(p0.x+(14.5-p0.x)*k,p0.y+(.62-p0.y)*k,p0.z+(16.45-p0.z)*k);ALK.scale.setScalar(1+.4*k)},800);
   await say(sp('YOU','6:55?!'),1500);await say(sp('YOU',"Atuk opens at seven... I'm late!"),2400);
-  await tween(k=>{ALK.position.set(14.5+(p0.x-14.5)*k,.74+(p0.y-.74)*k,16.55+(p0.z-16.55)*k);ALK.scale.setScalar(1.6-.6*k)},500);
+  await tween(k=>{ALK.position.set(14.5+(p0.x-14.5)*k,.62+(p0.y-.62)*k,16.45+(p0.z-16.45)*k);ALK.scale.setScalar(1.4-.4*k)},500);
   await Promise.all([tween(k=>{EYE.y=.62+(1.6-.62)*k},1300),camTo(13.1,18.2,Math.PI,0,1300)]);
   EYE.y=1.6;CINE.noclip=false;await cineOut();cv.style.transition='';cv.style.filter=''}
 async function beginDay1(){
@@ -1038,7 +1038,7 @@ const G={tm:nightClock,yawFrom,ZONES,AABB,AMB,person,THREE,scene,camera,P,EYE,A,
   AEV,AMBD,get ac(){return ac},get master(){return master},get ambG(){return ambG},
   get state(){return state},set state(v){state=v},get busy(){return busy},set busy(v){busy=v},
   setLights(v){lightsOn=v},setBlur(v){cv.style.transition='filter 1.4s';cv.style.filter=v?'blur(8px)':''}};
-const V=new URL(import.meta.url).search,BUILD='202611273026';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+const V=new URL(import.meta.url).search,BUILD='202611273027';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));
