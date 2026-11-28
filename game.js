@@ -1146,7 +1146,7 @@ let FXM='auto';try{const v=localStorage.lo_fx;if(v==='full'||v==='off')FXM=v}cat
     const sx=(b.max.x-b.min.x)*Math.abs(o.scale.x),sy=(b.max.y-b.min.y)*Math.abs(o.scale.y),sz=(b.max.z-b.min.z)*Math.abs(o.scale.z);
     o.receiveShadow=true;if(sy<2.1&&sx<2.8&&sz<2.8&&sy>.05)o.castShadow=true;m.needsUpdate=true})};
   G.tick.push(dt=>{if(!SH)return;shT-=dt;if(shT<=0){shT=3.5;flag()}
-    const cs=FXM!=='off'&&!(window.__lite&&FXM==='auto');if(SH.castShadow!==cs)SH.castShadow=cs;const inShop=cs&&P.x>-10&&P.x<7&&P.z>-5&&P.z<4.6;SH.intensity=inShop?Math.min(1,lightF)*({day:16,dusk:28,night:52})[TIME||'night']:0});
+    const cs=FXM!=='off'&&!(window.__lite&&FXM==='auto');if(SH.castShadow!==cs)SH.castShadow=cs;const near=cs&&P.x>-10&&P.x<7&&P.z>-5&&P.z<16?1:0;SH.userData.z=(SH.userData.z||0)+(near-(SH.userData.z||0))*Math.min(1,dt*2.5);SH.intensity=SH.userData.z*Math.min(1,lightF)*({day:16,dusk:28,night:52})[TIME||'night']});
   document.head.insertAdjacentHTML('beforeend','<style>#grade{position:fixed;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(20,50,80,.10),rgba(70,35,5,.08))}#grain{position:fixed;inset:0;pointer-events:none;opacity:.025;background-size:96px 96px}</style>');
   try{const c=document.createElement('canvas');c.width=c.height=96;const x=c.getContext('2d'),d=x.createImageData(96,96);for(let i=0;i<d.data.length;i+=4){const v=Math.random()*255|0;d.data[i]=d.data[i+1]=d.data[i+2]=v;d.data[i+3]=255}x.putImageData(d,0,0);
     cv.insertAdjacentHTML('afterend','<div id="grade"></div><div id="grain"></div>');document.getElementById('grain').style.backgroundImage='url('+c.toDataURL()+')'}catch(e){}
@@ -1172,7 +1172,7 @@ let FXM='auto';try{const v=localStorage.lo_fx;if(v==='full'||v==='off')FXM=v}cat
     const cal=new T.Mesh(new T.PlaneGeometry(.38,.52),new T.MeshBasicMaterial({map:mk(76,104,(x,W,H)=>{x.fillStyle='#e8dfc6';x.fillRect(0,0,W,H);x.fillStyle='#a02a20';x.fillRect(0,0,W,24);x.fillStyle='#fff';x.font='bold 14px sans-serif';x.fillText('JUN',22,17);x.fillStyle='#222';x.font='9px sans-serif';for(let r=0;r<5;r++)for(let c=0;c<7;c++)x.fillText(String(r*7+c+1).padStart(2),5+c*10,40+r*12)})}));cal.position.set(2.6,1.55,-3.92);cal.userData.noSoot=1;scene.add(cal);
     const n=80,pa=new Float32Array(n*3),pg=new T.BufferGeometry();for(let i=0;i<n;i++){pa[i*3]=-1.2+rnd(-2,2);pa[i*3+1]=rnd(.3,2.7);pa[i*3+2]=.4+rnd(-2,2)}pg.setAttribute('position',new T.BufferAttribute(pa,3));
     const dust=new T.Points(pg,new T.PointsMaterial({color:0xffe9c0,size:.022,transparent:true,opacity:.45,depthWrite:false,blending:T.AdditiveBlending}));scene.add(dust);
-    G.tick.push(dt=>{dust.visible=FXM!=='off'&&P.x>-10&&P.x<7&&P.z>-5&&P.z<4.6;if(!dust.visible)return;const a=pg.attributes.position.array;for(let i=0;i<n;i++){a[i*3+1]+=dt*.012;a[i*3]+=Math.sin(performance.now()/4000+i)*dt*.01;if(a[i*3+1]>2.8)a[i*3+1]=.3}pg.attributes.position.needsUpdate=true})
+    G.tick.push(dt=>{dust.visible=FXM!=='off'&&P.x>-10&&P.x<7&&P.z>-5&&P.z<9;if(!dust.visible)return;const a=pg.attributes.position.array;for(let i=0;i<n;i++){a[i*3+1]+=dt*.012;a[i*3]+=Math.sin(performance.now()/4000+i)*dt*.01;if(a[i*3+1]>2.8)a[i*3+1]=.3}pg.attributes.position.needsUpdate=true})
   }catch(e){}
 }
 /* ---- street pass: puddles that catch the lamps at dusk/night, bin bags, crates, cardboard, bottles along the five-foot way ---- */
@@ -1214,7 +1214,7 @@ let FXM='auto';try{const v=localStorage.lo_fx;if(v==='full'||v==='off')FXM=v}cat
   }catch(e){SHF=null}
   let slow=0;
   G.tick.push(dt=>{
-    if(SHF){const inShop=P.x>-10&&P.x<7&&P.z>-5&&P.z<4.6;const want=(FXM!=='off'&&inShop&&TIME==='night'&&!(window.__lite&&FXM==='auto'))?Math.min(1,lightF)*.1:0;SHF.userData.m.opacity+=(want-SHF.userData.m.opacity)*Math.min(1,dt*3);SHF.visible=SHF.userData.m.opacity>.004}
+    if(SHF){const inShop=P.x>-10&&P.x<7&&P.z>-5&&P.z<16;const want=(FXM!=='off'&&inShop&&TIME==='night'&&!(window.__lite&&FXM==='auto'))?Math.min(1,lightF)*.1:0;SHF.userData.m.opacity+=(want-SHF.userData.m.opacity)*Math.min(1,dt*3);SHF.visible=SHF.userData.m.opacity>.004}
     if(FXM==='auto'&&ema>52&&RES<=.6){slow+=dt;if(slow>5&&!window.__lite){window.__lite=1;try{scene.traverse(o=>{if(o.isSpotLight&&o.castShadow){o.castShadow=false}});if(SHF)SHF.visible=false;console.warn('lite mode')}catch(e){}}}else slow=Math.max(0,slow-dt*.5)})
 }
 /* ---- last pass: bathroom details, real-looking lamp glow ---- */
@@ -1300,7 +1300,7 @@ let FXM='auto';try{const v=localStorage.lo_fx;if(v==='full'||v==='off')FXM=v}cat
    const r=new THREE.BufferGeometry();r.setAttribute('position',new THREE.Float32BufferAttribute(p,3));r.setAttribute('normal',new THREE.Float32BufferAttribute(n,3));r.setAttribute('uv',new THREE.Float32BufferAttribute(u,2));r.setIndex(ix);return r};
  const MATS={trim:TRIM,dark:DARK,win:WIN,int:INT};
  for(const k in L){if(!L[k].length)continue;const m=new THREE.Mesh(merge(L[k]),MATS[k]);m.userData.noSoot=true;m.name='thick_'+k;scene.add(m)}}
-const V=new URL(import.meta.url).search,BUILD='202611290610';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+const V=new URL(import.meta.url).search,BUILD='202611290628';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));
