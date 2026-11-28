@@ -822,10 +822,10 @@ async function d1FuseAct(){if(busy||CINE.on)return;busy=true;await cineIn();
   await say('The breaker is warm to the touch.',2000);handAct('reach',900);await csleep(500);A.click();
   try{led.material=led.material.clone();led.material.color.setHex(0x3cff5a)}catch(_){}await csleep(350);
   torch.intensity=0;await lightsOnNow();setClock('5:55 PM');
-  await camTo(-4.0,.5,yawFrom(-4.0,.5,-1.5,-.5),0,900);
+  await camTo(-4.5,2.5,yawFrom(-4.5,2.5,-2.3,-.3),.02,1200);
   await say('The lights are back.',1600);
   await crowdWake();
-  await camTo(-4.0,.5,yawFrom(-4.0,.5,atuk.position.x,atuk.position.z),0,900);
+  await camTo(-4.5,2.5,yawFrom(-4.5,2.5,atuk.position.x,atuk.position.z),.02,900);
   await say(sp('ATUK','Okay. Shop tutup now. Tonight, if anybody knock our door...'),3200);
   await say(sp('ATUK',"Don't open. Don't care who. Don't care what they say."),3200);
   await say(sp('ATUK','Only three knock. Same like this morning. That one is us. Faham?'),3400);
@@ -1051,7 +1051,7 @@ const G={KC,flo,wall,doorLeaf,regDoor,tm:nightClock,yawFrom,ZONES,AABB,AMB,perso
   AEV,AMBD,get ac(){return ac},get master(){return master},get ambG(){return ambG},
   get state(){return state},set state(v){state=v},get busy(){return busy},set busy(v){busy=v},
   setLights(v){lightsOn=v},setBlur(v){cv.style.transition='filter 1.4s';cv.style.filter=v?'blur(8px)':''}};
-const V=new URL(import.meta.url).search,BUILD='202611281545';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+const V=new URL(import.meta.url).search,BUILD='202611281610';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));
