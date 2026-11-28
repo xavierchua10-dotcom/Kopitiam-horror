@@ -112,8 +112,8 @@ export default function install(G){
   const D=G.AMBD;
   D[1].ev.push('metal','chop');
   D[2].ev.push('metal','moan','scratch','bed','creepy','chop','drawer');
-  D[3].ev.push('moan','deepmoan','laugh','zombie','scratch','bed','hiss','creepy','mech','doom','chop','drawer','metalscr');
-  D[4].ev.push('growl','zombie','moan','deepmoan','scream','drone','hiss','creepy','mech','doom','yell','metalscr');
+  D[3].ev.push('moan','deepmoan','laugh','scratch','bed','hiss','creepy','mech','doom','chop','drawer','metalscr');
+  D[4].ev.push('moan','deepmoan','scream','drone','hiss','creepy','mech','doom','yell','metalscr');
   D[5].ev.push('choir','harm','bell');
 
   /* the chase: something follows, and you hear it */

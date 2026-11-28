@@ -266,3 +266,4 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 - Build 092 (202611290716): kitchen light now stays on across the whole shop (no pop when you walk into the kitchen); bathroom light switches on from the corridor instead of only inside.
 - Build 093 (202611290738): dev-only toggle on the title screen ('Random figure: ON / OFF (test)', visible only with ?dev=1) to stop the random standing figure on Days 2-3 while testing. Saved in localStorage lo_noamb; players never see it and it has no effect without dev mode.
 - Build 094 (202611290752): Day 3 toilet crying now uses sobbing-breath recordings (injured + breath_fast with room echo) instead of the synth tone; falls back to the tone if samples are missing.
+- Build 095 (202611290804): removed zombie and monster growl from the random unseen sounds (Days 3-4); they did not fit the story. Moans, breathing, scream, yell, drones stay.
