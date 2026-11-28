@@ -187,7 +187,8 @@ async function atukRule(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
 
 /* ---------- lock up, go home ---------- */
 WPS.d2_lock={x:.3,z:5.3,r:.6,go:1,fn:lockUp};
-async function lockUp(){if(G.busy||CINE.on||D.walking)return;G.busy=true;await cineIn();
+async function lockUp(){if(G.busy||CINE.on||D.walking)return;G.busy=true;if(G.lockReveal)G.lockReveal();await cineIn();
+  if(G.lockStare){G.busy=false;await G.lockStare(true,2);G.busy=true}
   await camTo(.3,5.2,yawFrom(.3,5.2,0,3.9),.1,900);
   handAct('lift',2000);A.shutter();await tween(k=>{shutter.position.y=3.6-2.4*k;P.pitch=.1-.25*k},1800);shutBlock(true);
   A.click();handAct('reach',1200);await say('You pull the padlock through. Click.',2200);
