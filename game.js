@@ -1263,7 +1263,7 @@ let FXM='auto';try{const v=localStorage.lo_fx;if(v==='full'||v==='off')FXM=v}cat
       if(lookT>.55||now-spawnAt>28||CINE.on||busy){F.visible=false;amb=0;nextAmb=now+55+Math.random()*50;
         if(lookT>.55&&!CINE.on){const l=lightF;applyLights(.08);setTimeout(()=>{if(Math.abs(lightF-.08)<.001)applyLights(l)},260)}lookT=0}
       return}
-    if(!sc||!/^d[23]_/.test(state)||CINE.on||busy||F.visible||now<nextAmb||now-lastScript<25)return;
+    if(window.__noAmb||!sc||!/^d[23]_/.test(state)||CINE.on||busy||F.visible||now<nextAmb||now-lastScript<25)return;
     const inShop=P.x>-4.5&&P.x<5&&P.z>-3.5&&P.z<3.8;if(!inShop)return;
     const cand=SP.filter(p=>{const dd=Math.hypot(p[0]-P.x,p[1]-P.z);if(dd<3.6)return false;const a=Math.atan2(-(p[0]-P.x),-(p[1]-P.z)),d=Math.abs(Math.atan2(Math.sin(a-P.yaw),Math.cos(a-P.yaw)));return d>1.05});
     if(!cand.length){nextAmb=now+6;return}
@@ -1303,7 +1303,7 @@ let FXM='auto';try{const v=localStorage.lo_fx;if(v==='full'||v==='off')FXM=v}cat
    const r=new THREE.BufferGeometry();r.setAttribute('position',new THREE.Float32BufferAttribute(p,3));r.setAttribute('normal',new THREE.Float32BufferAttribute(n,3));r.setAttribute('uv',new THREE.Float32BufferAttribute(u,2));r.setIndex(ix);return r};
  const MATS={trim:TRIM,dark:DARK,win:WIN,int:INT};
  for(const k in L){if(!L[k].length)continue;const m=new THREE.Mesh(merge(L[k]),MATS[k]);m.userData.noSoot=true;m.name='thick_'+k;scene.add(m)}}
-const V=new URL(import.meta.url).search,BUILD='202611290716';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+const V=new URL(import.meta.url).search,BUILD='202611290738';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));
@@ -1414,6 +1414,10 @@ if(DEV){const ov=document.createElement('div');ov.id='chap';ov.className='card';
  ov.querySelector('#chb').addEventListener('click',()=>{ov.style.display='none';$('title').style.display='flex'});
  const lk=document.createElement('button');lk.id='chapBtn';lk.textContent='Scenes (test)';lk.style.cssText='margin:6px 0 0;padding:6px 14px;background:transparent;border:0;color:#f2b84b;box-shadow:none;font-size:12px;font-weight:500;letter-spacing:.4px;text-decoration:underline';
  $('begin').after(lk);lk.addEventListener('click',()=>{$('title').style.display='none';ov.style.display='flex'});
+ {/* dev-only: stop the random standing figure (Days 2-3) so you can test calmly */
+  try{window.__noAmb=localStorage.lo_noamb==='1'}catch(_){}
+  const ab=document.createElement('button');ab.style.cssText=lk.style.cssText;const lab=()=>ab.textContent='Random figure: '+(window.__noAmb?'OFF (test)':'ON');lab();
+  ab.addEventListener('click',()=>{window.__noAmb=!window.__noAmb;try{localStorage.lo_noamb=window.__noAmb?'1':'0'}catch(_){}lab()});lk.after(ab)}
  if(QS.get('menu')==='1'){$('title').style.display='none';ov.style.display='flex'}
  if(SCQ){$('begin').textContent='Tap to play scene';const r=SCENES.flatMap(g=>g[1]).find(x=>x[0]===SCQ);if(r){const p=document.createElement('p');p.style.cssText='color:#f2b84b;font-size:12px;margin:0 0 8px';p.textContent='Scene: '+r[1];$('begin').before(p)}}}
 $('again').addEventListener('click',()=>location.reload());
