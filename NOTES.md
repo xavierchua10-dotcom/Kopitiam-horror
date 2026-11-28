@@ -197,3 +197,4 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 - 202611273022: Atuk clinging lines Days 2-4 ("Stay a while, cucu", "Where you want to go?", "Everybody leaves... just not you"); Day 2 walk-home street scare (player in control, driver figure ahead, snaps close when you look, whispers maaf).
 - 202611273023: Marker A (small bobbing arrow + thick ring, no beam); fuse box cutscene walks you to the box with torch, breaker switches visible, LED turns green, lights on.
 - 202611273024: Midnight knock: bedroom door is closed while Atuk knocks, swings open when you tap Open the door.
+- 202611273025: Atuk's bedroom door swings shut after he walks back at midnight.

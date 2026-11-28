@@ -620,7 +620,7 @@ async function midnightDoor(){
   {let cx=13.1,cz=19.7;for(const [tx,tz] of [[13.1,20.0],[9.1,20.0],[9.1,19.4],[9.1,18.3]]){const dx=tx-cx,dz=tz-cz,L=Math.hypot(dx,dz),x0=cx,z0=cz,ry=atuk.rotation.y,ty=Math.atan2(-dx,-dz),dyy=((ty-ry+Math.PI*3)%(Math.PI*2))-Math.PI;
     await tween(k=>{atuk.position.set(x0+dx*k,0,z0+dz*k);atuk.rotation.y=ry+dyy*Math.min(1,k*6);pose(atuk,performance.now()/170,'walk');
       if(atuk.position.x>12.3){const w=yawTo(atuk.position.x,atuk.position.z),dy=Math.atan2(Math.sin(w-P.yaw),Math.cos(w-P.yaw));P.yaw+=dy*.08}},L/1.6*1000);cx=tx;cz=tz}}
-  atuk.visible=false;pose(atuk,0,'stand');A.door();tween(k=>{HALLGLOW.intensity=1.3*(1-k)},900);await csleep(1000);
+  atuk.visible=false;pose(atuk,0,'stand');A.door();tween(k=>{HALLGLOW.intensity=1.3*(1-k);D_ATUK.rotation.y=1.45*(1-Math.min(1,k*1.4))},900);await csleep(1000);D_ATUK.rotation.y=0;
   await say("Atuk's door closes. The hall goes quiet.",2400);
   await say(sp('YOU','Six to one...? That is not how Atuk runs the shop.'),2800);
   $('fade').style.transition='opacity 1.6s';$('fade').style.opacity=1;await sleep(1800);
@@ -1037,7 +1037,7 @@ const G={tm:nightClock,yawFrom,ZONES,AABB,AMB,person,THREE,scene,camera,P,EYE,A,
   AEV,AMBD,get ac(){return ac},get master(){return master},get ambG(){return ambG},
   get state(){return state},set state(v){state=v},get busy(){return busy},set busy(v){busy=v},
   setLights(v){lightsOn=v},setBlur(v){cv.style.transition='filter 1.4s';cv.style.filter=v?'blur(8px)':''}};
-const V=new URL(import.meta.url).search,BUILD='202611273024';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+const V=new URL(import.meta.url).search,BUILD='202611273025';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));
