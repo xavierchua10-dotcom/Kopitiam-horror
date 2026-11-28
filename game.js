@@ -127,8 +127,8 @@ function faceTex(o){const ct=document.createElement('canvas');ct.width=64;ct.hei
   if(o.wrinkle){c.fillStyle='rgba(90,60,40,.45)';c.fillRect(cx-8,16,2,1);c.fillRect(cx+6,16,2,1);c.fillRect(cx-5,7,10,1)}
   c.fillStyle='rgba(200,110,90,.25)';c.fillRect(cx-8,16,3,2);c.fillRect(cx+5,16,3,2);
   const t=new THREE.CanvasTexture(ct);t.magFilter=t.minFilter=THREE.NearestFilter;t.colorSpace=THREE.SRGBColorSpace;return t}
-const nsph=(r,m,x,y,z,p,sx=1,sy=1,sz=1,ws=9,hs=7)=>{const s=new THREE.Mesh(new THREE.SphereGeometry(r,ws,hs),m);s.position.set(x,y,z);s.scale.set(sx,sy,sz);p.add(s);return s};
-const ncyl=(rt,rb,h,m,x,y,z,p,seg=8)=>{const s=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,seg),m);s.position.set(x,y,z);p.add(s);return s};
+const nsph=(r,m,x,y,z,p,sx=1,sy=1,sz=1,ws=9,hs=7)=>{const s=new THREE.Mesh(new THREE.SphereGeometry(r,Math.max(ws,16),Math.max(hs,11)),m);s.position.set(x,y,z);s.scale.set(sx,sy,sz);p.add(s);return s};
+const ncyl=(rt,rb,h,m,x,y,z,p,seg=8)=>{const s=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,Math.max(seg,16)),m);s.position.set(x,y,z);p.add(s);return s};
 const NM=(c,o={})=>new THREE.MeshLambertMaterial(Object.assign({color:c},o));
 /* ---- character polish: cloth folds, collar/buttons/cuffs/belt, eye shine, hair sheen, soft foot shadow (skipped for the black figure and the driver) ---- */
 let FABT=null,SKNT=null,FSHT=null;const PSH={};
@@ -1191,7 +1191,28 @@ const G={KC,flo,wall,doorLeaf,regDoor,tm:nightClock,yawFrom,ZONES,AABB,AMB,perso
     G.tick.push(()=>{PUD.visible=TIME!=='day'})
   }catch(e){console.warn('street',e)}
 }
-const V=new URL(import.meta.url).search,BUILD='202611290325';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+/* ---- full-force pass: glossy house floor, soft light shafts in the shop, auto-lite safety if the phone struggles ---- */
+{
+  const T=THREE;
+  try{
+    scene.traverse(o=>{if(o.isMesh&&o.geometry.type==='PlaneGeometry'&&o.material&&o.material.map&&o.material.isMeshLambertMaterial&&o.position.y<.1&&Math.abs(o.rotation.x+Math.PI/2)<.01){const p=o.geometry.parameters;if(p.width>=6&&p.width<=15&&p.height>=4&&p.height<=10){o.material=new T.MeshStandardMaterial({map:o.material.map,roughness:.34,metalness:.08});o.receiveShadow=true}}});
+  }catch(e){}
+  let SHF=null;
+  try{
+    const c=document.createElement('canvas');c.width=64;c.height=128;const x=c.getContext('2d');
+    const gh=x.createLinearGradient(0,0,64,0);gh.addColorStop(0,'rgba(255,225,170,0)');gh.addColorStop(.5,'rgba(255,225,170,1)');gh.addColorStop(1,'rgba(255,225,170,0)');x.fillStyle=gh;x.fillRect(0,0,64,128);
+    x.globalCompositeOperation='destination-in';const gv=x.createLinearGradient(0,0,0,128);gv.addColorStop(0,'rgba(0,0,0,.9)');gv.addColorStop(.5,'rgba(0,0,0,.35)');gv.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=gv;x.fillRect(0,0,64,128);
+    const tx=new T.CanvasTexture(c);const sm=new T.MeshBasicMaterial({map:tx,transparent:true,depthWrite:false,blending:T.AdditiveBlending,opacity:0,side:T.DoubleSide,fog:false});
+    SHF=new T.Group();SHF.position.set(-1.2,1.45,.4);scene.add(SHF);
+    for(let i=0;i<3;i++){const q=new T.Mesh(new T.PlaneGeometry(2.4,2.8),sm);q.rotation.y=i*Math.PI/3;SHF.add(q)}
+    SHF.userData.m=sm;
+  }catch(e){SHF=null}
+  let slow=0;
+  G.tick.push(dt=>{
+    if(SHF){const inShop=P.x>-10&&P.x<7&&P.z>-5&&P.z<4.6;const want=(inShop&&TIME==='night')?Math.min(1,lightF)*.1:0;SHF.userData.m.opacity+=(want-SHF.userData.m.opacity)*Math.min(1,dt*3);SHF.visible=SHF.userData.m.opacity>.004}
+    if(ema>52&&RES<=.6){slow+=dt;if(slow>5&&!window.__lite){window.__lite=1;try{scene.traverse(o=>{if(o.isSpotLight&&o.castShadow){o.castShadow=false}});if(SHF)SHF.visible=false;console.warn('lite mode')}catch(e){}}}else slow=Math.max(0,slow-dt*.5)})
+}
+const V=new URL(import.meta.url).search,BUILD='202611290342';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));

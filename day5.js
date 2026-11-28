@@ -168,6 +168,16 @@ function buildHospital(){if(HOSP)return;try{speechSynthesis.getVoices()}catch(e)
   const bn=new T.Mesh(new T.PlaneGeometry(1.5,.211),new T.MeshBasicMaterial({map:bann(0),transparent:true}));bn.position.set(X+2.835,1.9-.425+.1055,-.5);bn.rotation.y=-Math.PI/2;S.add(bn);
   HOSP.show=n=>{const t=HOSP.imgs[n];HTV.material.map=t;HTV.material.needsUpdate=true;bn.material.map=bann(n);bn.material.needsUpdate=true;
     const dx=[.03,-.03,0][n],dy=[.02,0,-.02][n];tween(k=>{const r=1-.16*k;t.repeat.set(r,r);t.offset.set((1-r)/2+dx*k,(1-r)/2+dy*k)},4400)};
+  /* ward details: curtain, wall clock, get-well cards, bedside table with flowers + tissues, plant */
+  {const cur=bx(.06,2.2,1.1,L(0x9ec0d6),-2.9,1.25,-1.55);bx(.06,.05,2.6,L(0xb8b8b0),-2.9,2.38,-.4);
+   const ck=new T.Mesh(new T.CircleGeometry(.2,20),new T.MeshBasicMaterial({color:0xf5f5f0}));ck.position.set(X,2.35,-3.43);S.add(ck);bx(.02,.14,.01,L(0x111111),0,2.38,-3.42);bx(.1,.015,.01,L(0x111111),.04,2.35,-3.42);
+   for(const [cx,cy,cc] of[[1.1,1.9,0xf7c6d0],[1.45,1.75,0xfff0b0],[1.8,1.95,0xc8e6f7]]){const cd=new T.Mesh(new T.PlaneGeometry(.26,.34),new T.MeshBasicMaterial({color:cc,side:T.DoubleSide}));cd.position.set(X+cx,cy,-3.44);S.add(cd)}
+   bx(.6,.7,.5,L(0xcfd6d2),1.9,.35,-3.0);bx(.62,.03,.52,L(0xe9ece8),1.9,.715,-3.0);
+   const vs=new T.Mesh(new T.CylinderGeometry(.06,.05,.2,10),new T.MeshLambertMaterial({color:0xdfeef5}));vs.position.set(X+1.9,.82,-3.0);S.add(vs);
+   for(const [fx,fy,fc] of[[0,.1,0xe85a7a],[.05,.14,0xffd04a],[-.05,.13,0xffffff],[.02,.2,0xe85a7a]]){const fl=new T.Mesh(new T.SphereGeometry(.045,8,6),new T.MeshLambertMaterial({color:fc}));fl.position.set(X+1.9+fx,.92+fy,-3.0);S.add(fl)}
+   bx(.12,.08,.1,L(0xffffff),2.1,.75,-2.85);
+   const pot=new T.Mesh(new T.CylinderGeometry(.14,.1,.22,10),new T.MeshLambertMaterial({color:0xb9714f}));pot.position.set(X-2.5,.11,2.9);S.add(pot);
+   for(let k=0;k<5;k++){const lf=new T.Mesh(new T.SphereGeometry(.13,8,6),new T.MeshLambertMaterial({color:0x3f8a4f}));lf.position.set(X-2.5+Math.sin(k*1.3)*.1,.38+k*.07,2.9+Math.cos(k*1.3)*.1);lf.scale.set(1,1.4,1);S.add(lf)}}
   const lg=new T.PointLight(0xfff2de,14,10,1.4);lg.position.set(X,2.7,0);S.add(lg);const l2=new T.PointLight(0xdfeeff,8,8,1.5);l2.position.set(X-2.3,1.7,-.4);S.add(l2);
   const pp=G.person;
   HOSP.mama=pp(X-.95,-1.3,0,0xc77a8a,0x1a1210,0xc9a27e,{long:true,bot:0x4a4a58});HOSP.papa=pp(X+.95,-1.5,0,0x4a6a8a,0x1a1a1a,0xc9a27e,{bot:0x2a2a30});
