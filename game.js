@@ -1120,7 +1120,31 @@ const G={KC,flo,wall,doorLeaf,regDoor,tm:nightClock,yawFrom,ZONES,AABB,AMB,perso
   try{const c=document.createElement('canvas');c.width=c.height=96;const x=c.getContext('2d'),d=x.createImageData(96,96);for(let i=0;i<d.data.length;i+=4){const v=Math.random()*255|0;d.data[i]=d.data[i+1]=d.data[i+2]=v;d.data[i+3]=255}x.putImageData(d,0,0);
     cv.insertAdjacentHTML('afterend','<div id="grade"></div><div id="grain"></div>');document.getElementById('grain').style.backgroundImage='url('+c.toDataURL()+')'}catch(e){}
 }
-const V=new URL(import.meta.url).search,BUILD='202611290246';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+/* ---- lived-in pass: glossy floor, table props, damp wall streaks, calendar, slow dust ---- */
+{
+  const T=THREE,rnd=(a,b)=>a+Math.random()*(b-a);
+  const L=(c)=>new T.MeshLambertMaterial({color:c});
+  const mk=(W,H,f)=>{const c=document.createElement('canvas');c.width=W;c.height=H;f(c.getContext('2d'),W,H);const t=new T.CanvasTexture(c);t.colorSpace=T.SRGBColorSpace;return t};
+  try{
+    scene.traverse(o=>{if(o.isMesh&&o.geometry.type==='PlaneGeometry'&&o.geometry.parameters.width===10&&o.geometry.parameters.height===8&&o.material&&o.material.map){const old=o.material;o.material=new T.MeshStandardMaterial({map:old.map,roughness:.24,metalness:.1});o.receiveShadow=true}});
+  }catch(e){}
+  try{
+    const sug=new T.MeshStandardMaterial({color:0xb9b9b0,roughness:.3,metalness:.4}),paper=L(0xd8d2c0),napk=L(0xbb3b2e),soy=L(0x2a1a10),cap=L(0xcc3322);
+    TABLES.forEach(([x,z],i)=>{const y=.78,add=(m,px,py,pz,ry)=>{m.position.set(px,py,pz);if(ry)m.rotation.y=ry;scene.add(m);return m};
+      add(new T.Mesh(new T.CylinderGeometry(.04,.04,.1,10),sug),x+.25,y+.05,z-.15);
+      add(new T.Mesh(new T.BoxGeometry(.05,.05,.12),napk),x+.35,y+.025,z+.2);
+      if(i===1){add(new T.Mesh(new T.CylinderGeometry(.025,.025,.12,8),soy),x-.3,y+.06,z+.18);add(new T.Mesh(new T.CylinderGeometry(.012,.012,.03,6),cap),x-.3,y+.135,z+.18)}
+      if(i===3)add(new T.Mesh(new T.BoxGeometry(.28,.006,.2),paper),x+.1,y+.004,z+.15,.3)});
+    const stain=mk(256,256,(x,W,H)=>{for(let i=0;i<9;i++){const px=rnd(20,W-20),g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,'rgba(30,22,10,.5)');g.addColorStop(1,'rgba(30,22,10,0)');x.fillStyle=g;x.fillRect(px,0,rnd(3,16),rnd(70,230))}
+      const r=x.createRadialGradient(W/2,0,4,W/2,0,H*.9);r.addColorStop(0,'rgba(20,16,8,.45)');r.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=r;x.fillRect(0,0,W,H)});
+    for(const [x,w] of [[-4.4,3],[-1.2,3.4],[2.2,3]]){const m=new T.Mesh(new T.PlaneGeometry(w,1.9),new T.MeshBasicMaterial({map:stain,transparent:true,depthWrite:false,opacity:.8}));m.position.set(x,2.05,-3.93);scene.add(m)}
+    const cal=new T.Mesh(new T.PlaneGeometry(.38,.52),new T.MeshBasicMaterial({map:mk(76,104,(x,W,H)=>{x.fillStyle='#e8dfc6';x.fillRect(0,0,W,H);x.fillStyle='#a02a20';x.fillRect(0,0,W,24);x.fillStyle='#fff';x.font='bold 14px sans-serif';x.fillText('JUN',22,17);x.fillStyle='#222';x.font='9px sans-serif';for(let r=0;r<5;r++)for(let c=0;c<7;c++)x.fillText(String(r*7+c+1).padStart(2),5+c*10,40+r*12)})}));cal.position.set(2.6,1.55,-3.92);scene.add(cal);
+    const n=80,pa=new Float32Array(n*3),pg=new T.BufferGeometry();for(let i=0;i<n;i++){pa[i*3]=-1.2+rnd(-2,2);pa[i*3+1]=rnd(.3,2.7);pa[i*3+2]=.4+rnd(-2,2)}pg.setAttribute('position',new T.BufferAttribute(pa,3));
+    const dust=new T.Points(pg,new T.PointsMaterial({color:0xffe9c0,size:.022,transparent:true,opacity:.45,depthWrite:false,blending:T.AdditiveBlending}));scene.add(dust);
+    G.tick.push(dt=>{dust.visible=P.x>-10&&P.x<7&&P.z>-5&&P.z<4.6;if(!dust.visible)return;const a=pg.attributes.position.array;for(let i=0;i<n;i++){a[i*3+1]+=dt*.012;a[i*3]+=Math.sin(performance.now()/4000+i)*dt*.01;if(a[i*3+1]>2.8)a[i*3+1]=.3}pg.attributes.position.needsUpdate=true})
+  }catch(e){}
+}
+const V=new URL(import.meta.url).search,BUILD='202611290302';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));
