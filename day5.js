@@ -174,6 +174,10 @@ function buildHospital(){if(HOSP)return;const T=THREE,S=scene,X=HX;HOSP={};
   HOSP.mama.visible=HOSP.papa.visible=true;pose(HOSP.mama,0,'stand');pose(HOSP.papa,0,'stand')}
 G.tick.push(()=>{if(!HOSP)return;for(const g of[HOSP.mama,HOSP.papa]){const u=g.userData;let m=0;const tk=u.talk;if(tk){const t=(performance.now()-tk.t0)/1000;if(t>tk.end+.2)u.talk=null;else for(const [st,dd,a] of tk.syl){if(t>=st&&t<=st+dd){m=Math.sin((t-st)/dd*Math.PI)*a;break}}}u.mouth.visible=m>.08;u.mouth.scale.y=.08+m;u.mouth.scale.x=1.5-m*.3}});
 G.d5parents=()=>HOSP&&[HOSP.mama,HOSP.papa];
+/* the hospital song: fades in as you wake, fades out into the end card */
+let SONG=null;
+function songIn(){try{if(!SONG){SONG=new Audio('./sfx/forgotten_memories.mp3');SONG.preload='auto'}SONG.currentTime=0;SONG.volume=0;const p=SONG.play();if(p&&p.catch)p.catch(()=>{});const t0=performance.now();const f=()=>{if(!SONG)return;const k=Math.min(1,(performance.now()-t0)/4000);SONG.volume=.55*k;if(k<1&&!SONG.paused)requestAnimationFrame(f)};f()}catch(e){}}
+function songOut(ms){try{if(!SONG)return;const v0=SONG.volume,t0=performance.now();const f=()=>{const k=Math.min(1,(performance.now()-t0)/ms);SONG.volume=v0*(1-k);if(k<1)requestAnimationFrame(f);else SONG.pause()};f()}catch(e){}}
 async function hospital(w){
   buildHospital();const c=$('c'),X=HX;if(!CINE.on)await cineIn();   /* no walking in the hospital */
   HOSP.mama.userData.f0=215;HOSP.papa.userData.f0=105;const MA=HOSP.mama,PA=HOSP.papa;
@@ -185,6 +189,7 @@ async function hospital(w){
   w.style.transition='opacity 3.2s';w.style.opacity=0;
   tween(k=>{c.style.filter=`blur(${9*(1-k)}px) brightness(1.1)`;P.pitch=.6-.12*k},4200);
   await sleep(2600);
+  songIn();
   const sw=(t,ms)=>say(t,ms);
   await say(sp('MAMA','Sayang...? Can you hear Mama?'),3000,MA);
   await say(sp('PAPA','He is awake. Look... he is really awake.'),3200,PA);
@@ -206,8 +211,8 @@ async function hospital(w){
   await say(sp('YOU','...I was there.'),2400);
   await say(sp('MAMA','You were. And you came back to us, sayang. That is enough.'),3600,MA);
   await csleep(900);
-  $('fade').style.transition='opacity 2.8s';$('fade').style.opacity=1;await sleep(3200);
+  songOut(3000);$('fade').style.transition='opacity 2.8s';$('fade').style.opacity=1;await sleep(3200);
   scene.fog.density=.012;CINE.noclip=false;EYE.y=1.6;await cineOut()}
 G.d5hospital=async()=>{const w=document.createElement('div');w.id='hosp';w.style.cssText='position:fixed;inset:0;z-index:60;background:#f4f7f9;opacity:1;pointer-events:none';document.body.appendChild(w);G.busy=true;
-  await hospital(w);$('endh').textContent='LAST ORDER';$('endp').textContent='Some goodbyes come too soon.';$('endl').textContent='If you are carrying one, talk to someone you trust.';$('end').style.display='flex';G.busy=false;G.state='end'};
+  await hospital(w);$('endh').textContent='LAST ORDER';$('endp').textContent='Some goodbyes come too soon.';$('endl').innerHTML='If you are carrying one, talk to someone you trust.<br><span style="font-size:11px;opacity:.7">Music: “Forgotten Memories”</span>';$('end').style.display='flex';G.busy=false;G.state='end'};
 G.day5=start}
