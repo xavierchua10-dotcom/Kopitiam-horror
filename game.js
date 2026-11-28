@@ -532,15 +532,14 @@ it('radio',[4.15,1.2,-.2],'Turn off the radio',()=>state==='lit1',radioAct,[radi
 it('shutter',[0,1.2,3.9],()=>state==='d1_open'?'Lift the shutter':'Lower the shutter',()=>state==='lit1'||state==='d1_open',shutterAct,[shutter]);
 it('fuse',[-4.9,1.5,.5],'Check the fuse box',()=>state==='dark',fuseAct,[fuse]);
 it('hatch',[0,1.3,-3.9],'Check the kitchen hatch',()=>state==='lit2',hatchAct,[cup,slip,ledge]);
-let photoSeen=false;
-async function photoAct(){if(busy||CINE.on)return;busy=true;photoSeen=true;const x0=P.x,z0=P.z,y0=P.yaw;await cineIn();A.click();
+async function photoAct(){if(busy||CINE.on)return;busy=true;const po=ITS.find(i=>i.id==='photo');if(po)po.noMark=true;const x0=P.x,z0=P.z,y0=P.yaw;await cineIn();A.click();
   await camTo(4.55,21.3,Math.PI,-.02,700);
   await say(sp('YOU','Atuk and me, in front of the shop.'),2400);
   await say(sp('YOU','He told me to smile. Then he forgot to smile himself.'),3200);
   await camTo(x0,z0,y0,0,700);busy=false;await cineOut()}
 /* manual chores: stand in the ring, then tap the button (nothing starts by itself) */
 const MAN=it('man',[0,1.1,0],()=>{const w=WPS[state];return (w&&w.lab)||OBJB},()=>{const w=WPS[state];return !!(w&&w.manual&&!busy&&!CINE.on&&Math.hypot(P.x-w.x,P.z-w.z)<w.r+.55)},()=>{const w=WPS[state];if(w&&w.fn)w.fn()},[]);
-it('photo',[4.55,1.2,22.45],'Look at the photo',()=>!photoSeen&&!busy&&!CINE.on&&P.x>3&&P.x<15.5&&P.z>15,photoAct,PHOTO);
+it('photo',[4.55,1.2,22.45],'Look at the photo',()=>!busy&&!CINE.on&&P.x>3&&P.x<15.5&&P.z>15,photoAct,PHOTO);
 const hatchIt=ITS[3];
 it('housedoor',[6.1,1.2,15.1],'Go inside',()=>state==='leave',houseAct,[doorMesh]);
 async function radioAct(){busy=true;A.click();A.static(.12);await say('The radio hisses. Nobody tuned it.',2400);A.static(.2);await say('"...order forty-two..."',2300);A.static(.28);await say('"...still waiting..."',2300);A.static(0);A.sting();lightsOffNow();torch.intensity=26;state='dark';objT('Find the fuse box');busy=false;say('Something scrapes, far off in the dark.',2800);setTimeout(()=>A.scrape(),600)}
@@ -979,7 +978,7 @@ const mkTexs={};function mkTexFor(k){if(mkTexs[k])return mkTexs[k];const d=ICONS
   if(d.p){c.strokeStyle='#F2B531';c.lineWidth=1.3;c.lineCap='round';c.stroke(new Path2D(d.p))}c.restore()});t.minFilter=t.magFilter=THREE.LinearFilter;return t}
 function markers(t){const arrow=$('arrow');let tgt=null,td=1e9;
   for(const o of ITS){const on=o.enabled()&&o.id!=='atuk'||o.enabled();let m=MK[o.id];if(!m){m=MK[o.id]=new THREE.Sprite(new THREE.SpriteMaterial({map:mkTexFor(icOf(o)),depthTest:false,transparent:true,fog:false}));m.renderOrder=20;m.visible=false;scene.add(m)}
-    const d=Math.hypot(o.pos.x-P.x,o.pos.z-P.z);m.visible=!!(on&&d>2.2&&d<14&&!CINE.on);if(on&&d<td&&d>2.2){td=d;tgt=o}
+    const d=Math.hypot(o.pos.x-P.x,o.pos.z-P.z);m.visible=!!(on&&!o.noMark&&d>2.2&&d<14&&!CINE.on);if(on&&!o.noMark&&d<td&&d>2.2){td=d;tgt=o}
     if(m.visible){m.position.set(o.pos.x,o.pos.y+.55+Math.sin(t/260)*.05,o.pos.z);const sc=.2+d*.045;m.scale.set(sc,sc,1)}}
   if(tgt){const v=tgt.pos.clone().project(camera);let x=v.x,y=v.y;const behind=v.z>1;if(behind){x=-x;y=-y}
     if(!behind&&Math.abs(x)<.92&&Math.abs(y)<.85){arrow.style.display='none'}else{const a=Math.atan2(y,x);let ex=Math.cos(a),ey=Math.sin(a);const k=Math.max(Math.abs(ex)/.9,Math.abs(ey)/.8);ex/=k;ey/=k;arrow.style.display='block';arrow.style.left=(innerWidth*(ex+1)/2-11)+'px';arrow.style.top=(innerHeight*(1-ey)/2-11)+'px';arrow.style.transform='rotate('+(Math.PI/2-a)*57.3+'deg)'}}
@@ -1039,7 +1038,7 @@ const G={KC,tm:nightClock,yawFrom,ZONES,AABB,AMB,person,THREE,scene,camera,P,EYE
   AEV,AMBD,get ac(){return ac},get master(){return master},get ambG(){return ambG},
   get state(){return state},set state(v){state=v},get busy(){return busy},set busy(v){busy=v},
   setLights(v){lightsOn=v},setBlur(v){cv.style.transition='filter 1.4s';cv.style.filter=v?'blur(8px)':''}};
-const V=new URL(import.meta.url).search,BUILD='202611273032';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+const V=new URL(import.meta.url).search,BUILD='202611273033';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));
