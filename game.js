@@ -1100,7 +1100,7 @@ const G={KC,flo,wall,doorLeaf,regDoor,tm:nightClock,yawFrom,ZONES,AABB,AMB,perso
   AEV,AMBD,get ac(){return ac},get master(){return master},get ambG(){return ambG},
   get state(){return state},set state(v){state=v},get busy(){return busy},set busy(v){busy=v},
   setLights(v){lightsOn=v},setBlur(v){cv.style.transition='filter 1.4s';cv.style.filter=v?'blur(8px)':''}};
-const V=new URL(import.meta.url).search,BUILD='202611282150';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+const V=new URL(import.meta.url).search,BUILD='202611282205';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));
@@ -1151,6 +1151,8 @@ const SCENES=[
   ['s_lock','Lock the shutter',()=>{dayBase('dusk','6:30 PM');if(G.closeInit)G.closeInit();P.x=.3;P.z=5.3;P.yaw=yawFrom(.3,5.3,0,3.9);state='d1_lock'}],
   ['s_home','Walk home, three knocks',()=>{dayBase('dusk','6:45 PM');shutter.position.y=1.2;shutBlock(true);window.__doorG.rotation.y=0;P.x=6.1;P.z=14.0;P.yaw=0;state='d1_home'}],
   ['s_midnight','Midnight knock, new hours',()=>{dayBase('day','12:00 AM')}]]],
+ ['Day 2 (play it)',[
+  ['s2_chores','Chores + restock',null],['s2_bath','Bathroom mirror',null],['s2_rules','Atuk rules, then closing chores',null],['s2_close','Closing chores + lane scare',null],['s2_lock','Lock up, walk home',null]]],
  ['Later days',[['d2','Day 2 start',null],['d3','Day 3 start',null],['d4','Day 4 start',null],['d5','Day 5 start',null]]]];
 const SCRUN={s_greet:()=>cineAtuk(),s_report:()=>cineAtuk(),s_bath:()=>cineBath(),s_back:()=>cineAtuk(),s_evening:()=>cineAtuk(),s_fuse:()=>d1FuseAct(),s_lock:()=>cineLock(),s_home:()=>cineHome(),s_midnight:()=>midnight()};
 function scEnd(key){let e=$('scEnd');if(!e){e=document.createElement('div');e.id='scEnd';e.style.cssText='position:fixed;right:14px;bottom:14px;z-index:99999;display:flex;gap:8px';
@@ -1160,6 +1162,7 @@ let SCONLY=false;
 async function playScene(key){
   if(['d1','d2','d3','d4','d5'].includes(key))return chapter(key);
   if(key==='d1_close')return chapter('d1_close');
+  if(key.startsWith('s2_'))return chapter(key);
   goFull();$('title').style.display='none';$('chap').style.display='none';initAudio();if(ac&&ac.state==='suspended')ac.resume();
   const row=SCENES.flatMap(g=>g[1]).find(r=>r[0]===key);if(!row||!row[2])return;
   SCONLY=true;row[2]();
@@ -1169,6 +1172,13 @@ async function chapter(key){
   goFull();$('title').style.display='none';$('chap').style.display='none';initAudio();if(ac&&ac.state==='suspended')ac.resume();
   if(key==='d1')return beginDay1();
   if(key==='d2'&&G.day2)return G.day2();if(key==='d3'&&G.day3)return G.day3();if(key==='d4'&&G.day4)return G.day4();if(key==='d5'&&G.day5)return G.day5();
+  if(key.startsWith('s2_')){const d2b=(t,c)=>{dayBase(t,c);drawBoard(2);day1Props(true);SERVED.forEach(x=>x.visible=false)};
+    if(key==='s2_chores'){d2b('day','7:10 AM');showCrowd(true);D.crowd=true;CROWD.forEach((c,i)=>{c.position.set(HOME[i][0],0,HOME[i][1]);c.rotation.y=HOME[i][2];pose(c,0,'sit')});atuk.visible=true;pose(atuk,0,'stand');P.x=2.95;P.z=3.05;P.yaw=-2;state='d2_chores';objT('Wipe the table')}
+    else if(key==='s2_bath'){d2b('day','10:15 AM');atuk.visible=true;pose(atuk,0,'stand');tapOn();P.x=-1.2;P.z=2.5;P.yaw=Math.PI/2;state='d2_bath';objT('The tap is running again')}
+    else if(key==='s2_rules'){d2b('dusk','5:40 PM');atuk.visible=true;P.x=.6;P.z=2.3;P.yaw=-2.14;state='d2_rule';objT('Talk to Atuk')}
+    else if(key==='s2_close'){d2b('dusk','6:05 PM');P.x=.6;P.z=1.0;P.yaw=.8;state='d2_close';if(G.closeInit)G.closeInit(2)}
+    else if(key==='s2_lock'){d2b('dusk','6:30 PM');if(G.closeInit)G.closeInit(2);P.x=.3;P.z=5.3;P.yaw=yawFrom(.3,5.3,0,3.9);state='d2_lock';objT('Lock up')}
+    return}
   if(key==='d1_evening'){dayBase('dusk','5:40 PM');showCrowd(true);atuk.visible=true;P.x=.6;P.z=2.3;P.yaw=-2.14;state='d1_rule';objT('Talk to Atuk');return}
   if(key==='d1_close'){dayBase('dusk','6:05 PM');P.x=.6;P.z=1.0;P.yaw=.8;state='d1_close';if(G.closeInit)G.closeInit();return}
   if(key==='d1_midnight'){dayBase('day','12:00 AM');await midnight();if(G.day2){busy=false;state='d2_intro';G.day2();return}}
