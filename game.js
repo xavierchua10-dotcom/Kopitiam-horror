@@ -1165,7 +1165,7 @@ let FXM='auto';try{const v=localStorage.lo_fx;if(v==='full'||v==='off')FXM=v}cat
     const stain=mk(256,256,(x,W,H)=>{for(let i=0;i<9;i++){const px=rnd(20,W-20),g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,'rgba(30,22,10,.5)');g.addColorStop(1,'rgba(30,22,10,0)');x.fillStyle=g;x.fillRect(px,0,rnd(3,16),rnd(70,230))}
       const r=x.createRadialGradient(W/2,0,4,W/2,0,H*.9);r.addColorStop(0,'rgba(20,16,8,.45)');r.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=r;x.fillRect(0,0,W,H)});
     for(const [x,w] of [[-4.4,3],[-1.2,3.4],[2.2,3]]){const m=new T.Mesh(new T.PlaneGeometry(w,1.9),new T.MeshBasicMaterial({map:stain,transparent:true,depthWrite:false,opacity:.8}));m.position.set(x,2.05,-3.93);scene.add(m)}
-    const cal=new T.Mesh(new T.PlaneGeometry(.38,.52),new T.MeshBasicMaterial({map:mk(76,104,(x,W,H)=>{x.fillStyle='#e8dfc6';x.fillRect(0,0,W,H);x.fillStyle='#a02a20';x.fillRect(0,0,W,24);x.fillStyle='#fff';x.font='bold 14px sans-serif';x.fillText('JUN',22,17);x.fillStyle='#222';x.font='9px sans-serif';for(let r=0;r<5;r++)for(let c=0;c<7;c++)x.fillText(String(r*7+c+1).padStart(2),5+c*10,40+r*12)})}));cal.position.set(2.6,1.55,-3.92);scene.add(cal);
+    const cal=new T.Mesh(new T.PlaneGeometry(.38,.52),new T.MeshBasicMaterial({map:mk(76,104,(x,W,H)=>{x.fillStyle='#e8dfc6';x.fillRect(0,0,W,H);x.fillStyle='#a02a20';x.fillRect(0,0,W,24);x.fillStyle='#fff';x.font='bold 14px sans-serif';x.fillText('JUN',22,17);x.fillStyle='#222';x.font='9px sans-serif';for(let r=0;r<5;r++)for(let c=0;c<7;c++)x.fillText(String(r*7+c+1).padStart(2),5+c*10,40+r*12)})}));cal.position.set(2.6,1.55,-3.92);cal.userData.noSoot=1;scene.add(cal);
     const n=80,pa=new Float32Array(n*3),pg=new T.BufferGeometry();for(let i=0;i<n;i++){pa[i*3]=-1.2+rnd(-2,2);pa[i*3+1]=rnd(.3,2.7);pa[i*3+2]=.4+rnd(-2,2)}pg.setAttribute('position',new T.BufferAttribute(pa,3));
     const dust=new T.Points(pg,new T.PointsMaterial({color:0xffe9c0,size:.022,transparent:true,opacity:.45,depthWrite:false,blending:T.AdditiveBlending}));scene.add(dust);
     G.tick.push(dt=>{dust.visible=FXM!=='off'&&P.x>-10&&P.x<7&&P.z>-5&&P.z<4.6;if(!dust.visible)return;const a=pg.attributes.position.array;for(let i=0;i<n;i++){a[i*3+1]+=dt*.012;a[i*3]+=Math.sin(performance.now()/4000+i)*dt*.01;if(a[i*3+1]>2.8)a[i*3+1]=.3}pg.attributes.position.needsUpdate=true})
@@ -1236,7 +1236,7 @@ let FXM='auto';try{const v=localStorage.lo_fx;if(v==='full'||v==='off')FXM=v}cat
     G.tick.push(()=>{const v=FXM==='off'?0:Math.min(1,lightF)*({day:.05,dusk:.45,night:.75})[TIME||'night'];hs.forEach(s=>{s.material.opacity=v;s.visible=v>.01})})
   }catch(e){}
 }
-const V=new URL(import.meta.url).search,BUILD='202611290410';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+const V=new URL(import.meta.url).search,BUILD='202611290424';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));

@@ -385,7 +385,7 @@ function mkSoot(){if(SOOT){SOOT.visible=true;return}const T=THREE;SOOT=new T.Gro
   const fv=document.createElement('canvas');fv.width=fv.height=128;{const x=fv.getContext('2d'),g=x.createRadialGradient(64,64,4,64,64,60);g.addColorStop(0,'rgba(0,0,0,.92)');g.addColorStop(.6,'rgba(10,6,4,.6)');g.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=g;x.fillRect(0,0,128,128)}
   const ft=new T.CanvasTexture(fv);
   const mat=t=>new T.MeshBasicMaterial({map:t,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2});
-  const ms=[];scene.traverse(q=>{if(q.isMesh&&q.visible&&q.parent!==RED&&(q.geometry.type==='PlaneGeometry'||q.geometry.type==='BoxGeometry'))ms.push(q)});
+  const ms=[];scene.traverse(q=>{if(q.isMesh&&q.visible&&q.parent!==RED&&!q.material.transparent&&!q.userData.noSoot&&(q.geometry.type==='PlaneGeometry'||q.geometry.type==='BoxGeometry'))ms.push(q)});
   const rc=new T.Raycaster();
   const place=(p,n,w,h)=>{const m=new T.Mesh(new T.PlaneGeometry(w,h),mat(st));m.position.copy(p).addScaledVector(n,.03);m.lookAt(p.clone().add(n));SOOT.add(m)};
   const cast=(o,d)=>{const dir=new T.Vector3(...d);rc.set(new T.Vector3(...o),dir);const h=rc.intersectObjects(ms,false).find(i=>i.distance>.05);if(!h)return null;const n=h.face.normal.clone().transformDirection(h.object.matrixWorld);if(n.dot(dir)>0)n.negate();return{p:h.point,n,d:h.distance}};
