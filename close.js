@@ -148,12 +148,12 @@ async function throwBag(){
   await pace(4.1,-5.1,1800);
   await camTo(P.x,P.z,yawFrom(P.x,P.z,3.2,-6.2),-.3,800);
   await csleep(900);
-  {await tween(k=>{CFALL.position.set(3.3,.97,-6.45+.1*k);CFALL.rotation.x=k*.45},500);
+  if(CLD===1){await tween(k=>{CFALL.position.set(3.3,.97,-6.45+.1*k);CFALL.rotation.x=k*.45},500);
    A.tone(900,700,.03,.03);
    camTo(P.x,P.z,yawFrom(P.x,P.z,3.2,-6.0),-.55,900);await tween(k=>{CFALL.position.set(3.3-.05*k,.97-.9*k*k,-6.35+.25*k);CFALL.rotation.x=.45+k*2.4},420);
    A.clink();await tween(k=>{CFALL.position.set(3.25-.35*k,.08+Math.sin(k*Math.PI)*.06,-6.1+.2*k);CFALL.rotation.x=Math.PI/2;CFALL.rotation.z=k*2.4},560);A.clink()}
-  await csleep(1200);
-  await say('A cup rolls off the counter. Nobody touched it.',2400);
+  if(CLD===1){await csleep(1200);
+  await say('A cup rolls off the counter. Nobody touched it.',2400)}
   await camTo(P.x,P.z,yawFrom(P.x,P.z,5.1,-5.1),0,700);
   handAct('reach',1200);await csleep(400);
   await tween(k=>dAt(1-k),700);A.click();
@@ -161,32 +161,27 @@ async function throwBag(){
   CINE.noclip=false;SBIN.visible=false;TB.visible=false;if(AABB.indexOf(doorBlock)<0)AABB.push(doorBlock)}
 /* ---------- Day 1 closing: something stands in the kitchen, watching. You turn, it stares, you say we are closing, it is gone. ---------- */
 let lkDone=false;const LKX=3.8,LKZ=-4.75;
-/* Day 2: it is not standing this time. It sits on a stool at the kitchen opening and stares. */
-const STOOL=new T.Mesh(new T.CylinderGeometry(.2,.17,.46,8),M(0x2a1f1a));STOOL.position.set(LKX,.23,LKZ);STOOL.visible=false;scene.add(STOOL);
-const setSit=v=>{const F=G.FIG;if(F.userData.sit!==v){F.userData.sit=v;STOOL.visible=v}};
-async function lockStare(cine,dn=1){
+async function lockStare(cine){
   if(lkDone)return;lkDone=true;const F=G.FIG,was=G.busy;G.busy=true;
-  setSit(dn===2);F.position.set(LKX,0,LKZ);F.rotation.y=yawFrom(LKX,LKZ,P.x,P.z)+Math.PI;
+  F.position.set(LKX,0,LKZ);F.rotation.y=yawFrom(LKX,LKZ,P.x,P.z)+Math.PI;
   F.visible=true;
   if(cine)await camTo(P.x,P.z,yawFrom(P.x,P.z,LKX,LKZ),0,900);
   try{G.AMB.duck(4000)}catch(_){}A.tone(48,40,2.2,.14,'sine');
   await csleep(2200);
   await say(sp('YOU>HIM','We... we are closing.'),2200);
   await csleep(500);
-  await flicker([.45,1]);F.visible=false;setSit(false);await csleep(900);
-  await say(sp('YOU',dn===2?"...What's wrong with me today?":'...Did I not sleep enough?'),2600);
+  await flicker([.45,1]);F.visible=false;await csleep(900);
+  await say(sp('YOU','...Did I not sleep enough?'),2600);
   G.busy=was}
 G.lockStare=lockStare;
-G.lockReveal=()=>{if(!lkDone){setSit(G.state==='d2_lock');G.FIG.position.set(LKX,0,LKZ);G.FIG.visible=true}};
+G.lockReveal=()=>{if(!lkDone){G.FIG.position.set(LKX,0,LKZ);G.FIG.visible=true}};
 G.tick.push(dt=>{
-  const dn=G.state==='d1_lock'?1:G.state==='d2_lock'?2:0;
-  if(!dn){if(G.FIG.userData.sit){G.FIG.visible=false;setSit(false)}return}
-  if(lkDone||CINE.on||G.busy)return;
+  if(G.state!=='d1_lock'||lkDone||CINE.on||G.busy)return;
   {const F=G.FIG,d=Math.hypot(P.x-LKX,P.z-LKZ);let a=Math.atan2(-(LKX-P.x),-(LKZ-P.z))-P.yaw;a=Math.abs(Math.atan2(Math.sin(a),Math.cos(a)));
-   if(!F.visible&&d>6&&a>1.0){setSit(dn===2);F.position.set(LKX,0,LKZ);F.visible=true}   /* it is already there before you ever turn */
+   if(!F.visible&&d>6&&a>1.0){F.position.set(LKX,0,LKZ);F.visible=true}   /* it is already standing there before you ever turn */
    if(F.visible)F.rotation.y=Math.atan2(P.x-LKX,P.z-LKZ)}
   if(P.z<2.0||P.z>4.6)return;
   const dy=Math.abs(Math.atan2(Math.sin(P.yaw),Math.cos(P.yaw)));
-  if(dy<.6)lockStare(false,dn)});
+  if(dy<.6)lockStare(false)});
 
 }

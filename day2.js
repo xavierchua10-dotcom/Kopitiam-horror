@@ -185,12 +185,22 @@ async function atukRule(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
   if(G.closeInit){G.state='d2_close';G.closeInit(2)}else{G.state='d2_lock';objT('Lock up');setClock('6:00 PM')}
   await cineOut()}
 
+/* the seated figure at the customer table: sits sideways, head turned toward you */
+G.tick.push(dt=>{const F=G.FIG;if(!F.userData.d2sit||!F.visible)return;F.rotation.y=-Math.PI/2;
+  const a=Math.atan2(P.x+1.7,P.z-1.1)-F.rotation.y,dd=Math.atan2(Math.sin(a),Math.cos(a));F.userData.pm.userData.head.rotation.y=Math.max(-1.3,Math.min(1.3,dd))});
 /* ---------- lock up, go home ---------- */
 WPS.d2_lock={x:.3,z:5.3,r:.6,go:1,fn:lockUp};
-async function lockUp(){if(G.busy||CINE.on||D.walking)return;G.busy=true;if(G.lockReveal)G.lockReveal();await cineIn();
-  if(G.lockStare){G.busy=false;await G.lockStare(true,2);G.busy=true}
+async function lockUp(){if(G.busy||CINE.on||D.walking)return;G.busy=true;await cineIn();
   await camTo(.3,5.2,yawFrom(.3,5.2,0,3.9),.1,900);
-  handAct('lift',2000);A.shutter();await tween(k=>{shutter.position.y=3.6-2.4*k;P.pitch=.1-.25*k},1800);shutBlock(true);
+  handAct('lift',700);A.shutter();await tween(k=>{shutter.position.y=3.6-.55*k;P.pitch=.1-.1*k},650);handAct('reach',200);await camTo(.3,5.2,yawFrom(.3,5.2,0,3.9),0,600);
+  /* halfway down: something is sitting at a customer table, head turned to you */
+  {const F=G.FIG;F.position.set(-1.7,0,1.1);F.userData.sit=true;F.userData.d2sit=true;F.visible=true;
+   try{G.AMB.duck(4000)}catch(_){}A.tone(48,40,2.2,.14,'sine');
+   await csleep(2300);
+   await say(sp('YOU',"...Why am I seeing things this frequently?"),2800);
+   await csleep(500);
+   await flicker([.45,1]);F.visible=false;F.userData.sit=false;F.userData.d2sit=false;F.userData.pm.userData.head.rotation.y=0;await csleep(700)}
+  handAct('lift',1700);await tween(k=>{shutter.position.y=3.05-1.85*k;P.pitch=-.15*k},1500);shutBlock(true);
   A.click();handAct('reach',1200);await say('You pull the padlock through. Click.',2200);
   await camTo(.3,5.2,yawFrom(.3,5.2,6.1,14),0,1200);
   G.state='d2_home';window.__doorG.rotation.y=0;setClock('6:10 PM');objT('Go home');G.busy=false;await cineOut()}
