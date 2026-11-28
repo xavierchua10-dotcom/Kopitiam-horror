@@ -147,7 +147,7 @@ async function atukLast(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
 
 /* ---------- the hospital: you wake up, your parents are there, the news is on ---------- */
 let HX=40,HOSP=null,HTV=null;
-function buildHospital(){if(HOSP)return;const T=THREE,S=scene,X=HX;HOSP={};
+function buildHospital(){if(HOSP)return;try{speechSynthesis.getVoices()}catch(e){}const T=THREE,S=scene,X=HX;HOSP={};
   const L=(c,o={})=>new T.MeshLambertMaterial(Object.assign({color:c},o));
   const bx=(w,h,d,m,x,y,z)=>{const q=new T.Mesh(new T.BoxGeometry(w,h,d),m);q.position.set(X+x,y,z);S.add(q);return q};
   const mk=(W,H,draw)=>{const c=document.createElement('canvas');c.width=W;c.height=H;draw(c.getContext('2d'),W,H);const t=new T.CanvasTexture(c);t.colorSpace=T.SRGBColorSpace;return t};
@@ -172,8 +172,19 @@ function buildHospital(){if(HOSP)return;const T=THREE,S=scene,X=HX;HOSP={};
   const pp=G.person;
   HOSP.mama=pp(X-.95,-1.3,0,0xc77a8a,0x1a1210,0xc9a27e,{long:true,bot:0x4a4a58});HOSP.papa=pp(X+.95,-1.5,0,0x4a6a8a,0x1a1a1a,0xc9a27e,{bot:0x2a2a30});
   HOSP.mama.visible=HOSP.papa.visible=true;pose(HOSP.mama,0,'stand');pose(HOSP.papa,0,'stand')}
-G.tick.push(()=>{if(!HOSP)return;for(const g of[HOSP.mama,HOSP.papa]){const u=g.userData;let m=0;const tk=u.talk;if(tk){const t=(performance.now()-tk.t0)/1000;if(t>tk.end+.2)u.talk=null;else for(const [st,dd,a] of tk.syl){if(t>=st&&t<=st+dd){m=Math.sin((t-st)/dd*Math.PI)*a;break}}}u.mouth.visible=m>.08;u.mouth.scale.y=.08+m;u.mouth.scale.x=1.5-m*.3}});
+G.tick.push(()=>{if(!HOSP)return;for(const g of[HOSP.mama,HOSP.papa]){const u=g.userData;let m=0;const tk=u.talk;if(tk){const t=(performance.now()-tk.t0)/1000;if(t>tk.end+.2)u.talk=null;else for(const [st,dd,a] of tk.syl){if(t>=st&&t<=st+dd){m=Math.sin((t-st)/dd*Math.PI)*a;break}}}if(u.live&&!tk){const t=performance.now()/1000;m=.12+.5*Math.abs(Math.sin(t*8.5+(g===HOSP.papa?1.7:0)))*(.6+.4*Math.sin(t*2.3))}u.mouth.visible=m>.08;u.mouth.scale.y=.08+m;u.mouth.scale.x=1.5-m*.3}});
 G.d5parents=()=>HOSP&&[HOSP.mama,HOSP.papa];
+/* real spoken voices (the phone's own text-to-speech); falls back to the old mumble if it has none */
+function ttsOk(){try{return !!window.speechSynthesis&&speechSynthesis.getVoices().some(v=>/^en/i.test(v.lang))}catch(e){return false}}
+function ttsSay(g,txt,pitch,rate){return new Promise(res=>{let st=false,done=false;const end=()=>{if(done)return;done=true;if(g)g.userData.live=0;res(st)};
+  try{const u=new SpeechSynthesisUtterance(txt);u.pitch=pitch;u.rate=rate;u.volume=1;
+    const vs=speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang));const pref=vs.find(v=>/en[-_](GB|AU|IN|SG|MY)/i.test(v.lang))||vs[0];if(pref){u.voice=pref;u.lang=pref.lang}
+    u.onstart=()=>{st=true;if(g)g.userData.live=1};u.onend=end;u.onerror=end;speechSynthesis.speak(u);
+    setTimeout(()=>{if(!st){try{speechSynthesis.cancel()}catch(e){}end()}},1800);setTimeout(end,12000)}catch(e){end()}})}
+async function vsay(g,nm,txt,ms,pitch=1,rate=.9){
+  if(!ttsOk())return say(sp(nm,txt),ms,g);
+  const subs=say(sp(nm,txt),ms);const spoken=ttsSay(g,txt,pitch,rate);
+  const ok=await spoken;await subs;if(!ok&&g){}}
 /* the hospital song: fades in as you wake, fades out into the end card */
 let SONG=null;
 function songIn(){try{if(!SONG){SONG=new Audio('./sfx/forgotten_memories.mp3');SONG.preload='auto'}SONG.currentTime=0;SONG.volume=0;const p=SONG.play();if(p&&p.catch)p.catch(()=>{});const t0=performance.now();const f=()=>{if(!SONG)return;const k=Math.min(1,(performance.now()-t0)/4000);SONG.volume=.18*k;if(k<1&&!SONG.paused)requestAnimationFrame(f)};f()}catch(e){}}
@@ -192,11 +203,11 @@ async function hospital(w){
   await sleep(2600);
   songIn();
   const sw=(t,ms)=>say(t,ms);
-  await say(sp('MAMA','Sayang...? Can you hear Mama?'),3000,MA);
-  await say(sp('PAPA','He is awake. Look... he is really awake.'),3200,PA);
-  await say(sp('MAMA','Four days. You slept four days, sayang.'),3200,MA);
+  await vsay(MA,'MAMA','Sayang...? Can you hear Mama?',3000,1.3,.88);
+  await vsay(PA,'PAPA','He is awake. Look... he is really awake.',3200,.65,.85);
+  await vsay(MA,'MAMA','Four days. You slept four days, sayang.',3200,1.3,.88);
   await sw(sp('YOU','...Mama?'),2000);
-  await say(sp('MAMA','Shh. Do not talk. Mama is here. Papa is here.'),3200,MA);
+  await vsay(MA,'MAMA','Shh. Do not talk. Mama is here. Papa is here.',3200,1.3,.85);
   await sw(sp('YOU','Atuk...?'),2200);
   await csleep(900);
   await sw('Mama does not answer. She only holds your hand tighter.',3400);
@@ -204,13 +215,13 @@ async function hospital(w){
   w.remove();c.style.filter='';HOSP.papa.position.set(X+.5,0,-3.0);
   await camTo(X+1.1,-.5,G.yawFrom(X+1.1,-.5,X+3,-.5),.5,2600);
   HOSP.show(0);A.tone(300,300,.05,.05,'square');
-  await say(sp('NEWS','Four days ago, a lorry lost control and crashed into a kopitiam on Jalan Besar.'),4200);
-  HOSP.show(1);await say(sp('NEWS','Seven people died: the owner, five customers, and the lorry driver.'),4000);
-  HOSP.show(2);await say(sp('NEWS','The owner’s grandson was pulled from the fire. He is the only survivor.'),4200);
+  await vsay(null,'NEWS','Four days ago, a lorry lost control and crashed into a kopitiam on Jalan Besar.',4200,1,1);
+  HOSP.show(1);await vsay(null,'NEWS','Seven people died: the owner, five customers, and the lorry driver.',4000,1,1);
+  HOSP.show(2);await vsay(null,'NEWS','The owner’s grandson was pulled from the fire. He is the only survivor.',4200,1,1);
   await csleep(900);
   HOSP.papa.position.set(X+.85,0,-2.0);await camTo(X,-.8,G.yawFrom(X,-.8,X-.75,-1.9),.42,1800);
   await say(sp('YOU','...I was there.'),2400);
-  songTo(.45,2800);await say(sp('MAMA','You were. And you came back to us, sayang. That is enough.'),3600,MA);
+  songTo(.45,2800);await vsay(MA,'MAMA','You were. And you came back to us, sayang. That is enough.',3600,1.3,.85);
   await csleep(900);
   songOut(3000);$('fade').style.transition='opacity 2.8s';$('fade').style.opacity=1;await sleep(3200);
   scene.fog.density=.012;CINE.noclip=false;EYE.y=1.6;await cineOut()}
