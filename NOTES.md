@@ -236,3 +236,4 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 - Build 062 (202611282352): Day 3 toilet scare simplified: the cutscene only looks at the empty bowl (glitter fades, 'I must have imagined it...'); the figure no longer appears in it. Walk out and it is suddenly standing in the hall.
 - Build 063 (202611282358): Day 3 toilet scare: glitter and its light removed (crying + empty bowl only).
 - Build 064 (202611290008): Day 3 after the shutter: you stay in free roam (no auto walk home). Turn round and the black figure is standing close beside you in the five-foot way; look at it and it is gone, then 'What do you want from me.' Go home marker stays.
+- Build 065 (202611290016): Day 3 after the shutter: the camera no longer spins toward home by itself. You stay facing the shutter and turn yourself; that is what brings the figure out beside you.

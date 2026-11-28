@@ -344,7 +344,7 @@ async function lockUp(){if(G.busy||CINE.on||D.walking)return;G.busy=true;FIG.vis
   await camTo(.3,5.2,yawFrom(.3,5.2,0,3.9),.1,900);
   handAct('lift',2000);A.shutter();await tween(k=>{shutter.position.y=3.6-2.4*k;P.pitch=.1-.25*k},1800);shutBlock(true);
   A.click();handAct('reach',1200);await say('You pull the padlock through. Click.',2200);
-  await camTo(.3,5.2,yawFrom(.3,5.2,6.1,14),0,1200);
+  await camTo(.3,5.2,yawFrom(.3,5.2,0,3.9),0,700);   /* stay facing the shutter: you turn round yourself */
   G.state='d3_lockfree';lfS=0;lfLook=0;lfT=0;lf0=P.yaw;window.__doorG.rotation.y=0;setClock('6:10 PM');objT('Go home');G.busy=false;await cineOut()}
 WPS.d3_home={x:6.1,z:14.0,r:.6,go:1,fn:homeNight};
 WPS.d3_lockfree=WPS.d3_home;
