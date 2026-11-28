@@ -139,6 +139,7 @@ async function greet(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
   await say(sp('ATUK','Which shop? ...Same like always.'),2600);
   await say(sp('YOU>ATUK','Look around!'),1600);
   await say(sp('ATUK','...Don\'t look too long, cucu.'),2600);
+  await say(sp('ATUK','Everybody leaves. Atuk know. Just... not you.'),3200);
   await camTo(P.x,P.z,0,0,600);
   G.state='d4_look';setClock('12:30 PM');objT('Look at the customers');G.busy=false;await cineOut()}
 

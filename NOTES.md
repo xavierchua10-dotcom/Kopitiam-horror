@@ -194,3 +194,4 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 - 202611273019: Day 1 scares removed (no mop figure, no street figure, no lane black shape). Hints only: lights flicker when you open the back door; after throwing the trash a cup rolls off the stove by itself as you walk back in.
 - 202611273020: Playthrough fixes: home clock no longer goes backwards (6:45 PM), objective cleared at each day intro / set at Day 5 door, YOU lines to customers labelled 'YOU to <name>' (Days 3-5), Driver's off-screen maaf labelled.
 - 202611273021: Driver is dead (story fix): news says he could not get out of the cabin, 7 died, TV headline 7 MAUT.
+- 202611273022: Atuk clinging lines Days 2-4 ("Stay a while, cucu", "Where you want to go?", "Everybody leaves... just not you"); Day 2 walk-home street scare (player in control, driver figure ahead, snaps close when you look, whispers maaf).

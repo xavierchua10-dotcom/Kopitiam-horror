@@ -125,6 +125,7 @@ async function atukDay(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
   await say(sp('ATUK','Fixed? Good boy. You look pucat. Sleep enough or not?'),3000);
   await say(sp('YOU','Atuk... the radio said lorry.'),2200);
   await say(sp('ATUK','Sit. Eat. Don\'t think too much.'),2600);
+  await say(sp('ATUK','Stay a while, cucu. Atuk make roti bakar.'),2800);
   $('fade').style.transition='opacity 1.4s';$('fade').style.opacity=1;await sleep(1600);
   showCrowd(false);atuk.visible=true;atuk.position.set(3.9,0,3.5);atuk.rotation.y=1.0;
   setTime('dusk');setClock('5:40 PM');P.x=.6;P.z=2.3;P.yaw=-2.14;P.pitch=0;P.tx=null;
@@ -149,6 +150,33 @@ async function lockUp(){if(G.busy||CINE.on||D.walking)return;G.busy=true;await c
   await camTo(.3,5.2,yawFrom(.3,5.2,6.1,14),0,1200);
   G.state='d2_home';window.__doorG.rotation.y=0;setClock('6:10 PM');objT('Go home');G.busy=false;await cineOut()}
 WPS.d2_home={x:6.1,z:14.0,r:.6,go:1,fn:homeNight};
+
+/* ---------- the walk home: turn around, and he is standing in the road. No cutscene, you keep control. ---------- */
+let sFired=false,sArmed=false,sLook=0;
+G.tick.push(dt=>{
+  if(G.state==='d2_intro'){sFired=false;sArmed=false;sLook=0;return}
+  if(G.state!=='d2_home'||sFired||CINE.on||G.busy)return;
+  if(P.z>9.2)sArmed=true;if(!sArmed)return;
+  const dy=Math.abs(Math.atan2(Math.sin(P.yaw),Math.cos(P.yaw)));
+  if(dy<.55)sLook+=dt;else sLook=0;
+  if(sLook>.25){sFired=true;streetScare()}});
+async function streetScare(){
+  const F=G.FIG,fx0=Math.max(-20,Math.min(20,P.x-Math.sin(P.yaw)*7.5)),fz0=Math.max(4.8,P.z-Math.cos(P.yaw)*7.5);
+  F.position.set(fx0,0,fz0);F.rotation.y=Math.atan2(P.x-fx0,P.z-fz0);F.visible=true;
+  G.AMB&&G.AMB.duck(3200);A.tone(60,42,1.4,.18,'sine');
+  await sleep(1300);
+  /* the snap: two metres away, one frame, full volume */
+  const dx=fx0-P.x,dz=fz0-P.z,L=Math.hypot(dx,dz)||1;
+  F.position.set(P.x+dx/L*2.1,0,P.z+dz/L*2.1);F.rotation.y=Math.atan2(P.x-F.position.x,P.z-F.position.z);
+  try{G.SFX&&G.SFX.play&&G.SFX.play('ghost_scream_3',{g:.9})}catch(_){}
+  A.nz(.5,200,90,.4,'lowpass');A.tone(880,110,.4,.22,'sawtooth');
+  flicker([0,.7,0,.3,0],70);
+  await sleep(900);
+  F.visible=false;applyLights(1);
+  await sleep(700);
+  try{G.SFX&&G.SFX.play&&G.SFX.play('ghost_moan_2',{g:.35,wet:.4})}catch(_){}
+  await say(sp('DRIVER','...maaf...'),2600)}
+
 
 /* ---------- home, then the knock with a voice ---------- */
 async function homeNight(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();const dg=window.__doorG;dg.rotation.y=0;

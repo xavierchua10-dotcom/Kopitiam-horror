@@ -280,6 +280,7 @@ async function atukTalk(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
   await say(sp('YOU','The TV said "lorry". A kopitiam.'),2400);
   await csleep(900);
   await say(sp('ATUK','TV rosak. Don\'t watch. Don\'t ask.'),2600);
+  await say(sp('ATUK','Where you want to go? Everything is here.'),2800);
   $('fade').style.transition='opacity 1.4s';$('fade').style.opacity=1;await sleep(1600);
   showCrowd(false);atuk.visible=true;atuk.position.set(3.9,0,3.5);atuk.rotation.y=1.0;
   setTime('dusk');setClock('5:40 PM');P.x=.6;P.z=2.3;P.yaw=-2.14;P.pitch=0;P.tx=null;
