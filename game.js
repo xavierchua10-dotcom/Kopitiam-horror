@@ -295,7 +295,7 @@ hw(4.4,3,11.2,1.5,17.2,Math.PI/2);
 hw(1.4,3,7.9,1.5,19.4,0);hw(3,3,11.1,1.5,19.4,0);hw(1.4,3,14.3,1.5,19.4,0);hw(1,.8,9.1,2.6,19.4,0);hw(1,.8,13.1,2.6,19.4,0);
 for(const dx of[8.6,9.6,12.6,13.6])box(.08,2.2,.12,M(0x5a3a28),dx,1.1,19.4);box(1.2,.08,.12,M(0x5a3a28),9.1,2.2,19.4);box(1.2,.08,.12,M(0x5a3a28),13.1,2.2,19.4);
 function doorLeaf(hx,hz,th,w){const g=new THREE.Group();g.position.set(hx,0,hz);g.rotation.y=th;scene.add(g);box(w,2.1,.05,M(0x6a4630),w/2,1.05,0,g);box(.05,.12,.09,M(0xc9a24a),w-.1,1.0,0,g);return g}
-const D_ATUK=doorLeaf(8.6,19.4,1.45,1.0),D_ME=doorLeaf(12.6,19.4,1.45,1.0);doorLeaf(-7,2.0,-.12,1.0);
+const D_ATUK=doorLeaf(8.6,19.4,1.45,1.0),D_ME=doorLeaf(12.6,19.4,1.45,1.0),D_BATH=doorLeaf(-7,2.0,-.12,1.0);
 const RLGT=(()=>{const c=document.createElement('canvas');c.width=c.height=64;const x=c.getContext('2d'),g=x.createRadialGradient(32,32,2,32,32,32);g.addColorStop(0,'rgba(255,240,190,.9)');g.addColorStop(.4,'rgba(255,225,150,.28)');g.addColorStop(1,'rgba(255,225,150,0)');x.fillStyle=g;x.fillRect(0,0,64,64);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t})();
 const ROOMLAMPS=[];
 function roomLamp(x,z){const g=new THREE.Group();g.position.set(x,2.97,z);scene.add(g);
@@ -541,8 +541,7 @@ async function photoAct(){if(busy||CINE.on)return;busy=true;const po=ITS.find(i=
 const MAN=it('man',[0,1.1,0],()=>{const w=WPS[state];return (w&&w.lab)||OBJB},()=>{const w=WPS[state];return !!(w&&w.manual&&!busy&&!CINE.on&&Math.hypot(P.x-w.x,P.z-w.z)<w.r+.55)},()=>{const w=WPS[state];if(w&&w.fn)w.fn()},[]);
 it('photo',[4.55,1.2,22.45],'Look at the photo',()=>!busy&&!CINE.on&&P.x>3&&P.x<15.5&&P.z>15,photoAct,PHOTO);
 const hatchIt=ITS[3];
-const DOORBLK=[5.5,6.7,14.85,15.2];
-it('housedoor',[6.1,1.2,15.1],()=>state==='d1_go'?'Open the door':'Go inside',()=>state==='leave'||(state==='d1_go'&&!busy&&!CINE.on&&P.z>15.3&&P.x>4.3&&P.x<7.9),houseAct,[doorMesh]);
+it('housedoor',[6.1,1.2,15.1],'Go inside',()=>state==='leave',houseAct,[doorMesh]);
 async function radioAct(){busy=true;A.click();A.static(.12);await say('The radio hisses. Nobody tuned it.',2400);A.static(.2);await say('"...order forty-two..."',2300);A.static(.28);await say('"...still waiting..."',2300);A.static(0);A.sting();lightsOffNow();torch.intensity=26;state='dark';objT('Find the fuse box');busy=false;say('Something scrapes, far off in the dark.',2800);setTimeout(()=>A.scrape(),600)}
 async function fuseAct(){busy=true;A.click();await say('The breaker is warm to the touch.',1800);torch.intensity=0;await lightsOnNow();state='lit2';fig.visible=true;objT('Check the kitchen hatch');busy=false;say('The lights are back.',1800)}
 async function doScare(){busy=true;lightsOffNow();A.sting();await sleep(800);fig.visible=false;seat.position.set(2.45,.23,-.55);seat.rotation.y=.7;A.scrape();await sleep(500);await lightsOnNow();scareDone=true;await say('The stool is still swaying.',2300);busy=false}
@@ -628,7 +627,6 @@ async function midnightDoor(){
   $('fade').style.transition='opacity 1.6s';$('fade').style.opacity=1;await sleep(1800);
   EYE.y=1.6;CINE.noclip=false;P.pitch=0;await cineOut();busy=false;const r=midDone;midDone=null;if(r)r()}
 async function houseAct(){
-  if(state==='d1_go'){const i=AABB.indexOf(DOORBLK);if(i>=0)AABB.splice(i,1);doorSeen.d1_go=1;return doorOut()}
   busy=true;A.click();
   if(state==='d1_home'){await say('The door is locked. Atuk is already home.',2200);handAct('knock',2300);for(let i=0;i<3;i++){A.knock();await sleep(650)}await say(sp('ATUK','Three knock. Okay. Masuk.'),2400);$('endh').textContent='END OF DAY 1';$('endp').textContent='Nothing strange happened today. Remember the rule: three knocks.';$('endl').textContent='Last Order · Day 2 is coming'}
   $('fade').style.transition='opacity 1.6s';$('fade').style.opacity=1;await sleep(1800);$('end').style.display='flex';busy=false;state='end'}
@@ -895,7 +893,7 @@ async function beginDay1(){
   setTime('day');lightsOn=true;applyLights(1);objT('');bulbSet(1);tapOff();ci=0;KC.visible=false;setClock('6:30 AM');
   shutter.position.y=1.2;shutBlock(true);showCrowd(false);D.crowd=false;QUEUE.forEach((q,i)=>{q.visible=true;q.position.set(QPOS[i][0],0,QPOS[i][1]);q.rotation.y=QPOS[i][2];pose(q,0,'stand')});drawBoard(1);day1Props(true);
   P.x=13;P.z=17.4;P.yaw=Math.PI/2;P.pitch=0;P.tx=null;
-  window.__doorG.rotation.y=0;if(AABB.indexOf(DOORBLK)<0)AABB.push(DOORBLK);
+  window.__doorG.rotation.y=0;
   state='d1_intro';const dc=$('dcard');dc.innerHTML='DAY 1<small>6:30 AM</small>';dc.style.opacity=1;await sleep(2600);dc.style.opacity=0;
   if(/[?&]skipwake/.test(location.search)){setClock('6:55 AM');$('fade').style.transition='opacity 1.6s';$('fade').style.opacity=0;P.x=13.1;P.z=18.2;P.yaw=Math.PI}else await wakeUp();
   state='d1_go';objT('Go to the kopitiam');$('hint').textContent=isLand()?'Left thumb: move · Right thumb: look':'Tap the floor to walk · drag to look';$('hint').classList.add('on');setTimeout(()=>$('hint').classList.remove('on'),8000);
@@ -905,7 +903,7 @@ const CHATST=['d1_greet','d1_chores','d1_report','d1_bath','d1_back'];
 let chatT=4,ambT=1;
 function revealCrowd(){if(D.crowd)return;D.crowd=true;CROWD.forEach(c=>c.visible=true)}
 function d1tick(dt){
-  for(const f of G.tick)f(dt);
+  for(const f of G.tick)f(dt);doorTick();
   CCLED.visible=Math.sin(performance.now()/420)>-.2;
   if(state==='d1_bath'&&!CINE.on){const t=performance.now()/1000;bulbSet(Math.sin(t*23)+Math.sin(t*37)>1.3?.15:.85)}
   {const w=WPS[state];if(w&&w.manual)MAN.pos.set(w.tx,1.1,w.tz);else if(w&&w.fn&&!busy&&!CINE.on&&Math.hypot(P.x-w.x,P.z-w.z)<w.r)w.fn()}
@@ -994,7 +992,6 @@ let last=0,acc=0,flickT=3;
 function update(dt){
   {const inside=P.x>3&&P.x<15&&P.z>15&&P.z<23;if(BALC[0].visible===inside)BALC.forEach(m=>m.visible=!inside)}
   animAltar(performance.now()/1000);
-  if(!busy&&!CINE.on&&/^d[2-5]_go$/.test(state)&&!doorSeen[state]&&Math.hypot(P.x-6.1,P.z-15.9)<.75){doorSeen[state]=1;doorOut()}
   let moving=false;
   if(CINE.on){P.tx=null;stk=null;look=null}
   if(P.tx!==null&&state!=='end'){const dx=P.tx-P.x,dz=P.tz-P.z,d=Math.hypot(dx,dz);
@@ -1035,13 +1032,25 @@ function frame(t){requestAnimationFrame(frame);const raw=t-last;if(raw<30)return
   update(dt);renderer.render(scene,camera)}
 
 /* ---------- hook for the later days (day2.js ...) ---------- */
-const G={KC,flo,wall,doorLeaf,tm:nightClock,yawFrom,ZONES,AABB,AMB,person,THREE,scene,camera,P,EYE,A,CINE,D,WPS,atuk,CROWD,HOME,QUEUE,FEET,shutter,radio,BULB,STREAM,ALK,stain,cupsD,tick:[],day2:null,day3:null,day4:null,day5:null,stools,fan,
+/* ---- doors: tap the door button to open it, tap again to close it. No cutscene. ---- */
+const DOORS=[];
+function toggleDoor(d){if(d.anim)return;d.anim=true;const from=d.g.rotation.y,isClosed=Math.abs(from-d.closed)<.3,to=isClosed?d.open:d.closed;A.door();
+  tween(k=>{d.g.rotation.y=from+(to-from)*(k*k*(3-2*k))},620).then(()=>{d.anim=false})}
+function regDoor(g,closed,open,pos,aabb,lock){const d={g,closed,open,aabb,anim:false,inb:false,lock},n=DOORS.length;
+  d.it=it('door'+n,[pos[0],1.2,pos[1]],()=>Math.abs(g.rotation.y-closed)<.3?'Open the door':'Close the door',()=>!busy&&!CINE.on&&!d.anim&&!(lock&&lock()),()=>toggleDoor(d),[g]);
+  d.it.noMark=true;HMODE['door'+n]=['reach',700];ICF['door'+n]='knock';DOORS.push(d);return d}
+function doorTick(){for(const d of DOORS){const closed=Math.abs(d.g.rotation.y-d.closed)<.3;if(closed&&!d.inb){AABB.push(d.aabb);d.inb=true}else if(!closed&&d.inb){const i=AABB.indexOf(d.aabb);if(i>=0)AABB.splice(i,1);d.inb=false}}}
+regDoor(window.__doorG,0,-1.25,[6.1,15.0],[5.5,6.7,14.85,15.2],()=>/_home$/.test(state)||state==='leave');
+regDoor(D_ME,0,1.45,[13.1,19.4],[12.6,13.6,19.25,19.55],()=>state==='d1_midnight');
+regDoor(D_ATUK,0,1.45,[9.1,19.4],[8.6,9.6,19.25,19.55]);
+regDoor(D_BATH,-Math.PI/2,-.12,[-7,2.5],[-7.15,-6.85,2.0,3.0]);
+const G={KC,flo,wall,doorLeaf,regDoor,tm:nightClock,yawFrom,ZONES,AABB,AMB,person,THREE,scene,camera,P,EYE,A,CINE,D,WPS,atuk,CROWD,HOME,QUEUE,FEET,shutter,radio,BULB,STREAM,ALK,stain,cupsD,tick:[],day2:null,day3:null,day4:null,day5:null,stools,fan,
   $,sleep,say,sp,cineIn,cineOut,camTo,yawTo,csleep,tween,handAct,pose,objT,setClock,setTime,applyLights,bulbSet,flicker,tapOn,tapOff,lids,startAlarm,stopAlarm,drawClock,
   showCrowd,drawBoard,day1Props,shutBlock,chWipe,chCups,ctex,isLand,atukLeave,M,B,box,
   AEV,AMBD,get ac(){return ac},get master(){return master},get ambG(){return ambG},
   get state(){return state},set state(v){state=v},get busy(){return busy},set busy(v){busy=v},
   setLights(v){lightsOn=v},setBlur(v){cv.style.transition='filter 1.4s';cv.style.filter=v?'blur(8px)':''}};
-const V=new URL(import.meta.url).search,BUILD='202611273036';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+const V=new URL(import.meta.url).search,BUILD='202611273037';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));

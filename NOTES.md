@@ -209,3 +209,4 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 - 202611273034: Day 1 home front door starts closed (blocks the doorway); tap the door icon (Open the door), walk out, it closes behind you.
 - 202611273035: Chapters button on the title screen: jump to Day 1 morning/evening/closing/midnight or Days 2-5 (test aid; remove before public release).
 - 202611273036: Store room (option C) west of the kitchen: doorway in the kitchen's west wall, open door, three shelf units, sacks and crates, bare bulb; walkable (store.js).
+- 202611273037: Doors are now normal gameplay: tap the door button to open, tap again to close, no cutscene (front door, both bedroom doors, bathroom, store room). Closed doors block you. Autoplay door cutscene on Days 2-5 removed.
