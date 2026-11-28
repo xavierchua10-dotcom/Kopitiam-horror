@@ -811,6 +811,7 @@ async function d1Blackout(){
   await say('The whole shop is dark. Nobody screams.',2600);
   await say('They are all staring at each other.',2600);
   await say(sp('YOU','Atuk...?'),1500);
+  {const y0=P.yaw,p0=P.pitch,ty=yawFrom(P.x,P.z,-4.9,.5),dy=((ty-y0+Math.PI*3)%(Math.PI*2))-Math.PI;tween(k=>{const e=k*k*(3-2*k);P.yaw=y0+dy*e;P.pitch=p0+(.06-p0)*e},1300)}
   await say(sp('ATUK','Power cut, cucu. Go check the fuse box. Same place.'),3200);
   state='d1_fuse';setClock('5:48 PM');objT('Check the fuse box');busy=false}
 async function d1FuseAct(){if(busy||CINE.on)return;busy=true;await cineIn();
@@ -1049,7 +1050,7 @@ const G={KC,flo,wall,doorLeaf,regDoor,tm:nightClock,yawFrom,ZONES,AABB,AMB,perso
   AEV,AMBD,get ac(){return ac},get master(){return master},get ambG(){return ambG},
   get state(){return state},set state(v){state=v},get busy(){return busy},set busy(v){busy=v},
   setLights(v){lightsOn=v},setBlur(v){cv.style.transition='filter 1.4s';cv.style.filter=v?'blur(8px)':''}};
-const V=new URL(import.meta.url).search,BUILD='202611281445';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+const V=new URL(import.meta.url).search,BUILD='202611281500';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));

@@ -214,3 +214,4 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 - 202611273039: Back to the old door behaviour (reverted 037): doors play the short door scene again; Day 1 front door still starts closed with the door button. Store room shelf fix kept.
 - 202611273040: Store room door only: tap the button to open or close it freely (no scene). Other doors keep the old scenes.
 - build 041 (202611281445): Day 1 polish: home-door camera pulled back (Atuk and No.7 fit), feet shot looks down further, midnight ending camera settles on Atuk's closing door, back lane brick/concrete brightened.
+- build 042 (202611281500): after the Day 1 blackout the camera turns to face the fuse box instead of ending on the wall.
