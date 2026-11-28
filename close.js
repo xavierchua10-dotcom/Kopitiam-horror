@@ -186,7 +186,9 @@ G.wcTest=()=>{ci=1;wcCue()};
 G.tick.push(dt=>{
   if(G.state!=='d3_wc'||CINE.on)return;
   if(!wcHeard&&!G.busy){wcHeard=true;try{G.AMB.duck(2500)}catch(_){}say('...Someone is crying in the toilet.',2600)}
-  wcCry-=dt;if(wcCry<0){wcCry=2.4+Math.random()*1.6;A.tone(200+Math.random()*60,150,1,.05*Math.max(.35,1-Math.hypot(P.x+9,P.z-1.7)/14),'sine')}});
+  wcCry-=dt;if(wcCry<0){wcCry=2.8+Math.random()*1.8;const vol=Math.max(.35,1-Math.hypot(P.x+9,P.z-1.7)/14),S=G.SFX;
+    if(S&&S.has('injured')&&S.has('breath_fast')){S.play('injured',{g:.7*vol,rate:.8+Math.random()*.12,wet:.5,lp:3200});S.play('breath_fast',{g:.5*vol,rate:.85+Math.random()*.1,wet:.5,lp:3000,at:.45+Math.random()*.4})}  /* sobbing breaths (picked option D) */
+    else A.tone(200+Math.random()*60,150,1,.05*vol,'sine')}});
 async function wcScene(){
   if(G.busy||CINE.on||G.state!=='d3_wc')return;G.busy=true;A.click();await cineIn();
     const ty=(x,z)=>yawFrom(x,z,-9.1,1.35);
