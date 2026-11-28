@@ -1041,7 +1041,7 @@ const G={KC,tm:nightClock,yawFrom,ZONES,AABB,AMB,person,THREE,scene,camera,P,EYE
   AEV,AMBD,get ac(){return ac},get master(){return master},get ambG(){return ambG},
   get state(){return state},set state(v){state=v},get busy(){return busy},set busy(v){busy=v},
   setLights(v){lightsOn=v},setBlur(v){cv.style.transition='filter 1.4s';cv.style.filter=v?'blur(8px)':''}};
-const V=new URL(import.meta.url).search,BUILD='202611273034';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+const V=new URL(import.meta.url).search,BUILD='202611273035';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));
@@ -1070,7 +1070,28 @@ gqs.forEach(x=>x.addEventListener('click',()=>{RES=parseFloat(x.dataset.r);try{l
 document.documentElement.classList.toggle('sm',SMOOTH);
 document.querySelectorAll('#cq button').forEach(x=>{x.classList.toggle('on',(x.dataset.s==='1')===SMOOTH);x.addEventListener('click',()=>{if((x.dataset.s==='1')===SMOOTH)return;try{localStorage.lo_smooth=x.dataset.s}catch(_){}location.reload()})});
 $('begin').addEventListener('click',begin);
+/* ---- Chapters: jump straight to a day or scene so you do not have to replay from Day 1 ---- */
+async function chapter(key){
+  goFull();$('title').style.display='none';$('chap').style.display='none';initAudio();if(ac&&ac.state==='suspended')ac.resume();
+  if(key==='d1')return beginDay1();
+  if(key==='d2'&&G.day2)return G.day2();if(key==='d3'&&G.day3)return G.day3();if(key==='d4'&&G.day4)return G.day4();if(key==='d5'&&G.day5)return G.day5();
+  /* later in Day 1: the morning is already done */
+  setTime('day');lightsOn=true;applyLights(1);objT('');bulbSet(1);tapOff();showCrowd(false);D.crowd=false;QUEUE.forEach(q=>q.visible=false);
+  shutter.position.y=3.6;shutBlock(false);drawBoard(1);day1Props(false);KC.position.set(-3.0,.78,.95);KC.scale.setScalar(1.4);KC.visible=true;
+  $('fade').style.transition='opacity .6s';$('fade').style.opacity=0;busy=false;
+  if(key==='d1_evening'){showCrowd(true);atuk.visible=true;atuk.position.set(3.9,0,3.5);atuk.rotation.y=1.0;setTime('dusk');setClock('5:40 PM');P.x=.6;P.z=2.3;P.yaw=-2.14;P.pitch=0;P.tx=null;state='d1_rule';objT('Talk to Atuk');return}
+  if(key==='d1_close'){atuk.visible=false;setTime('dusk');P.x=.6;P.z=1.0;P.yaw=.8;P.pitch=0;P.tx=null;state='d1_close';if(G.closeInit)G.closeInit();return}
+  if(key==='d1_midnight'){atuk.visible=false;await midnight();if(G.day2){busy=false;state='d2_intro';G.day2();return}}
+}
+{const ov=document.createElement('div');ov.id='chap';ov.className='card';ov.style.display='none';
+ const rows=[['d1','Day 1 · Morning'],['d1_evening','Day 1 · Evening, Atuk talks, blackout'],['d1_close','Day 1 · Closing chores'],['d1_midnight','Day 1 · Midnight knock'],['d2','Day 2'],['d3','Day 3'],['d4','Day 4'],['d5','Day 5']];
+ ov.innerHTML='<h1 style="font-size:24px;letter-spacing:4px">CHAPTERS</h1><div id="chl" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:560px"></div><button id="chb" style="background:transparent;color:#b9b2d6;box-shadow:none;border:1px solid #4a4566;font-weight:500">Back</button>';
+ document.body.appendChild(ov);
+ const l=ov.querySelector('#chl');for(const [k,t] of rows){const b=document.createElement('button');b.textContent=t;b.style.cssText='margin:0;padding:10px 16px;font-size:13px;font-weight:600;letter-spacing:.2px;border-radius:12px';b.addEventListener('click',()=>chapter(k));l.appendChild(b)}
+ ov.querySelector('#chb').addEventListener('click',()=>{ov.style.display='none';$('title').style.display='flex'});
+ const lk=document.createElement('button');lk.id='chapBtn';lk.textContent='Chapters';lk.style.cssText='margin:6px 0 0;padding:6px 14px;background:transparent;border:0;color:#8f88ad;box-shadow:none;font-size:12px;font-weight:500;letter-spacing:.4px;text-decoration:underline';
+ $('begin').after(lk);lk.addEventListener('click',()=>{$('title').style.display='none';ov.style.display='flex'})}
 $('again').addEventListener('click',()=>location.reload());
 if('serviceWorker' in navigator){const rg=()=>navigator.serviceWorker.register('sw.js').catch(()=>{});document.readyState==='complete'?rg():addEventListener('load',rg)}
 requestAnimationFrame(t=>{last=t;frame(t)});
-window.__lo={G,day5:()=>G.day5&&G.day5(),day4:()=>G.day4&&G.day4(),day2:()=>G.day2&&G.day2(),day3:()=>G.day3&&G.day3(),hand:()=>[hV,hMode],D:()=>D,setState:v=>{state=v},setTime,shut:()=>shutter.position.y,board:drawBoard,crowd:showCrowd,land:isLand,st:()=>({state,busy,scareDone,x:P.x,z:P.z,yaw:P.yaw,lights:lightsOn,cur:cur&&cur.id}),goto:(x,z)=>{P.tx=x;P.tz=z},tp:(x,z,y)=>{P.x=x;P.z=z;P.yaw=y||0;P.tx=null},look:(y,p)=>{P.yaw=y;P.pitch=p||0},act:id=>{const o=ITS.find(i=>i.id===id);o.act()},begin};
+window.__lo={chapter,G,day5:()=>G.day5&&G.day5(),day4:()=>G.day4&&G.day4(),day2:()=>G.day2&&G.day2(),day3:()=>G.day3&&G.day3(),hand:()=>[hV,hMode],D:()=>D,setState:v=>{state=v},setTime,shut:()=>shutter.position.y,board:drawBoard,crowd:showCrowd,land:isLand,st:()=>({state,busy,scareDone,x:P.x,z:P.z,yaw:P.yaw,lights:lightsOn,cur:cur&&cur.id}),goto:(x,z)=>{P.tx=x;P.tz=z},tp:(x,z,y)=>{P.x=x;P.z=z;P.yaw=y||0;P.tx=null},look:(y,p)=>{P.yaw=y;P.pitch=p||0},act:id=>{const o=ITS.find(i=>i.id===id);o.act()},begin};
