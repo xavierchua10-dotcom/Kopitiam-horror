@@ -139,10 +139,76 @@ async function atukLast(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
   on=false;(async()=>{for(let i=0;i<6;i++){A.tone(900,900,.1,.12,'sine');await sleep(520)}})();
   await sleep(1200);
   await say(sp('NURSE','He squeezed! Somebody, call the doctor!'),3200);
-  await sleep(1800);
-  $('fade').style.transition='opacity 2.5s';$('fade').style.opacity=1;await sleep(2800);
-  w.remove();CINE.noclip=false;EYE.y=1.6;await cineOut();
+  await sleep(1200);
+  await hospital(w);
   $('endh').textContent='LAST ORDER';$('endp').textContent='Some goodbyes come too soon.';$('endl').textContent='If you are carrying one, talk to someone you trust.';
   $('end').style.display='flex';G.busy=false;G.state='end'}
 
+
+/* ---------- the hospital: you wake up, your parents are there, the news is on ---------- */
+let HX=40,HOSP=null,HTV=null;
+function buildHospital(){if(HOSP)return;const T=THREE,S=scene,X=HX;HOSP={};
+  const L=(c,o={})=>new T.MeshLambertMaterial(Object.assign({color:c},o));
+  const bx=(w,h,d,m,x,y,z)=>{const q=new T.Mesh(new T.BoxGeometry(w,h,d),m);q.position.set(X+x,y,z);S.add(q);return q};
+  const mk=(W,H,draw)=>{const c=document.createElement('canvas');c.width=W;c.height=H;draw(c.getContext('2d'),W,H);const t=new T.CanvasTexture(c);t.colorSpace=T.SRGBColorSpace;return t};
+  bx(6,.05,7,L(0xc9d2cf),0,0,0);bx(6,.05,7,L(0xe8ecea),0,3,0);
+  bx(6,3,.1,L(0xdfe6e2),0,1.5,-3.5);bx(.1,3,7,L(0xdfe6e2),-3,1.5,0);bx(.1,3,7,L(0xdfe6e2),3,1.5,0);bx(6,3,.1,L(0xdfe6e2),0,1.5,3.5);
+  bx(6,.9,.12,L(0x9fc4b8),0,.45,-3.46);bx(.12,.9,7,L(0x9fc4b8),-2.96,.45,0);bx(.12,.9,7,L(0x9fc4b8),2.96,.45,0);
+  const win=new T.Mesh(new T.PlaneGeometry(2.4,1.5),new T.MeshBasicMaterial({color:0xf4fbff}));win.position.set(X-2.93,1.7,-.4);win.rotation.y=Math.PI/2;S.add(win);
+  const fr=L(0xb8b8b0);bx(.06,1.6,.06,fr,-2.92,1.7,-1.62);bx(.06,1.6,.06,fr,-2.92,1.7,.82);bx(.06,.06,2.5,fr,-2.92,2.47,-.4);bx(.06,.06,2.5,fr,-2.92,.93,-.4);bx(.06,1.5,.04,fr,-2.92,1.7,-.4);
+  bx(1.1,.45,2.1,L(0x7f8a90),0,.3,-.2);bx(1.0,.12,2.0,L(0xffffff),0,.58,-.2);bx(1.0,.14,1.3,L(0xaed3e6),0,.68,.35);bx(.9,.1,.5,L(0xffffff),0,.7,-.95);
+  bx(.04,.35,1.9,L(0xb9bec2),-.58,.78,-.2);bx(.04,.35,1.9,L(0xb9bec2),.58,.78,-.2);
+  bx(.05,1.9,.05,L(0xaaaaaa),.95,.95,-1.15);bx(.14,.28,.05,L(0xdbe9ef),.95,1.75,-1.15);
+  const mon=new T.Mesh(new T.PlaneGeometry(.7,.45),new T.MeshBasicMaterial({map:mk(128,80,(x,W,H)=>{x.fillStyle='#04120a';x.fillRect(0,0,W,H);x.strokeStyle='#31ff7a';x.lineWidth=2;x.beginPath();x.moveTo(0,50);for(let i=0;i<W;i++){const k=i%32;x.lineTo(i,k===10?18:k===12?64:50)}x.stroke();x.fillStyle='#31ff7a';x.font='bold 14px monospace';x.fillText('72',100,16)})}));mon.position.set(X-2.0,1.45,-3.05);mon.rotation.y=.35;S.add(mon);bx(.75,.5,.1,L(0x222428),-2.0,1.45,-3.12);
+  /* the TV: the same still, three headlines */
+  const draw=beat=>mk(384,216,(x,W,H)=>{
+    const g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,'#1a1410');g.addColorStop(1,'#2b1a10');x.fillStyle=g;x.fillRect(0,0,W,H);
+    x.fillStyle='#0d0907';x.fillRect(40,70,220,120);x.fillStyle='#5a1414';x.fillRect(60,86,150,24);x.fillStyle='#e8c35a';x.font='bold 15px sans-serif';x.fillText('ATUK KOPITIAM',72,104);
+    for(let i=0;i<7;i++){x.fillStyle=`rgba(255,${120+i*15},30,.85)`;x.beginPath();x.moveTo(70+i*28,190);x.quadraticCurveTo(66+i*28,150-i%3*14,84+i*28,126-i%2*20);x.quadraticCurveTo(100+i*28,160,98+i*28,190);x.fill()}
+    x.fillStyle='rgba(255,140,40,.18)';x.fillRect(0,0,W,H);
+    x.fillStyle='#b01010';x.fillRect(0,H-62,W,62);x.fillStyle='#fff';x.font='bold 13px sans-serif';x.fillText('BREAKING NEWS',12,H-44);
+    x.font='bold 17px sans-serif';x.fillText(['LORRY CRASHES INTO KOPITIAM, JALAN BESAR','7 DEAD IN KOPITIAM CRASH','1 SURVIVOR: OWNER’S GRANDSON'][beat],12,H-24);
+    x.font='13px sans-serif';x.fillText(['4 days ago · driver also killed','Owner, five customers and the driver','Critical condition · pulled from the fire'][beat],12,H-8);
+    x.fillStyle='#fff';x.fillRect(W-86,8,78,22);x.fillStyle='#b01010';x.font='bold 13px sans-serif';x.fillText('LIVE  ●',W-80,24)});
+  HOSP.draw=draw;
+  const tv=new T.Mesh(new T.PlaneGeometry(1.5,.85),new T.MeshBasicMaterial({map:draw(0),side:T.DoubleSide}));tv.position.set(X+2.84,1.9,-.5);tv.rotation.y=-Math.PI/2;S.add(tv);bx(.08,.95,1.6,L(0x111111),2.9,1.9,-.5);HTV=tv;
+  const lg=new T.PointLight(0xfff2de,14,10,1.4);lg.position.set(X,2.7,0);S.add(lg);const l2=new T.PointLight(0xdfeeff,8,8,1.5);l2.position.set(X-2.3,1.7,-.4);S.add(l2);
+  const pp=G.person;
+  HOSP.mama=pp(X-.95,-1.3,0,0xc77a8a,0x1a1210,0xc9a27e,{long:true,bot:0x4a4a58});HOSP.papa=pp(X+.95,-1.5,0,0x4a6a8a,0x1a1a1a,0xc9a27e,{bot:0x2a2a30});
+  HOSP.mama.visible=HOSP.papa.visible=true;pose(HOSP.mama,0,'stand');pose(HOSP.papa,0,'stand')}
+async function hospital(w){
+  buildHospital();const c=$('c'),X=HX;
+  setTime('day');applyLights(1);bulbSet(1);scene.fog.density=.003;CINE.noclip=true;
+  for(const [m,x,z] of[[HOSP.mama,X-.75,-1.9],[HOSP.papa,X+.85,-2.0]]){m.position.set(x,0,z);m.rotation.y=G.yawFrom(x,z,X,-.8);m.userData.head.rotation.x=.3}
+  P.x=X;P.z=-.8;P.yaw=0;P.pitch=.6;EYE.y=1.0;
+  c.style.filter='blur(9px) brightness(1.1)';
+  /* the white lifts, the room swims into focus */
+  w.style.transition='opacity 3.2s';w.style.opacity=0;
+  tween(k=>{c.style.filter=`blur(${9*(1-k)}px) brightness(1.1)`;P.pitch=.6-.12*k},4200);
+  await sleep(2600);
+  const sw=(t,ms)=>say(t,ms);
+  await sw(sp('MAMA','Sayang...? Can you hear Mama?'),3000);
+  await sw(sp('PAPA','He is awake. Look... he is really awake.'),3200);
+  await sw(sp('MAMA','Four days. You slept four days, sayang.'),3200);
+  await sw(sp('YOU','...Mama?'),2000);
+  await sw(sp('MAMA','Shh. Do not talk. Mama is here. Papa is here.'),3200);
+  await sw(sp('YOU','Atuk...?'),2200);
+  await csleep(900);
+  await sw('Mama does not answer. She only holds your hand tighter.',3400);
+  /* the TV */
+  w.remove();c.style.filter='';HOSP.papa.position.set(X+.5,0,-3.0);
+  await camTo(X,-.8,G.yawFrom(X,-.8,X+3,-.5),.2,2600);
+  HTV.material.map=HOSP.draw(0);HTV.material.map.needsUpdate=true;A.tone(300,300,.05,.05,'square');
+  await say(sp('NEWS','Four days ago, a lorry lost control and crashed into a kopitiam on Jalan Besar.'),4200);
+  HTV.material.map=HOSP.draw(1);await say(sp('NEWS','Seven people died: the owner, five customers, and the lorry driver.'),4000);
+  HTV.material.map=HOSP.draw(2);await say(sp('NEWS','The owner’s grandson was pulled from the fire. He is the only survivor.'),4200);
+  await csleep(900);
+  HOSP.papa.position.set(X+.85,0,-2.0);await camTo(X,-.8,G.yawFrom(X,-.8,X-.75,-1.9),.42,1800);
+  await say(sp('YOU','...I was there.'),2400);
+  await say(sp('MAMA','You were. And you came back to us, sayang. That is enough.'),3600);
+  await csleep(900);
+  $('fade').style.transition='opacity 2.8s';$('fade').style.opacity=1;await sleep(3200);
+  scene.fog.density=.012;CINE.noclip=false;EYE.y=1.6;await cineOut()}
+G.d5hospital=async()=>{const w=document.createElement('div');w.id='hosp';w.style.cssText='position:fixed;inset:0;z-index:60;background:#f4f7f9;opacity:1;pointer-events:none';document.body.appendChild(w);G.busy=true;
+  await hospital(w);$('endh').textContent='LAST ORDER';$('endp').textContent='Some goodbyes come too soon.';$('endl').textContent='If you are carrying one, talk to someone you trust.';$('end').style.display='flex';G.busy=false;G.state='end'};
 G.day5=start}
