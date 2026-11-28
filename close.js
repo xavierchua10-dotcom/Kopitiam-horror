@@ -74,9 +74,9 @@ const CL=[
  {x:8.1,z:-7.5,tx:8.9,tz:-8.7,obj:'Throw the trash',fn:()=>run(4)}];
 let ci=0,CLD=1;
 WPS.d1_close={get x(){return CL[ci].x},get z(){return CL[ci].z},get tx(){return CL[ci].tx},get tz(){return CL[ci].tz},get lab(){return CL[ci].obj},manual:true,r:.6,go:1,get fn(){return CL[ci].fn}};
-WPS.d2_close=WPS.d1_close;
+WPS.d2_close=WPS.d1_close;WPS.d3_close=WPS.d1_close;
 G.closeJump=n=>{ci=n;objT(CL[n].obj)};
-G.closeInit=(dn=1)=>{CLD=dn;lkDone=false;lnS=0;lnLook=0;lnSide=0;lnPrev=null;dsShut=false;ci=0;CFALL.position.set(3.3,.97,-6.45);CFALL.rotation.set(0,0,0);CFALL.scale.setScalar(1.7);CFALL.visible=true;dAt(0);if(AABB.indexOf(doorBlock)<0)AABB.push(doorBlock);SBIN.visible=true;CUPS2.forEach(m=>m.visible=true);BAGW.visible=false;setClock('6:05 PM');objT(CL[0].obj)};
+G.closeInit=(dn=1)=>{CLD=dn;cyS=0;lkDone=false;lnS=0;lnLook=0;lnSide=0;lnPrev=null;dsShut=false;ci=0;CFALL.position.set(3.3,.97,-6.45);CFALL.rotation.set(0,0,0);CFALL.scale.setScalar(1.7);CFALL.visible=true;dAt(0);if(AABB.indexOf(doorBlock)<0)AABB.push(doorBlock);SBIN.visible=true;CUPS2.forEach(m=>m.visible=true);BAGW.visible=false;setClock('6:05 PM');objT(CL[0].obj)};
 async function run(i){if(G.busy||CINE.on||i!==ci)return;G.busy=true;A.click();await cineIn();
   await [mop,cups,bagUp,backDoor,throwBag][i]();
   setClock(['6:12 PM','6:20 PM','6:24 PM','6:27 PM','6:36 PM'][i]);ci++;if(ci>=CL.length){G.state='d'+CLD+'_lock';objT('Lock up')}else objT(CL[ci].obj);
@@ -162,6 +162,20 @@ async function throwBag(){
   CINE.noclip=false;SBIN.visible=false;TB.visible=false;if(AABB.indexOf(doorBlock)<0)AABB.push(doorBlock)}
 /* ---------- Day 1 closing: something stands in the kitchen, watching. You turn, it stares, you say we are closing, it is gone. ---------- */
 let lkDone=false;const LKX=3.8,LKZ=-4.75;
+/* Day 3: back in the kitchen after the last chore, something is sitting at a table in the shop with its head in its hands, crying. Look at it and it whispers, then it is gone. */
+let cyS=0,cyLook=0,cyT=0,cyN=0;
+G.tick.push(dt=>{
+  if(G.state!=='d3_lock'||CINE.on||G.busy)return;
+  const F=G.FIG,FX=2.8,FZ=-1.0;
+  if(cyS===0){F.position.set(FX,0,FZ);F.userData.sit=true;F.userData.hunch=true;F.visible=true;cyS=1;cyT=0;cyLook=0;cyN=1.2;try{G.AMB.duck(3000)}catch(_){}return}
+  if(cyS===1){
+    F.rotation.y=Math.atan2(P.x-FX,P.z-FZ);cyT+=dt;cyN-=dt;
+    if(cyN<0){cyN=2.2+Math.random()*1.5;A.tone(190+Math.random()*50,140,.9,.035,'sine')}
+    let b=Math.atan2(-(FX-P.x),-(FZ-P.z))-P.yaw;b=Math.abs(Math.atan2(Math.sin(b),Math.cos(b)));
+    if(b<.5)cyLook+=dt;else cyLook=Math.max(0,cyLook-dt*.5);
+    if(cyLook>.9||P.z>3.2||cyT>120){cyS=2;F.visible=false;F.userData.sit=false;F.userData.hunch=false;
+      if(cyLook>.9){G.busy=true;(async()=>{await csleep(500);await say('"...maaf..."',2400);G.busy=false})()}}}});
+
 /* Day 2: free roam after the last bag. Turn from the bins and it is standing in front of the back door, the way back in. Look at it and it is gone. */
 let lnS=0,lnLook=0,lnSide=0,lnPrev=null,lnT=0,dsShut=false;
 const lnGone=()=>{lnS=2;G.FIG.visible=false};   /* silent: no flicker, it is simply not there any more */

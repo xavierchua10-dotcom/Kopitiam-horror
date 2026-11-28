@@ -2,7 +2,7 @@
 export default function install(G){
 const {THREE,scene,camera,P,EYE,A,CINE,D,WPS,atuk,CROWD,HOME,FEET,shutter,
   $,sleep,say,sp,cineIn,cineOut,camTo,yawTo,csleep,tween,handAct,pose,objT,setClock,setTime,applyLights,bulbSet,flicker,tapOn,tapOff,STREAM,lids,startAlarm,stopAlarm,drawClock,
-  showCrowd,drawBoard,day1Props,shutBlock,atukLeave,M,B,box,ctex}=G;
+  showCrowd,drawBoard,day1Props,shutBlock,atukLeave,M,B,box,ctex,DRINKS,SERVED,mkDrink,svDrink,chWipe}=G;
 const yawFrom=G.yawFrom;
 
 const pace=(x,z,sp_=1.7)=>{const x0=P.x,z0=P.z,L=Math.hypot(x-x0,z-z0);if(L<.9)return Promise.resolve();let st=0;
@@ -47,7 +47,8 @@ const FIG=new THREE.Group();FIG.position.set(-6,0,10.3);FIG.visible=false;scene.
  G.tick.push(dt=>{if(!FIG.visible){lx=null;return}
    if(lx!==null){const d=Math.hypot(FIG.position.x-lx,FIG.position.z-lz);
      if(d/Math.max(dt,.001)>.4&&d<3){ph+=d*3.3;G.pose(pm,ph,'walk')}else G.pose(pm,0,FIG.userData.sit?'sit':'stand')}
-   lx=FIG.position.x;lz=FIG.position.z;pm.userData.head.rotation.x=.2})}
+   lx=FIG.position.x;lz=FIG.position.z;pm.userData.head.rotation.x=.2;
+   if(FIG.userData.hunch){pm.userData.body.rotation.x=.4;pm.userData.head.rotation.x=.75}})}
 
 
 /* the little things that are wrong with each customer (they show up from Day 3) */
@@ -164,9 +165,26 @@ async function greet(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
   await csleep(900);
   await say(sp('ATUK','Wednesday. Okay. ...Wednesday.'),2400);
   await say(sp('YOU','Atuk, do you smell smoke?'),2000);
-  await say(sp('ATUK','Dapur. Always the kitchen. ...Eh, your face pucat. Go wash first.'),3200);
+  await say(sp('ATUK','Dapur. Always the kitchen. ...Go and look, cucu. Then wash your face.'),3400);
   await camTo(P.x,P.z,0,0,700);
-  G.state='d3_bath';setClock('6:58 AM');tapOn();objT('Wash your face');G.busy=false;await cineOut()}
+  G.state='d3_kitchen';setClock('6:58 AM');objT('Check the kitchen');G.busy=false;await cineOut()}
+
+/* ---------- the kitchen: the stove is black and something is smoking ---------- */
+const SMK=[];{const cv=document.createElement('canvas');cv.width=cv.height=64;const x=cv.getContext('2d'),gr=x.createRadialGradient(32,32,2,32,32,30);gr.addColorStop(0,'rgba(200,200,200,.5)');gr.addColorStop(1,'rgba(200,200,200,0)');x.fillStyle=gr;x.fillRect(0,0,64,64);const tx=new THREE.CanvasTexture(cv);
+  for(let i=0;i<6;i++){const s=new THREE.Sprite(new THREE.SpriteMaterial({map:tx,transparent:true,depthWrite:false,opacity:0}));s.userData.p=i/6;s.visible=false;scene.add(s);SMK.push(s)}}
+let smkOn=false;const smoke=v=>{smkOn=v;SMK.forEach(s=>s.visible=v)};
+G.tick.push(dt=>{if(!smkOn)return;const t=performance.now()/1000;SMK.forEach((s,i)=>{s.userData.p=(s.userData.p+dt*.18)%1;const p=s.userData.p;s.position.set(2.9+.55*(i%2)+Math.sin(t*.8+i)*.08,.95+p*1.5,-6.45);const w=.3+p*.7;s.scale.set(w,w,1);s.material.opacity=Math.sin(p*Math.PI)*.55})});
+WPS.d3_kitchen={x:3.2,z:-5.5,r:.7,go:1,fn:kitchenScene};
+async function kitchenScene(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
+  await camTo(3.2,-5.5,yawFrom(3.2,-5.5,3.2,-6.65),-.1,1100);
+  smoke(true);A.nz(1.2,500,300,.04,'bandpass');
+  await say('A thin grey thread of smoke curls off the stove.',2800);
+  await camTo(3.2,-5.5,yawFrom(3.2,-5.5,2.9,-6.65),-.4,900);
+  await say('The burners are black. Burnt black, like something was cooking when it all stopped.',3400);
+  await say(sp('YOU','The gas is off. Nothing is on.'),2400);
+  await csleep(800);
+  await camTo(3.2,-5.5,0,0,800);
+  G.state='d3_bath';setClock('7:05 AM');tapOn();objT('Wash your face');G.busy=false;await cineOut()}
 
 /* ---------- the bathroom: the tap will not stop, then the red words ---------- */
 const bm=[];let bmG=null;
@@ -214,7 +232,7 @@ async function bathScene(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
   await camTo(-7.7,2.5,yawFrom(-7.7,2.5,-7.7,1.7),-.75,900);
   await say('It is filling the floor. Over the sink, over everything.',2800);
   await camTo(-7.7,2.5,yawFrom(-7.7,2.5,-7.7,1.1),-.05,800);
-  await say(sp('YOU','...Fucked it. Fine.'),1700);
+  await say(sp('YOU','...Okay. Fine. Let it run.'),1700);
   await camTo(-7.7,1.95,yawFrom(-7.7,1.95,-7.7,1.0),-.55,1200);
   handAct('reach',2400);await lids(0,500);A.nz(.4,3000,1200,.22,'bandpass');await csleep(1700);
   await lids(1,900);await camTo(-7.7,1.95,yawFrom(-7.7,1.95,-7.7,1.0),.02,800);
@@ -238,24 +256,47 @@ async function bathScene(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
   await say('A drip. Only that.',2400);
   await say(sp('YOU','Just a dream.'),1800);
   await camTo(-7.9,2.6,yawFrom(-7.9,2.6,-6,2.5),0,1000);
-  G.state='d3_look';setClock('7:20 AM');ci=0;objT(LK[0].obj);G.busy=false;await cineOut()}
+  G.state='d3_chores';setClock('7:20 AM');ci=0;objT(CH[0].obj);G.busy=false;await cineOut()}
 
-/* ---------- ask each customer: nobody answers straight ---------- */
+/* ---------- chores: soot, drinks (make, serve, ask), the gas tank ---------- */
 let ci=0;
 const Y=t=>say(sp('YOU',t),2200);
-const LK=[
- {obj:'Ask Mak Cik Salmah',m:[-2.2,-2.6],c:1,pit:-.45,clk:'8:05 AM',run:async c=>{await Y('Mak Cik... your hand. Are you okay?');await say('"Teh tarik, adik. Panas-panas."',2600,c);await say('She slides her hand under the table. A shiny red mark, up to the wrist.',3000)}},
- {obj:'Ask Ah Seng',m:[-2.15,-.85],c:0,pit:-.55,clk:'8:40 AM',run:async c=>{await Y('Ah Seng, your watch stopped.');await say('"Teh-C peng."',2200,c);await say('The hands are frozen at 5:48.',2600)}},
- {obj:'Ask Mei Ling',m:[-.9,1.15],c:4,pit:-.3,clk:'9:50 AM',run:async c=>{await Y('Mei Ling, how is your daughter?');await say('"Her birthday is next week. I must buy a cake..."',3000,c);await say('"Milo dinosaur."',1800,c);await say('She said "next week" yesterday too.',2600);await say(sp('YOU','It is just a bad dream. It has to be.'),2600)}}];
-WPS.d3_look={get x(){return LK[Math.min(ci,LK.length-1)].m[0]},get z(){return LK[Math.min(ci,LK.length-1)].m[1]},r:.6,go:1,get fn(){return lookRun}};
-async function lookRun(){if(G.busy||CINE.on)return;G.busy=true;const k=LK[ci],c=CROWD[k.c];A.click();await cineIn();
-  await camTo(k.m[0],k.m[1],yawTo(c.position.x,c.position.z),0,900);
-  await camTo(k.m[0],k.m[1],yawTo(c.position.x,c.position.z),k.pit,700);
-  await k.run(c);
-  await camTo(k.m[0],k.m[1],yawTo(c.position.x,c.position.z),0,500);
+const DR=[DRINKS[0],DRINKS[1],DRINKS[3]].map((d,i)=>({...d,line:['Panas-panas, adik. Terima kasih.','Kopi susu. Same as always.','Extra Milo, boy. Thank you.'][i]}));
+const TANK=new THREE.Group();TANK.visible=false;scene.add(TANK);
+{const cm=M(0xb02a22);const b=new THREE.Mesh(new THREE.CylinderGeometry(.17,.17,.55,10),cm);b.position.y=.28;TANK.add(b);const t=new THREE.Mesh(new THREE.CylinderGeometry(.06,.1,.1,8),M(0x777777));t.position.y=.6;TANK.add(t)}
+async function chGasStock(){
+  await camTo(-3.45,-5.55,yawFrom(-3.45,-5.55,-3.75,-6.6),-.12,1100);
+  TANK.visible=true;TANK.position.set(-3.65,.4,-6.2);await csleep(300);
+  handAct('reach',2200);A.click();await tween(k=>{TANK.position.set(-3.65+.15*k,.4+.2*k,-6.2+.4*k)},700);
+  await say('The spare gas tank. Heavy.',2000);
+  await say('A tag on the valve, in Atuk\'s writing: "Check every night. Do not let it leak again."',3600);
+  TANK.visible=false}
+async function chGasSwap(){
+  await camTo(3.2,-5.55,yawFrom(3.2,-5.55,3.2,-6.65),-.3,1100);
+  TANK.visible=true;TANK.position.set(3.75,0,-6.05);await csleep(300);
+  handAct('reach',3000);A.click();await tween(k=>{TANK.position.set(3.75-.1*k,0,-6.05)},600);
+  A.nz(1.6,2600,1800,.05,'highpass');await csleep(1400);A.click();
+  smoke(false);await say('The new tank clicks in. The hiss stops and the smoke thins out.',3000);
+  await say('The smoke is gone. The smell is not.',2400);TANK.visible=false}
+const KIT={x:-1.4,z:-5.7,tx:-1.4,tz:-6.4};
+const servC=(d,c)=>({x:d.px,z:d.pz,tx:d.sx,tz:d.sz,c});
+const CH=[
+ {x:2.8,z:-.8,tx:2.8,tz:-1.8,obj:'Wipe the table',clk:'7:30 AM',run:async()=>{await chWipe();await say('The cloth comes away black. Soot.',2400);await Y('Soot? In here?')}},
+ {...KIT,obj:'Make teh tarik',clk:'7:45 AM',run:()=>mkDrink(DR[0])},
+ {...servC(DR[0],1),obj:'Serve Mak Cik',clk:'8:05 AM',run:async()=>{await svDrink(DR[0]);const c=CROWD[1];await Y('Mak Cik... your hand. Are you okay?');await say('She slides her hand under the table. A shiny red mark, up to the wrist.',3000)}},
+ {...KIT,obj:'Make kopi susu',clk:'8:20 AM',run:()=>mkDrink(DR[1])},
+ {...servC(DR[1],0),obj:'Serve Ah Seng',clk:'8:40 AM',run:async()=>{await svDrink(DR[1]);await Y('Ah Seng, your watch stopped.');await say('The hands are frozen at 5:48.',2600)}},
+ {...KIT,obj:'Make Milo ais',clk:'9:20 AM',run:()=>mkDrink(DR[2])},
+ {...servC(DR[2],4),obj:'Serve Mei Ling',clk:'9:50 AM',run:async()=>{await svDrink(DR[2]);const c=CROWD[4];await Y('Mei Ling, how is your daughter?');await say('"Her birthday is next week. I must buy a cake..."',3000,c);await say('She said "next week" yesterday too.',2600);await say(sp('YOU','It is just a bad dream. It has to be.'),2600)}},
+ {x:-3.4,z:-5.45,tx:-3.75,tz:-6.6,obj:'Get the gas tank from the store room',clk:'10:20 AM',run:chGasStock},
+ {x:3.2,z:-5.55,tx:3.2,tz:-6.65,obj:'Change the gas tank',clk:'10:40 AM',run:chGasSwap}];
+const cc=()=>CH[Math.min(ci,CH.length-1)];
+WPS.d3_chores={get x(){return cc().x},get z(){return cc().z},get tx(){return cc().tx},get tz(){return cc().tz},get lab(){return cc().obj},manual:true,r:.6,go:1,get fn(){return choreRun}};
+async function choreRun(){if(G.busy||CINE.on)return;G.busy=true;const k=CH[ci];A.click();await cineIn();
+  await k.run();
   setClock(k.clk);ci++;
-  if(ci>=LK.length){G.state='d3_tv';objT('The TV is on')}else objT(LK[ci].obj);
-  G.busy=false;await cineOut()}
+  if(ci>=CH.length){SERVED.forEach(c=>c.visible=false);G.state='d3_tv';objT('The TV is on')}else objT(CH[ci].obj);
+  await camTo(P.x,P.z,P.yaw,0,500);G.busy=false;await cineOut()}
 
 /* ---------- the TV ---------- */
 WPS.d3_tv={x:3.4,z:.5,r:.6,go:1,fn:tvScene};
@@ -292,32 +333,18 @@ async function atukRule(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
   await say(sp('YOU>ATUK','Even if somebody is crying outside?'),2200);
   await csleep(900);
   await say(sp('ATUK','...Especially if somebody is crying.'),2800);
-  await say(sp('ATUK','Atuk balik dulu. Lock properly.'),2200);
-  G.state='d3_lock';objT('Lock up');setClock('6:00 PM');G.busy=false;atukLeave();await cineOut()}
+  await say(sp('ATUK','Atuk balik dulu. Before you lock: mop the floor, clear the cups, rubbish go out the back.'),3800);
+  G.busy=false;atukLeave();
+  if(G.closeInit){G.state='d3_close';G.closeInit(3)}else{G.state='d3_lock';objT('Lock up');setClock('6:00 PM')}
+  await cineOut()}
 
 /* ---------- lock up: someone across the road ---------- */
 WPS.d3_lock={x:.3,z:5.3,r:.6,go:1,fn:lockUp};
-async function lockUp(){if(G.busy||CINE.on||D.walking)return;G.busy=true;await cineIn();
+async function lockUp(){if(G.busy||CINE.on||D.walking)return;G.busy=true;FIG.visible=false;await cineIn();
   await camTo(.3,5.2,yawFrom(.3,5.2,0,3.9),.1,900);
   handAct('lift',2000);A.shutter();await tween(k=>{shutter.position.y=3.6-2.4*k;P.pitch=.1-.25*k},1800);shutBlock(true);
   A.click();handAct('reach',1200);await say('You pull the padlock through. Click.',2200);
-  /* the quiet before it: dim light, a heartbeat, a footstep behind you */
-  applyLights(.4);await csleep(1300);
-  await camTo(.3,5.2,yawFrom(.3,5.2,6.1,14),0,1500);
-  for(let i=0;i<2;i++){A.tone(52,44,.22,.22,'sine');await csleep(380);A.tone(52,44,.22,.22,'sine');await csleep(1000)}
-  A.step();await csleep(600);A.step();await csleep(1100);
-  /* you spin round: he is right there, face to face */
-  FIG.position.set(.3,0,4.05);FIG.rotation.y=0;FIG.visible=true;
-  await camTo(.3,5.2,yawFrom(.3,5.2,.3,4.05),.12,260);
-  A.sting();A.nz(.6,1200,200,.4,'lowpass');applyLights(0);
-  await tween(k=>{P.pitch=.12+Math.sin(k*46)*.05*(1-k);P.yaw+=Math.sin(k*60)*.004*(1-k)},520);
-  await csleep(1100);
-  await say('"...maaf..."',2200);
-  for(let i=0;i<3;i++){A.tone(170+Math.random()*40,140,.5,.06,'sine');await csleep(420)}
-  $('fade').style.transition='opacity .06s';$('fade').style.opacity=1;await sleep(240);FIG.visible=false;applyLights(1);$('fade').style.opacity=0;
-  await csleep(1000);
-  await say(sp('YOU','...He was crying.'),2200);
-  await camTo(.3,5.2,yawFrom(.3,5.2,6.1,14),0,1100);
+  await camTo(.3,5.2,yawFrom(.3,5.2,6.1,14),0,1200);
   G.state='d3_home';window.__doorG.rotation.y=0;setClock('6:10 PM');objT('Go home');G.busy=false;await cineOut()}
 WPS.d3_home={x:6.1,z:14.0,r:.6,go:1,fn:homeNight};
 
