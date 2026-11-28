@@ -345,8 +345,25 @@ async function lockUp(){if(G.busy||CINE.on||D.walking)return;G.busy=true;FIG.vis
   handAct('lift',2000);A.shutter();await tween(k=>{shutter.position.y=3.6-2.4*k;P.pitch=.1-.25*k},1800);shutBlock(true);
   A.click();handAct('reach',1200);await say('You pull the padlock through. Click.',2200);
   await camTo(.3,5.2,yawFrom(.3,5.2,6.1,14),0,1200);
-  G.state='d3_home';window.__doorG.rotation.y=0;setClock('6:10 PM');objT('Go home');G.busy=false;await cineOut()}
+  G.state='d3_lockfree';lfS=0;lfLook=0;lfT=0;lf0=P.yaw;window.__doorG.rotation.y=0;setClock('6:10 PM');objT('Go home');G.busy=false;await cineOut()}
 WPS.d3_home={x:6.1,z:14.0,r:.6,go:1,fn:homeNight};
+WPS.d3_lockfree=WPS.d3_home;
+/* free roam after the shutter: turn round and something is standing beside you in the five-foot way. Look at it and it is gone. */
+let lfS=0,lfLook=0,lfT=0,lf0=0;
+G.tick.push(dt=>{
+  if(G.state!=='d3_lockfree'||CINE.on||G.busy||D.walking)return;
+  const dy=(()=>{let a=P.yaw-lf0;return Math.atan2(Math.sin(a),Math.cos(a))})();
+  if(lfS===0){
+    if(Math.abs(dy)<.55)return;
+    /* it is standing close beside you along the five-foot way, on the side you have just turned your back on */
+    FIG.position.set(P.x+(-Math.sin(P.yaw)<0?1.6:-1.6),0,P.z);FIG.userData.sit=false;FIG.userData.hunch=false;FIG.userData.up=false;FIG.visible=true;lfS=1;lfT=0;lfLook=0;
+    try{G.AMB.duck(3000)}catch(_){}A.tone(48,40,2.2,.14,'sine');return}
+  if(lfS===1){
+    FIG.rotation.y=Math.atan2(P.x-FIG.position.x,P.z-FIG.position.z);lfT+=dt;
+    let b=Math.atan2(-(FIG.position.x-P.x),-(FIG.position.z-P.z))-P.yaw;b=Math.abs(Math.atan2(Math.sin(b),Math.cos(b)));
+    if(b<.75)lfLook+=dt;else lfLook=Math.max(0,lfLook-dt*.5);
+    if(lfLook>.4){lfS=2;FIG.visible=false;G.busy=true;(async()=>{await csleep(900);await say(sp('YOU','...What do you want from me.'),2800);G.busy=false})()}
+    else if(lfT>90){lfS=2;FIG.visible=false}}});
 
 /* ---------- home, then a man crying outside ---------- */
 async function cry(n){for(let i=0;i<n;i++){A.tone(170+Math.random()*40,140,.55,.05,'sine');A.tone(340+Math.random()*60,280,.4,.018,'sine');await csleep(520+Math.random()*260)}}
