@@ -31,7 +31,7 @@ AABB.push([-3.3,-2.7,-6.8,-6.3],[-3.35,-2.75,-4.75,-4.25]);
 /* one bare bulb */
 {const g=new T.Group();g.position.set(-3.75,3,-5.5);scene.add(g);box(.012,.5,.012,M(0x222222),0,-.25,0,g);const b=new T.Mesh(new T.SphereGeometry(.07,8,6),B(0xfff0c0));b.position.y=-.55;g.add(b)}
 /* the door, standing open into the kitchen */
-{const lf=G.doorLeaf(-2.5,-5.0,.12,1.0);lf.rotation.y=.12;G.regDoor(lf,Math.PI/2,.12,[-2.5,-5.5],[-2.65,-2.35,-6.0,-5.0])}
+G.doorLeaf(-2.5,-5.0,.2,1.0).rotation.y=.2;
 /* walkable: the room, and the doorway joining it to the kitchen */
 ZONES.push([-4.7,-2.85,-6.65,-4.35],[-2.95,-2.1,-5.9,-5.1]);
 }
