@@ -190,7 +190,7 @@ G.tick.push(dt=>{const F=G.FIG;if(!F.userData.d2sit||!F.visible)return;F.rotatio
   const a=Math.atan2(P.x+1.7,P.z-1.1)-F.rotation.y,dd=Math.atan2(Math.sin(a),Math.cos(a));F.userData.pm.userData.head.rotation.y=Math.max(-1.3,Math.min(1.3,dd))});
 /* ---------- lock up, go home ---------- */
 WPS.d2_lock={x:.3,z:5.3,r:.6,go:1,fn:lockUp};
-async function lockUp(){if(G.busy||CINE.on||D.walking)return;G.busy=true;await cineIn();
+async function lockUp(){if(G.busy||CINE.on||D.walking)return;G.busy=true;G.FIG.visible=false;await cineIn();
   await camTo(.3,5.2,yawFrom(.3,5.2,0,3.9),.1,900);
   handAct('lift',700);A.shutter();await tween(k=>{shutter.position.y=3.6-.55*k;P.pitch=.1-.1*k},650);handAct('reach',200);await camTo(.3,5.2,yawFrom(.3,5.2,0,3.9),0,600);
   /* halfway down: something is sitting at a customer table, head turned to you */
