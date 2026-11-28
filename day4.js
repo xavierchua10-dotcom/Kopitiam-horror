@@ -374,16 +374,17 @@ function mkSmoke(){if(SM)return;const c=document.createElement('canvas');c.width
   const tx=new THREE.CanvasTexture(c);SM=[];for(let i=0;i<14;i++){const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tx,transparent:true,depthWrite:false,fog:false}));sp.position.set(-4+Math.random()*8,2.1+Math.random()*.9,-3+Math.random()*6.5);sp.scale.set(3.6,3.2,1);sp.visible=false;scene.add(sp);SM.push(sp)}}
 const fadeP=(c,a)=>{if(!c.userData.fm){c.userData.fm=[];c.traverse(o=>{if(o.isMesh&&o.material){o.material=o.material.clone();o.material.transparent=true;c.userData.fm.push(o.material)}})}c.userData.fm.forEach(m=>m.opacity=a)};
 const SPOT=[[3.7,.9,-3.4],[-3.2,.8,-2.4],[-1.4,.7,3.4]];   /* only three flames: kitchen door, back corner, shutter edge. the rest is smoke and glow */
-let FL2=null,fogD0=null;
-G.tick.push(()=>{if(!FL2)return;const on=G.state==='d4_find'||G.state==='d4_atuk',t=performance.now()/1000;
-  FL2.forEach((l,i)=>{l.intensity=on?6+Math.sin(t*11+i*2)*1.6+Math.sin(t*27+i)*1:0})});
+let FL2=null,fogD0=null,fogC0=null;
+G.tick.push(()=>{if(!FL2)return;const on=G.state==='d4_find'||G.state==='d4_driver'||G.state==='d4_atuk',t=performance.now()/1000;
+  FL2.forEach((l,i)=>{l.intensity=on?12+Math.sin(t*11+i*2)*3+Math.sin(t*27+i)*2:0})});
 async function startFind(){G.busy=true;await cineIn();
   mkSmoke();SM.forEach(s=>s.visible=true);
   FIRE.forEach(f=>f.visible=false);SPOT.forEach((p,i)=>{const f=FIRE[i];f.position.set(p[0],p[1]+.6,p[2]);f.visible=true});
-  if(!FL2){FL2=[SPOT[0],SPOT[1]].map(p=>{const l=new THREE.PointLight(0xff7a2a,0,9,1.6);l.position.set(p[0],p[1]+.8,p[2]+.6);scene.add(l);return l})}
-  if(fogD0===null)fogD0=scene.fog.density;
+  if(!FL2){FL2=SPOT.map(p=>{const l=new THREE.PointLight(0xff6a1c,0,8,1.6);l.position.set(p[0],p[1]+.7,p[2]+.6);scene.add(l);return l})}
+  if(fogD0===null){fogD0=scene.fog.density;fogC0=scene.fog.color.getHex()}
   G.haze.style.background='radial-gradient(ellipse at 50% 58%,rgba(255,120,50,.08) 0%,rgba(46,22,14,.74) 100%)';
-  applyLights(.2);scene.fog.density=fogD0*1.9;
+  applyLights(.1);scene.fog.density=fogD0*1.1;scene.fog.color.set(0x140b08);   /* dark brown air, orange only near the flames */
+  drvOn=false;drvAt=0;drvWait=0;drvRev=false;G.FIG.visible=false;
   FIND.forEach(k=>{const c=CROWD[k.c];c.visible=true;c.position.set(k.pos[0],0,k.pos[1]);c.rotation.y=k.pos[2];pose(c,0,k.pos[3]);fadeP(c,.7)});
   tapOn();
   cueI=setInterval(cue,1300);
@@ -406,7 +407,7 @@ const FIND=[
  {obj:'Someone is crying at the entrance',cue:'cry',m:[.4,2.45],c:4,pos:[.4,3.55,Math.PI,'stand'],pit:-.15,it:'card',name:'MEI LING',lines:['"I must go home. Tell my daughter... happy birthday."','"Next week. I know it was never next week."']},
  {obj:'Someone is calling from the kitchen',cue:'call',m:[3.4,-5.35],c:1,pos:[3.2,-6.2,0,'stand'],pit:-.3,it:'glass',name:'MAK CIK',lines:['"Panas... so hot. You came, cucu."','"It is not so hot now."']},
  {obj:'The tap is running in the toilet',cue:'tap',m:[-7.7,2.45],c:2,pos:[-8.7,3.2,Math.PI/2,'stand'],pit:-.25,it:'shoe',name:'RAJ',lines:['"I stopped looking for my shoe."','"Keep this one. I will not need it."']}];
-G.d4items=[];G.d4meshes=[];
+G.d4items=[];G.d4meshes=[];G.d4find=()=>{ci2=0;mkFire();return startFind()};G.d4driver=async()=>{ci2=0;mkFire();await startFind();ci2=FIND.length;G.state='d4_driver';objT('Someone is crying behind you');driverSpawn()};
 WPS.d4_find={get x(){return FIND[Math.min(ci2,FIND.length-1)].m[0]},get z(){return FIND[Math.min(ci2,FIND.length-1)].m[1]},r:.65,go:1,get fn(){return findRun}};
 function itemMesh(k,p){const T=THREE;let m;
   if(k==='watch'){m=new T.Mesh(new T.CylinderGeometry(.05,.05,.015,12),new T.MeshBasicMaterial({color:0xd8d8d0}))}
@@ -429,10 +430,79 @@ async function findRun(){if(G.busy||CINE.on)return;G.busy=true;const k=FIND[ci2]
   await csleep(600);await say('They left something behind.',2200);
   await camTo(k.m[0],k.m[1],yawTo(c.position.x,c.position.z),-.02,500);
   ci2++;setClock(['3:52 AM','4:03 AM','4:15 AM','4:26 AM','4:41 AM'][ci2-1]);
-  if(ci2>=FIND.length){G.state='d4_atuk';objT('Find Atuk')}else objT(FIND[ci2].obj);
+  if(ci2>=FIND.length){G.state='d4_driver';objT('Someone is crying behind you');driverSpawn()}else objT(FIND[ci2].obj);
   G.busy=false;await cineOut()}
+
+/* ---- Day 4: the driver stalks the search in free roam. Closer after every person you find, and only ever moved while you are not looking. After the fifth he stands in the hall with his back to you; go to him and he turns round. ---- */
+let drvOn=false,drvAt=0,drvWait=0,drvRev=false,drvCry=0,DRV=null;
+const DSTAGE=[null,[-2.6,-3.7],[.2,-1.5],[1.8,.9],[-.6,2.4]];
+const gaze=(x,z,lim=.6)=>{let b=Math.atan2(-(x-P.x),-(z-P.z))-P.yaw;b=Math.abs(Math.atan2(Math.sin(b),Math.cos(b)));return b<lim};
+function mkDriver(){if(DRV)return;const T=THREE,F=G.FIG,K=0x050506;
+  const rnd=(a,b)=>a+Math.random()*(b-a);
+  const mk=(W,H,draw)=>{const c=document.createElement('canvas');c.width=W;c.height=H;draw(c.getContext('2d'),W,H);const t=new T.CanvasTexture(c);t.colorSpace=T.SRGBColorSpace;return t};
+  const burn=(x,W,H,base,rawN,bloodN)=>{x.fillStyle=base;x.fillRect(0,0,W,H);
+    for(let i=0;i<60;i++){x.fillStyle=`rgba(6,3,2,${rnd(.25,.6)})`;x.beginPath();x.ellipse(rnd(0,W),rnd(0,H),rnd(4,18),rnd(3,12),rnd(0,3),0,6.3);x.fill()}
+    for(let i=0;i<rawN;i++){x.fillStyle=`rgba(${rnd(110,150)|0},${rnd(18,40)|0},14,${rnd(.5,.85)})`;x.beginPath();x.ellipse(rnd(0,W),rnd(0,H),rnd(5,16),rnd(4,12),rnd(0,3),0,6.3);x.fill()}
+    for(let i=0;i<bloodN;i++){const bx=rnd(0,W),by=rnd(0,H*.7),l=rnd(10,H*.5);x.fillStyle='rgba(125,10,14,.95)';x.fillRect(bx,by,rnd(3,6),l);x.beginPath();x.arc(bx+1,by+l,3,0,6.3);x.fill()}};
+  const clothT=mk(128,128,(x,W,H)=>{burn(x,W,H,'#34302e',6,18);for(let i=0;i<8;i++){x.fillStyle='rgba(130,12,16,.9)';x.beginPath();x.ellipse(rnd(0,W),rnd(0,H),rnd(10,24),rnd(8,20),0,0,6.3);x.fill()}});
+  const rawT=mk(128,128,(x,W,H)=>{x.fillStyle='#5a1410';x.fillRect(0,0,W,H);for(let i=0;i<70;i++){const c=Math.random();x.fillStyle=c<.35?`rgba(18,6,4,${rnd(.5,.9)})`:c<.8?`rgba(${rnd(120,170)|0},${rnd(16,34)|0},14,${rnd(.5,.9)})`:`rgba(215,200,170,${rnd(.4,.8)})`;x.beginPath();x.ellipse(rnd(0,W),rnd(0,H),rnd(3,14),rnd(2,10),rnd(0,3),0,6.3);x.fill()}for(let i=0;i<10;i++){x.fillStyle='rgba(120,8,12,.95)';x.fillRect(rnd(0,W),rnd(0,H*.6),3,rnd(20,60))}});
+  const decal=mk(128,160,(x,W,H)=>{x.clearRect(0,0,W,H);
+    const g=x.createRadialGradient(W/2,H/2,10,W/2,H/2,W*.52);g.addColorStop(0,'rgba(70,36,28,1)');g.addColorStop(.75,'rgba(52,28,22,.97)');g.addColorStop(1,'rgba(52,28,22,0)');x.fillStyle=g;x.fillRect(0,0,W,H);
+    for(let i=0;i<20;i++){x.fillStyle=`rgba(6,3,2,${rnd(.35,.7)})`;x.beginPath();x.ellipse(rnd(16,W-16),rnd(16,H-16),rnd(4,13),rnd(3,10),rnd(0,3),0,6.3);x.fill()}
+    x.fillStyle='rgba(135,22,18,.97)';x.beginPath();x.moveTo(W*.5,H*.12);x.quadraticCurveTo(W*.95,H*.25,W*.88,H*.7);x.quadraticCurveTo(W*.7,H*.95,W*.5,H*.86);x.quadraticCurveTo(W*.58,H*.5,W*.5,H*.12);x.fill();
+    for(let i=0;i<26;i++){x.fillStyle=Math.random()<.5?'rgba(40,6,6,.7)':'rgba(170,36,26,.7)';x.beginPath();x.ellipse(rnd(W*.55,W*.85),rnd(H*.2,H*.8),rnd(2,7),rnd(2,6),0,0,6.3);x.fill()}
+    x.fillStyle='rgba(222,210,182,.95)';x.beginPath();x.ellipse(W*.72,H*.55,11,15,.3,0,6.3);x.fill();x.fillStyle='rgba(150,130,100,.7)';x.beginPath();x.ellipse(W*.74,H*.6,5,8,.3,0,6.3);x.fill();
+    x.fillStyle='rgba(120,16,14,.9)';x.beginPath();x.ellipse(W*.28,H*.26,16,10,0,0,6.3);x.fill();
+    x.fillStyle='rgba(5,2,2,.98)';for(const q of[-1,1]){x.beginPath();x.ellipse(W/2+q*22,H*.42,15,12,0,0,6.3);x.fill()}
+    x.fillStyle='rgba(150,12,16,.97)';for(const q of[-1,1]){for(let k=0;k<4;k++)x.fillRect(W/2+q*22+k*4-7,H*.47,3.6,rnd(34,70))}
+    x.fillStyle='rgba(6,2,2,.99)';x.beginPath();x.ellipse(W/2,H*.78,19,13,0,0,6.3);x.fill();
+    x.fillStyle='rgba(230,222,196,.95)';for(let k=-3;k<=3;k++)x.fillRect(W/2+k*5-1.5,H*.7,3.4,7);
+    x.fillStyle='rgba(150,12,16,.97)';x.fillRect(W/2-13,H*.84,4,34);x.fillRect(W/2+6,H*.84,4,48);x.fillRect(W/2-3,H*.86,3,26)});
+  DRV=new T.Group();DRV.visible=false;scene.add(DRV);
+  const pm=G.person(0,0,Math.PI,K,K,K,{bot:K,shoe:K,f:{}});scene.remove(pm);DRV.add(pm);pm.position.set(0,0,0);pm.rotation.y=Math.PI;pm.visible=true;pm.scale.setScalar(1.04);
+  const u=pm.userData,head=u.head;
+  pm.traverse(o=>{if(!o.isMesh||!o.material)return;
+    let inHead=false;for(let p=o.parent;p;p=p.parent)if(p===head){inHead=true;break}
+    if(inHead){o.material=new T.MeshLambertMaterial({color:inHead&&o.geometry.parameters&&o.geometry.parameters.radius===.17?0x34201a:0x0c0807});return}
+    if(o.parent===u.aL.fo||o.parent===u.aR.fo)o.material=new T.MeshLambertMaterial({map:rawT});
+    else o.material=new T.MeshLambertMaterial({map:clothT})});
+  const dp=new T.Mesh(new T.PlaneGeometry(.3,.37),new T.MeshBasicMaterial({map:decal,transparent:true,depthWrite:false}));dp.position.set(0,-.005,.1715);head.add(dp);
+  const wm=new T.MeshBasicMaterial({color:0xf2f0e6,fog:false});
+  for(const q of[-1,1]){const e=new T.Mesh(new T.PlaneGeometry(.045,.05),wm);e.position.set(q*.065,.02,.176);head.add(e)}
+  G.pose(pm,0,'stand');head.rotation.x=-.12}
+function driverSpawn(){const F=G.FIG;F.position.set(-5.4,0,2.5);F.rotation.y=Math.PI/2;F.userData.sit=false;F.userData.up=false;F.userData.hunch=true;F.visible=true;drvOn=true;drvRev=false;drvCry=.8;try{G.AMB.duck(3000)}catch(_){}A.tone(48,40,2.4,.14,'sine')}
+WPS.d4_driver={x:-6.5,z:2.5,r:.7,go:1,fn:()=>driverReveal()};
+async function driverReveal(){if(drvRev||G.state!=='d4_driver')return;drvRev=true;mkDriver();const F=G.FIG;
+  DRV.position.set(F.position.x,0,F.position.z);DRV.rotation.y=F.rotation.y;F.visible=false;F.userData.hunch=false;DRV.visible=true;
+  try{G.AMB.duck(5000)}catch(_){}A.tone(46,36,2.8,.16,'sine');
+  const y0=F.rotation.y,y1=Math.atan2(P.x-F.position.x,P.z-F.position.z),d=Math.atan2(Math.sin(y1-y0),Math.cos(y1-y0));
+  await tween(k=>{DRV.rotation.y=y0+d*k*k*(3-2*k)},1400);
+  await csleep(600);
+  await say(sp('DRIVER','...maaf.'),2600);
+  await csleep(900);
+  DRV.visible=false;A.tone(90,40,.5,.2,'sine');drvOn=false;
+  await csleep(1400);
+  G.state='d4_atuk';objT('Find Atuk');drvRev=false}
+G.tick.push(dt=>{const F=G.FIG;if(!F)return;
+  if(G.state==='d4_driver'&&drvOn&&!drvRev&&!CINE.on){
+    drvCry-=dt;if(drvCry<0){drvCry=2.2+Math.random()*1.4;A.tone(190+Math.random()*50,140,.9,.05,'sine')}
+    if(Math.hypot(P.x-F.position.x,P.z-F.position.z)<1.7)driverReveal();return}
+  if(G.state!=='d4_find'||CINE.on||G.busy||ci2<1)return;
+  const st=DSTAGE[Math.min(ci2,4)];
+  if(drvAt!==ci2){
+    /* only ever moved while neither the old nor the new place is in front of you */
+    drvWait+=dt;
+    if(drvWait>10||(!gaze(st[0],st[1])&&(!F.visible||!gaze(F.position.x,F.position.z)))){
+      F.position.set(st[0],0,st[1]);F.userData.sit=false;F.userData.hunch=false;F.userData.up=false;F.visible=true;drvAt=ci2;drvWait=0;drvCry=1;drvOn=true;
+      if(ci2===1){try{G.AMB.duck(2500)}catch(_){}A.tone(48,40,2.2,.12,'sine')}}
+    return}
+  if(!F.visible)return;
+  F.rotation.y=Math.atan2(P.x-F.position.x,P.z-F.position.z);
+  drvCry-=dt;if(drvCry<0){drvCry=2.6+Math.random()*1.6;A.tone(190+Math.random()*50,140,.9,.035,'sine')}
+  /* walk right up to it and it is simply gone; it comes back, closer, after the next person */
+  if(Math.hypot(P.x-F.position.x,P.z-F.position.z)<1.7)F.visible=false});
 WPS.d4_atuk={x:2.8,z:3.05,r:.7,go:1,fn:atukEnd};
-async function atukEnd(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
+async function atukEnd(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();G.FIG.visible=false;
   await pace(2.9,3.0,1.4);await camTo(P.x,P.z,yawTo(atuk.position.x,atuk.position.z),.02,900);
   await say(sp('ATUK','Cukup, cucu. Enough.'),2400);
   await say(sp('YOU','Atuk... I cannot wake up.'),2400);
@@ -445,7 +515,7 @@ async function atukEnd(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();
   /* the fires sink, the shop goes quiet, just the beep */
   clearInterval(fx);clearInterval(cueI);tapOff();await tween(k=>{FIRE.forEach(f=>f.scale.set(1.9*(1-k*.5),3*(1-k*.5),1))},1400);
   $('fade').style.transition='opacity 2.4s';$('fade').style.opacity=1;await sleep(2800);
-  FIRE.forEach(f=>f.visible=false);SM&&SM.forEach(s=>s.visible=false);if(fogD0!==null)scene.fog.density=fogD0;
+  FIRE.forEach(f=>f.visible=false);SM&&SM.forEach(s=>s.visible=false);if(fogD0!==null){scene.fog.density=fogD0;scene.fog.color.setHex(fogC0)}
   beepQuiet();await sleep(3200);beepSoft=false;
   CINE.noclip=false;EYE.y=1.6;await cineOut();
   if(G.day5){G.busy=false;G.state='d5_intro';G.day5();return}

@@ -1100,7 +1100,7 @@ const G={KC,flo,wall,doorLeaf,regDoor,tm:nightClock,yawFrom,ZONES,AABB,AMB,perso
   AEV,AMBD,get ac(){return ac},get master(){return master},get ambG(){return ambG},
   get state(){return state},set state(v){state=v},get busy(){return busy},set busy(v){busy=v},
   setLights(v){lightsOn=v},setBlur(v){cv.style.transition='filter 1.4s';cv.style.filter=v?'blur(8px)':''}};
-const V=new URL(import.meta.url).search,BUILD='202611290022';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+const V=new URL(import.meta.url).search,BUILD='202611290041';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));
@@ -1155,6 +1155,7 @@ const SCENES=[
   ['s2_chores','Chores + restock',null],['s2_bath','Bathroom mirror',null],['s2_rules','Atuk rules, then closing chores',null],['s2_close','Closing chores + lane scare',null],['s2_lock','Lock up, walk home',null]]],
  ['Day 3 (play it)',[
   ['s3_kitchen','Kitchen smoke check',null],['s3_chores','Chores: soot, drinks, gas tank',null],['s3_rules','Atuk rules, then closing chores',null],['s3_wc','Toilet crying + figure',null],['s3_lock','Shutter + figure beside you',null],['s3_close','Closing chores + crying figure',null]]],
+ ['Day 4 (play it)',[['s4_find','Search the burning shop',null],['s4_driver','Driver in the hall (end of search)',null]]],
  ['Later days',[['d2','Day 2 start',null],['d3','Day 3 start',null],['d4','Day 4 start',null],['d5','Day 5 start',null]]]];
 const SCRUN={s_greet:()=>cineAtuk(),s_report:()=>cineAtuk(),s_bath:()=>cineBath(),s_back:()=>cineAtuk(),s_evening:()=>cineAtuk(),s_fuse:()=>d1FuseAct(),s_lock:()=>cineLock(),s_home:()=>cineHome(),s_midnight:()=>midnight()};
 function scEnd(key){let e=$('scEnd');if(!e){e=document.createElement('div');e.id='scEnd';e.style.cssText='position:fixed;right:14px;bottom:14px;z-index:99999;display:flex;gap:8px';
@@ -1166,6 +1167,7 @@ async function playScene(key){
   if(key==='d1_close')return chapter('d1_close');
   if(key.startsWith('s2_'))return chapter(key);
   if(key.startsWith('s3_'))return chapter(key);
+  if(key.startsWith('s4_'))return chapter(key);
   goFull();$('title').style.display='none';$('chap').style.display='none';initAudio();if(ac&&ac.state==='suspended')ac.resume();
   const row=SCENES.flatMap(g=>g[1]).find(r=>r[0]===key);if(!row||!row[2])return;
   SCONLY=true;row[2]();
@@ -1175,6 +1177,7 @@ async function chapter(key){
   goFull();$('title').style.display='none';$('chap').style.display='none';initAudio();if(ac&&ac.state==='suspended')ac.resume();
   if(key==='d1')return beginDay1();
   if(key==='d2'&&G.day2)return G.day2();if(key==='d3'&&G.day3)return G.day3();if(key==='d4'&&G.day4)return G.day4();if(key==='d5'&&G.day5)return G.day5();
+  if(key.startsWith('s4_')){dayBase('night','3:40 AM');showCrowd(true);D.crowd=true;atuk.visible=false;state='d4_find';P.x=.6;P.z=2.9;P.yaw=yawFrom(.6,2.9,-2,-.5);if(key==='s4_find')G.d4find();else G.d4driver();return}
   if(key.startsWith('s3_')){const d3b=(t,c)=>{state='d3_scene';dayBase(t,c);drawBoard(3);day1Props(true);SERVED.forEach(x=>x.visible=false);showCrowd(true);D.crowd=true;CROWD.forEach((c,i)=>{c.position.set(HOME[i][0],0,HOME[i][1]);c.rotation.y=HOME[i][2];pose(c,0,'sit')});atuk.visible=true;pose(atuk,0,'stand')};
     if(key==='s3_kitchen'){d3b('day','6:58 AM');P.x=2.95;P.z=3.05;P.yaw=-2;state='d3_kitchen';objT('Check the kitchen')}
     else if(key==='s3_chores'){d3b('day','7:20 AM');P.x=2.95;P.z=3.05;P.yaw=-2;state='d3_chores';objT('Wipe the table')}
