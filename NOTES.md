@@ -198,3 +198,4 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 - 202611273023: Marker A (small bobbing arrow + thick ring, no beam); fuse box cutscene walks you to the box with torch, breaker switches visible, LED turns green, lights on.
 - 202611273024: Midnight knock: bedroom door is closed while Atuk knocks, swings open when you tap Open the door.
 - 202611273025: Atuk's bedroom door swings shut after he walks back at midnight.
+- 202611273026: Day 1 closing: shadow figure stands in the kitchen when you turn around on the way to lock up; 'We... we are closing.' and it is gone (also fires on arrival if you never turn).

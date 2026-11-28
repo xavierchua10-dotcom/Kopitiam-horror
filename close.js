@@ -75,7 +75,7 @@ const CL=[
 let ci=0;
 WPS.d1_close={get x(){return CL[ci].x},get z(){return CL[ci].z},get tx(){return CL[ci].tx},get tz(){return CL[ci].tz},get lab(){return CL[ci].obj},manual:true,r:.6,go:1,get fn(){return CL[ci].fn}};
 G.closeJump=n=>{ci=n;objT(CL[n].obj)};
-G.closeInit=()=>{ci=0;CFALL.position.set(3.3,.97,-6.45);CFALL.rotation.set(0,0,0);CFALL.scale.setScalar(1.7);CFALL.visible=true;dAt(0);if(AABB.indexOf(doorBlock)<0)AABB.push(doorBlock);SBIN.visible=true;CUPS2.forEach(m=>m.visible=true);BAGW.visible=false;setClock('6:05 PM');objT(CL[0].obj)};
+G.closeInit=()=>{lkDone=false;ci=0;CFALL.position.set(3.3,.97,-6.45);CFALL.rotation.set(0,0,0);CFALL.scale.setScalar(1.7);CFALL.visible=true;dAt(0);if(AABB.indexOf(doorBlock)<0)AABB.push(doorBlock);SBIN.visible=true;CUPS2.forEach(m=>m.visible=true);BAGW.visible=false;setClock('6:05 PM');objT(CL[0].obj)};
 async function run(i){if(G.busy||CINE.on||i!==ci)return;G.busy=true;A.click();await cineIn();
   await [mop,cups,bagUp,backDoor,throwBag][i]();
   setClock(['6:12 PM','6:20 PM','6:24 PM','6:27 PM','6:36 PM'][i]);ci++;if(ci>=CL.length){G.state='d1_lock';objT('Lock up')}else objT(CL[ci].obj);
@@ -155,4 +155,23 @@ async function throwBag(){
   await tween(k=>dAt(1-k),700);A.click();
   await csleep(400);
   CINE.noclip=false;SBIN.visible=false;TB.visible=false;if(AABB.indexOf(doorBlock)<0)AABB.push(doorBlock)}
+/* ---------- Day 1 closing: something stands in the kitchen, watching. You turn, it stares, you say we are closing, it is gone. ---------- */
+let lkDone=false;const LKX=3.8,LKZ=-4.75;
+async function lockStare(cine){
+  if(lkDone)return;lkDone=true;const F=G.FIG,was=G.busy;G.busy=true;
+  F.position.set(LKX,0,LKZ);F.rotation.y=yawFrom(LKX,LKZ,P.x,P.z)+Math.PI;
+  if(cine)await camTo(P.x,P.z,yawFrom(P.x,P.z,LKX,LKZ),0,900);
+  F.visible=true;try{G.AMB.duck(4000)}catch(_){}A.tone(48,40,2.2,.14,'sine');
+  await csleep(2200);
+  await say(sp('YOU>HIM','We... we are closing.'),2200);
+  await csleep(500);
+  await flicker([.45,1]);F.visible=false;await csleep(900);
+  G.busy=was}
+G.lockStare=lockStare;
+G.tick.push(dt=>{
+  if(G.state!=='d1_lock'||lkDone||CINE.on||G.busy)return;
+  if(P.z<2.0||P.z>4.6)return;
+  const dy=Math.abs(Math.atan2(Math.sin(P.yaw),Math.cos(P.yaw)));
+  if(dy<.6)lockStare(false)});
+
 }
