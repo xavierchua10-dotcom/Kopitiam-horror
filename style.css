@@ -71,3 +71,5 @@ body.cine #top,body.cine #prompt,body.cine #arrow,body.cine #hint{visibility:hid
 body.cine #sub{bottom:calc(12% + 12px)!important;z-index:8}
 .lid{position:fixed;left:0;right:0;height:0;background:#0a0705;z-index:7;pointer-events:none}#lidT{top:0}#lidB{bottom:0}
 #lidT.soft{box-shadow:0 14px 30px 8px rgba(10,7,5,.92)}#lidB.soft{box-shadow:0 -14px 30px 8px rgba(10,7,5,.92)}
+
+#sub i{display:block;margin-top:3px;font-size:12.5px;font-weight:400;font-style:italic;opacity:.72;letter-spacing:.2px;color:var(--txt)}

@@ -513,7 +513,15 @@ function npcTick(dt){for(const g of NPCS){if(!g.visible)continue;const u=g.userD
   u.head.rotation.y+=(tgt-u.head.rotation.y)*Math.min(1,dt*5);u.head.rotation.x=tgt?.06:0;
   let m=0;const tk=u.talk;if(tk){const t=(performance.now()-tk.t0)/1000;if(t>tk.end+.2)u.talk=null;else for(const [st,dd,a] of tk.syl){if(t>=st&&t<=st+dd){m=Math.sin((t-st)/dd*Math.PI)*a;break}}}
   u.mouth.visible=m>.08;u.mouth.scale.y=.08+m;u.mouth.scale.x=1.5-m*.3}}
-async function say(t,ms=2600,who){const s=$('sub');{const w=t.startsWith('ATUK:')?atuk:who;if(w&&w.visible)speak(w,Math.max(.8,Math.min(ms/1000-.4,t.length*.06)),w.userData.f0,Math.max(.15,Math.min(1,2.2/(1+Math.hypot(P.x-w.position.x,P.z-w.position.z)))))}const mm=/^([A-Z][A-Z ]{1,11}): (.*)$/.exec(t),nm=who&&NAMEOF.get(who);if(mm)s.innerHTML='<b>'+mm[1]+'</b>'+mm[2];else if(nm)s.innerHTML='<b>'+nm+'</b>'+t;else s.textContent=t;s.dataset.k=t;s.classList.add('on');await(CINE.on?csleep(ms):sleep(ms));if(s.dataset.k===t)s.classList.remove('on')}
+const NCOL={'YOU':'#bfe3ff','ATUK':'#f2b531','AH SENG':'#7fe0a8','MAK CIK':'#ff9fc0','RAJ':'#ffb26b','PAK HASSAN':'#c4a6ff','MEI LING':'#ff7f7f','DRIVER':'#b8b8b8'};
+const TR=[['kopi-o kurang manis, ya?','Black coffee, less sugar, yes?'],['kopi-o kurang manis','Black coffee, less sugar.'],['kopi, roti bakar. kurang butter.','Coffee, toast. Less butter.'],['teh tarik, adik. panas-panas.','Pulled tea, young one. Piping hot.'],['teh-c peng','Iced tea with milk.'],['faham, atuk','Understood, Atuk.'],['faham?','Understood?'],['atuk balik dulu','Atuk is going home first.'],['siapa tu?','Who is it?'],['belum buka lagi ke?','Not open yet?'],['petrol naik lagi, you tau?','Petrol went up again, you know?'],['semalam punya bola, tak tengok ke?',"Last night's football, you didn't watch?"],['roti bakar sini memang best.','The toast here is really the best.'],['dulu satu roti bakar, lima puluh sen je.','Before, one toast was only fifty sen.'],['panas betul hari ni.','So hot today.'],['kopi sini sama macam dulu-dulu.','The coffee here is the same as always.'],['kopi sini sama macam dulu','The coffee here is the same as before.'],['adik, rajin betul. seorang je jaga ke?','Young one, so hardworking. Looking after it alone?'],['boss, cepat sikit boleh? nak pergi kerja.','Boss, can you hurry a bit? I need to go to work.'],['eh, gula habis ke?','Eh, is the sugar finished?'],['tidur cepat','Sleep early.'],['jangan buka','Do not open.'],['jangan jawab','Do not answer.'],['dengar ah','Listen.'],['dia datang! lari, cucu! lari!',"He's coming! Run, grandchild! Run!"],['cucu! tolong! tolong!','Grandchild! Help! HELP!'],['cucu... tolong...','Grandchild... help...'],['maaf... tolong... buka pintu...','Sorry... help... open the door...'],['buka! buka pintu!','OPEN! OPEN THE DOOR!'],['sebuah lori hilang kawalan dan melanggar sebuah kedai kopi di jalan','a lorry lost control and crashed into a coffee shop on Jalan'],['balik rumah','Go home.'],['terima kasih','Thank you.'],['maaf','Sorry.'],['bangun','Wake up.'],['masuk','Come in.'],['tutup','closed'],
+['eh... dah pukul berapa?','Eh... what time is it?'],['dah lewat... anak saya tunggu.','It is late... my child is waiting.'],['bos... kopi saya belum habis.',"Boss... my coffee isn't finished."],['muka surat tujuh... belum sempat.',"Page seven... haven't got to it yet."],['saya kena balik. hari jadi anak saya.',"I have to go home. It's my child's birthday."],['hati-hati balik, ya.','Take care going home, okay?']].sort((a,b)=>b[0].length-a[0].length);
+function transOf(t){let w=t.toLowerCase().replace(/[“”"]/g,'').replace(/\s+/g,' '),full=w.replace(/[^a-z]/g,'').length,out=[],got=0;
+  for(const [k,v] of TR){const p=w.indexOf(k);if(p<0)continue;const L=k.replace(/[^a-z]/g,'').length;w=w.slice(0,p)+' '.repeat(k.length)+w.slice(p+k.length);got+=L;out.push([k,v,L])}
+  if(!out.length)return '';const whole=got/Math.max(1,full)>.6;
+  return out.map(([k,v])=>whole?v:'“'+k+'” = '+v).join(' · ')}
+async function say(t,ms=2600,who){const s=$('sub');{const w=t.startsWith('ATUK:')?atuk:who;if(w&&w.visible)speak(w,Math.max(.8,Math.min(ms/1000-.4,t.length*.06)),w.userData.f0,Math.max(.15,Math.min(1,2.2/(1+Math.hypot(P.x-w.position.x,P.z-w.position.z)))))}const mm=/^([A-Z][A-Z ]{1,11}): (.*)$/.exec(t),nm=who&&NAMEOF.get(who);let nme=null,body=t;if(mm){nme=mm[1];body=mm[2]}else if(nm)nme=nm;const tr=transOf(body),esc=x=>x.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  s.innerHTML=(nme?'<b style="color:'+(NCOL[nme]||'var(--acc)')+'">'+nme+'</b>':'')+esc(body)+(tr?'<i>'+esc(tr)+'</i>':'');s.dataset.k=t;s.classList.add('on');if(tr)ms+=900;await(CINE.on?csleep(ms):sleep(ms));if(s.dataset.k===t)s.classList.remove('on')}
 const ITS=[];const lab=o=>typeof o.label==='function'?o.label():o.label;
 function it(id,pos,label,enabled,act,meshes){const o={id,pos:new THREE.Vector3(...pos),label,enabled,act};for(const m of meshes)m.traverse(n=>{if(n.isMesh)n.userData.it=o});ITS.push(o);return o}
 it('radio',[4.15,1.2,-.2],'Turn off the radio',()=>state==='lit1',radioAct,[radio]);
@@ -798,12 +806,15 @@ async function d1FuseAct(){if(busy||CINE.on)return;busy=true;await cineIn();
   busy=false;atukLeave();await cineOut()}
 async function crowdWake(){
   await sleep(1500);
-  await Promise.all(QUEUE.map(async(q,i)=>{await sleep(i*1700);pose(q,0,'stand');
-    const path=[...QROUTE[i].slice().reverse(),[-.6,2.6],[-.9+i*.05,4.7],[-1.1,8.5]];let cx=q.position.x,cz=q.position.z;
+  const LINES={'AH SENG':'Eh... dah pukul berapa?','MAK CIK':'Dah lewat... anak saya tunggu.','RAJ':'Bos... kopi saya belum habis.','PAK HASSAN':'Muka surat tujuh... belum sempat.','MEI LING':'Saya kena balik. Hari jadi anak saya.'};
+  const walks=[];
+  const walk=async(q,i)=>{const path=[...QROUTE[i].slice().reverse(),[-.6,2.6],[-.9+i*.05,4.7],[-1.1,8.5]];let cx=q.position.x,cz=q.position.z;
     for(const [tx,tz] of path){const dx=tx-cx,dz=tz-cz,L=Math.hypot(dx,dz);if(L<.01)continue;const x0=cx,z0=cz,ry=q.rotation.y,ty=Math.atan2(-dx,-dz),dyy=((ty-ry+Math.PI*3)%(Math.PI*2))-Math.PI;
       await tween(k=>{q.position.set(x0+dx*k,0,z0+dz*k);q.rotation.y=ry+dyy*Math.min(1,k*5);pose(q,performance.now()/220,'walk')},L/1.25*1000);cx=tx;cz=tz}
-    q.visible=false;pose(q,0,'stand')}));
-  await sleep(600)}
+    q.visible=false;pose(q,0,'stand')};
+  for(let i=0;i<QUEUE.length;i++){const q=QUEUE[i];pose(q,0,'stand');const ln=LINES[NAMEOF.get(q)];if(ln)await say(ln,2300,q);walks.push(walk(q,i));await sleep(500)}
+  atuk.visible=true;await say(sp('ATUK','Hati-hati balik, ya.'),2300);
+  await Promise.all(walks);await sleep(600)}
 async function d1Knock(){busy=true;state='d1_knock';await cineIn();
   await camTo(.3,4.6,0,.04,1800);
   handAct('knock',2300);for(let i=0;i<3;i++){A.knock();await sleep(650)}
@@ -1002,7 +1013,7 @@ const G={tm:nightClock,yawFrom,ZONES,AABB,AMB,person,THREE,scene,camera,P,EYE,A,
   AEV,AMBD,get ac(){return ac},get master(){return master},get ambG(){return ambG},
   get state(){return state},set state(v){state=v},get busy(){return busy},set busy(v){busy=v},
   setLights(v){lightsOn=v},setBlur(v){cv.style.transition='filter 1.4s';cv.style.filter=v?'blur(8px)':''}};
-const V=new URL(import.meta.url).search,BUILD='202611273011';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+const V=new URL(import.meta.url).search,BUILD='202611273012';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));
