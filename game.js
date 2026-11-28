@@ -1100,7 +1100,27 @@ const G={KC,flo,wall,doorLeaf,regDoor,tm:nightClock,yawFrom,ZONES,AABB,AMB,perso
   AEV,AMBD,get ac(){return ac},get master(){return master},get ambG(){return ambG},
   get state(){return state},set state(v){state=v},get busy(){return busy},set busy(v){busy=v},
   setLights(v){lightsOn=v},setBlur(v){cv.style.transition='filter 1.4s';cv.style.filter=v?'blur(8px)':''}};
-const V=new URL(import.meta.url).search,BUILD='202611290222';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+/* ---- look pass: soft real shadows in the shop + a colour grade with a little film grain ---- */
+{
+  const T=THREE;let SH=null,shT=0;
+  try{
+    renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFShadowMap;
+    SH=new T.SpotLight(0xffe2b0,0,14,1.25,.7,1.2);SH.position.set(-1.2,2.85,.4);SH.target.position.set(-1.2,0,.4);
+    SH.castShadow=true;SH.shadow.mapSize.set(512,512);SH.shadow.bias=-.0006;SH.shadow.camera.near=.3;SH.shadow.camera.far=10;
+    scene.add(SH,SH.target);
+  }catch(e){SH=null}
+  const flag=()=>{if(!SH)return;scene.traverse(o=>{if(!o.isMesh||o.userData.__sh)return;o.userData.__sh=1;const m=o.material;if(!m||m.transparent||Array.isArray(m))return;
+    const g=o.geometry;if(!g.boundingBox)g.computeBoundingBox();const b=g.boundingBox,w=new T.Vector3();o.getWorldPosition(w);
+    if(w.x<-9.5||w.x>6.5||w.z<-4.6||w.z>4.3||w.y>2.4)return;
+    const sx=(b.max.x-b.min.x)*Math.abs(o.scale.x),sy=(b.max.y-b.min.y)*Math.abs(o.scale.y),sz=(b.max.z-b.min.z)*Math.abs(o.scale.z);
+    o.receiveShadow=true;if(sy<2.1&&sx<2.8&&sz<2.8&&sy>.05)o.castShadow=true;m.needsUpdate=true})};
+  G.tick.push(dt=>{if(!SH)return;shT-=dt;if(shT<=0){shT=3.5;flag()}
+    const inShop=P.x>-10&&P.x<7&&P.z>-5&&P.z<4.6;SH.intensity=inShop?Math.min(1,lightF)*({day:16,dusk:28,night:52})[TIME||'night']:0});
+  document.head.insertAdjacentHTML('beforeend','<style>#grade{position:fixed;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(20,50,80,.10),rgba(70,35,5,.08))}#grain{position:fixed;inset:-48px;pointer-events:none;opacity:.06;background-size:96px 96px;animation:grn .45s steps(4) infinite}@keyframes grn{0%{transform:translate(0,0)}25%{transform:translate(-31px,17px)}50%{transform:translate(23px,-29px)}75%{transform:translate(-13px,-21px)}100%{transform:translate(0,0)}}</style>');
+  try{const c=document.createElement('canvas');c.width=c.height=96;const x=c.getContext('2d'),d=x.createImageData(96,96);for(let i=0;i<d.data.length;i+=4){const v=Math.random()*255|0;d.data[i]=d.data[i+1]=d.data[i+2]=v;d.data[i+3]=255}x.putImageData(d,0,0);
+    cv.insertAdjacentHTML('afterend','<div id="grade"></div><div id="grain"></div>');document.getElementById('grain').style.backgroundImage='url('+c.toDataURL()+')'}catch(e){}
+}
+const V=new URL(import.meta.url).search,BUILD='202611290238';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));
