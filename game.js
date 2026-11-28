@@ -513,7 +513,7 @@ const AMB={duck(ms){if(!ac||!ambG)return;const t=ac.currentTime;ambG.gain.cancel
   ev(k){if(AEV[k])AEV[k](1,Math.random()<.5?-.6:.6)}};
 
 /* ---------- lights ---------- */
-let DIM=1,lightF=0,lightsOn=false,TIME='night',AB=.02,AK=.4,SK=26,HK=16,LK=8;
+let FIN=1,HV=0,DIM=1,lightF=0,lightsOn=false,TIME='night',AB=.02,AK=.4,SK=26,HK=16,LK=8;
 const SKY={day:{bg:0xb4d2e6,fd:.012,amb:0xf2f5fa,ab:1.5,ak:.15,sk:0,hk:2,lk:2,lamp:0,star:0,drone:.012},
  dusk:{bg:0xc9805e,fd:.026,amb:0xffc4a0,ab:.8,ak:.2,sk:10,hk:8,lk:4,lamp:.6,star:0,drone:.03},
  night:{bg:0x05070a,fd:.075,amb:0x6070a0,ab:.02,ak:.4,sk:26,hk:16,lk:8,lamp:1,star:1,drone:.05}};
@@ -1109,7 +1109,10 @@ function update(dt){
 let ema=33,adT=0;
 function frame(t){requestAnimationFrame(frame);const raw=t-last;if(raw<30)return;const dt=Math.min(.07,raw/1000);last=t;ema=ema*.93+Math.min(raw,200)*.07;adT+=raw;
   if(adT>1800){adT=0;if(ema>44&&RES>.6){RES=Math.max(.6,RES-.1);try{localStorage.lo_res=RES}catch(_){}resize()}}
-  update(dt);renderer.render(scene,camera)}
+  update(dt);{const inH=P.x>3&&P.x<15.2&&P.z>15&&P.z<23.2;FIN+=((inH?.3:1)-FIN)*Math.min(1,dt*3);HV+=((inH?1:0)-HV)*Math.min(1,dt*3);
+    /* the two shop tube lights are far out of range in the house, so borrow them there: every room stays evenly lit (fades out, hops, fades in) */
+    const h=HV>.5,fd=Math.abs(1-2*HV),i1=L1.intensity,i2=L2.intensity;if(h){L1.position.set(5.6,2.6,18.2);L2.position.set(11.6,2.6,19.8)}else{L1.position.set(0,2.6,1.4);L2.position.set(0,2.6,-1.7)}
+    L1.intensity=i1*fd;L2.intensity=i2*fd;const d0=scene.fog.density;scene.fog.density=d0*FIN;renderer.render(scene,camera);scene.fog.density=d0;L1.intensity=i1;L2.intensity=i2}}
 
 /* ---------- hook for the later days (day2.js ...) ---------- */
 /* ---- free doors: tap the door button to open it, tap again to close it (store room only so far) ---- */
@@ -1300,7 +1303,7 @@ let FXM='auto';try{const v=localStorage.lo_fx;if(v==='full'||v==='off')FXM=v}cat
    const r=new THREE.BufferGeometry();r.setAttribute('position',new THREE.Float32BufferAttribute(p,3));r.setAttribute('normal',new THREE.Float32BufferAttribute(n,3));r.setAttribute('uv',new THREE.Float32BufferAttribute(u,2));r.setIndex(ix);return r};
  const MATS={trim:TRIM,dark:DARK,win:WIN,int:INT};
  for(const k in L){if(!L[k].length)continue;const m=new THREE.Mesh(merge(L[k]),MATS[k]);m.userData.noSoot=true;m.name='thick_'+k;scene.add(m)}}
-const V=new URL(import.meta.url).search,BUILD='202611290628';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+const V=new URL(import.meta.url).search,BUILD='202611290700';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));
