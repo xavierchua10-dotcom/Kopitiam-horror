@@ -75,7 +75,7 @@ const CL=[
 let ci=0;
 WPS.d1_close={get x(){return CL[ci].x},get z(){return CL[ci].z},get tx(){return CL[ci].tx},get tz(){return CL[ci].tz},get lab(){return CL[ci].obj},manual:true,r:.6,go:1,get fn(){return CL[ci].fn}};
 G.closeJump=n=>{ci=n;objT(CL[n].obj)};
-G.closeInit=()=>{lkDone=false;ci=0;CFALL.position.set(3.3,.97,-6.45);CFALL.rotation.set(0,0,0);CFALL.scale.setScalar(1.7);CFALL.visible=true;dAt(0);if(AABB.indexOf(doorBlock)<0)AABB.push(doorBlock);SBIN.visible=true;CUPS2.forEach(m=>m.visible=true);BAGW.visible=false;setClock('6:05 PM');objT(CL[0].obj)};
+G.closeInit=()=>{lkDone=false;ci=0;CFALL.position.set(3.3,.97,-6.45);CFALL.rotation.set(0,0,0);CFALL.scale.setScalar(1.7);CFALL.visible=false;cupsD.forEach(m=>m.visible=false);dAt(0);if(AABB.indexOf(doorBlock)<0)AABB.push(doorBlock);SBIN.visible=true;CUPS2.forEach(m=>m.visible=true);BAGW.visible=false;setClock('6:05 PM');objT(CL[0].obj)};
 async function run(i){if(G.busy||CINE.on||i!==ci)return;G.busy=true;A.click();await cineIn();
   await [mop,cups,bagUp,backDoor,throwBag][i]();
   setClock(['6:12 PM','6:20 PM','6:24 PM','6:27 PM','6:36 PM'][i]);ci++;if(ci>=CL.length){G.state='d1_lock';objT('Lock up')}else objT(CL[ci].obj);
@@ -142,7 +142,7 @@ async function throwBag(){
   /* back inside: the door stays open, a cup rolls off the counter by itself */
   await pace(6.4,-5.1,1500);await camTo(P.x,P.z,yawFrom(P.x,P.z,5.1,-5.1),0,500);
   await pace(4.1,-5.1,1800);
-  await camTo(P.x,P.z,yawFrom(P.x,P.z,3.2,-6.2),-.3,800);
+  CFALL.visible=true;await camTo(P.x,P.z,yawFrom(P.x,P.z,3.2,-6.2),-.3,800);
   await csleep(900);
   {await tween(k=>{CFALL.position.set(3.3,.97,-6.45+.1*k);CFALL.rotation.x=k*.45},500);
    A.tone(900,700,.03,.03);
