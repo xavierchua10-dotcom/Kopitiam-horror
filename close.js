@@ -71,7 +71,7 @@ const CL=[
 let ci=0;
 WPS.d1_close={get x(){return CL[ci].x},get z(){return CL[ci].z},r:.6,go:1,get fn(){return CL[ci].fn}};
 G.closeJump=n=>{ci=n;objT(CL[n].obj)};
-G.closeInit=()=>{ci=0;SBIN.visible=true;CUPS2.forEach(m=>m.visible=true);BAGW.visible=false;setClock('5:45 PM');objT(CL[0].obj)};
+G.closeInit=()=>{ci=0;SBIN.visible=true;CUPS2.forEach(m=>m.visible=true);BAGW.visible=false;setClock('6:05 PM');objT(CL[0].obj)};
 async function run(i){if(G.busy||CINE.on||i!==ci)return;G.busy=true;A.click();await cineIn();
   await [mop,cups,trash][i]();
   setClock(['5:52 PM','5:58 PM','6:04 PM'][i]);ci++;if(ci>=CL.length){G.state='d1_lock';objT('Lock up')}else objT(CL[ci].obj);
