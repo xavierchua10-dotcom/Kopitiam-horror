@@ -212,3 +212,4 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 - 202611273037: Doors are now normal gameplay: tap the door button to open, tap again to close, no cutscene (front door, both bedroom doors, bathroom, store room). Closed doors block you. Autoplay door cutscene on Days 2-5 removed.
 - 202611273038: Store room shelf posts no longer poke through the dining room's back wall (three red poles visible from the dining room).
 - 202611273039: Back to the old door behaviour (reverted 037): doors play the short door scene again; Day 1 front door still starts closed with the door button. Store room shelf fix kept.
+- 202611273040: Store room door only: tap the button to open or close it freely (no scene). Other doors keep the old scenes.

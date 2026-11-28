@@ -905,7 +905,7 @@ const CHATST=['d1_greet','d1_chores','d1_report','d1_bath','d1_back'];
 let chatT=4,ambT=1;
 function revealCrowd(){if(D.crowd)return;D.crowd=true;CROWD.forEach(c=>c.visible=true)}
 function d1tick(dt){
-  for(const f of G.tick)f(dt);
+  for(const f of G.tick)f(dt);doorTick();
   CCLED.visible=Math.sin(performance.now()/420)>-.2;
   if(state==='d1_bath'&&!CINE.on){const t=performance.now()/1000;bulbSet(Math.sin(t*23)+Math.sin(t*37)>1.3?.15:.85)}
   {const w=WPS[state];if(w&&w.manual)MAN.pos.set(w.tx,1.1,w.tz);else if(w&&w.fn&&!busy&&!CINE.on&&Math.hypot(P.x-w.x,P.z-w.z)<w.r)w.fn()}
@@ -1035,13 +1035,21 @@ function frame(t){requestAnimationFrame(frame);const raw=t-last;if(raw<30)return
   update(dt);renderer.render(scene,camera)}
 
 /* ---------- hook for the later days (day2.js ...) ---------- */
-const G={KC,flo,wall,doorLeaf,tm:nightClock,yawFrom,ZONES,AABB,AMB,person,THREE,scene,camera,P,EYE,A,CINE,D,WPS,atuk,CROWD,HOME,QUEUE,FEET,shutter,radio,BULB,STREAM,ALK,stain,cupsD,tick:[],day2:null,day3:null,day4:null,day5:null,stools,fan,
+/* ---- free doors: tap the door button to open it, tap again to close it (store room only so far) ---- */
+const DOORS=[];
+function toggleDoor(d){if(d.anim)return;d.anim=true;const from=d.g.rotation.y,isClosed=Math.abs(from-d.closed)<.3,to=isClosed?d.open:d.closed;A.door();
+  tween(k=>{d.g.rotation.y=from+(to-from)*(k*k*(3-2*k))},620).then(()=>{d.anim=false})}
+function regDoor(g,closed,open,pos,aabb,lock){const d={g,closed,open,aabb,anim:false,inb:false,lock},n=DOORS.length;
+  d.it=it('door'+n,[pos[0],1.2,pos[1]],()=>Math.abs(g.rotation.y-closed)<.3?'Open the door':'Close the door',()=>!busy&&!CINE.on&&!d.anim&&!(lock&&lock()),()=>toggleDoor(d),[g]);
+  d.it.noMark=true;HMODE['door'+n]=['reach',700];ICF['door'+n]='knock';DOORS.push(d);return d}
+function doorTick(){for(const d of DOORS){const closed=Math.abs(d.g.rotation.y-d.closed)<.3;if(closed&&!d.inb){AABB.push(d.aabb);d.inb=true}else if(!closed&&d.inb){const i=AABB.indexOf(d.aabb);if(i>=0)AABB.splice(i,1);d.inb=false}}}
+const G={KC,flo,wall,doorLeaf,regDoor,tm:nightClock,yawFrom,ZONES,AABB,AMB,person,THREE,scene,camera,P,EYE,A,CINE,D,WPS,atuk,CROWD,HOME,QUEUE,FEET,shutter,radio,BULB,STREAM,ALK,stain,cupsD,tick:[],day2:null,day3:null,day4:null,day5:null,stools,fan,
   $,sleep,say,sp,cineIn,cineOut,camTo,yawTo,csleep,tween,handAct,pose,objT,setClock,setTime,applyLights,bulbSet,flicker,tapOn,tapOff,lids,startAlarm,stopAlarm,drawClock,
   showCrowd,drawBoard,day1Props,shutBlock,chWipe,chCups,ctex,isLand,atukLeave,M,B,box,
   AEV,AMBD,get ac(){return ac},get master(){return master},get ambG(){return ambG},
   get state(){return state},set state(v){state=v},get busy(){return busy},set busy(v){busy=v},
   setLights(v){lightsOn=v},setBlur(v){cv.style.transition='filter 1.4s';cv.style.filter=v?'blur(8px)':''}};
-const V=new URL(import.meta.url).search,BUILD='202611273039';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+const V=new URL(import.meta.url).search,BUILD='202611273040';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));
