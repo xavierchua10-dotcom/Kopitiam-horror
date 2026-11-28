@@ -304,7 +304,8 @@ roomLamp(5.2,19);roomLamp(9.1,17.2);roomLamp(13.1,17.2);roomLamp(11,21.2);
 fl(3,15,15,23,chk('#6b5a44','#5e4e3a',24,16));const HCEIL=new THREE.MeshBasicMaterial({color:0xcfc8b8});cl(3,15,15,23,HCEIL,2.97);
 {const g=new THREE.Group();g.position.set(5.5,0,15);g.rotation.y=-1.25;scene.add(g);box(1.2,2.1,.06,M(0x5a3a28),.6,1.05,0,g);g.traverse(n=>{});window.__doorG=g}
 const doorMesh=window.__doorG.children[0];
-box(2,.45,.8,M(0x4a3b52),4.1,.22,21.5);box(2,.5,.2,M(0x4a3b52),4.1,.7,21.9);AABB.push([3.1,5.1,21.1,22.3]);
+/* sofa faces the TV; the aisle from the front door to the altar stays clear */
+{const SC=0x6a5a7a,SD=0x5a4a6a;box(.8,.42,1.8,M(SC),4.6,.21,18.5);box(.2,.58,1.8,M(SC),5.1,.71,18.5);box(.8,.18,.2,M(SD),4.6,.5,17.7);box(.8,.18,.2,M(SD),4.6,.5,19.3);box(.6,.12,.62,M(0x7a6a8a),4.55,.48,18.15);box(.6,.12,.62,M(0x7a6a8a),4.55,.48,18.85);AABB.push([4.0,5.2,17.6,19.4])}
 /* dining table + chairs + clock */
 /* the dining table sits in the kitchen corner, beside the fridge */
 box(1.6,.06,.95,M(0x7a5a38),12.3,.75,21.3);for(const dx of[-.7,.7])for(const dz of[-.4,.4])box(.07,.72,.07,M(0x4a3420),12.3+dx,.36,21.3+dz);AABB.push([11.5,13.100000000000001,20.8,21.8]);
@@ -315,13 +316,18 @@ for(const [cx,cz] of[[11.75,22.150000000000002],[12.850000000000001,22.150000000
   const cf=new THREE.Mesh(new THREE.CircleGeometry(.15,16),new THREE.MeshBasicMaterial({map:ck}));cf.position.z=.04;cg.add(cf);
   const rim=new THREE.Mesh(new THREE.CylinderGeometry(.165,.165,.05,16),M(0x2a2a2e));rim.rotation.x=Math.PI/2;cg.add(rim)}
  /* big wall clock above sofa */const wc=new THREE.Mesh(new THREE.CircleGeometry(.32,20),new THREE.MeshBasicMaterial({map:ck}));wc.position.set(3.04,2.05,18.5);wc.rotation.y=Math.PI/2;scene.add(wc)}
-box(.5,.9,1.3,M(0x5a3a28),3.3,.45,18.5);box(.6,.05,1.4,M(0x6b4a30),3.3,.92,18.5);const PHOTO=[];
-{const fr=box(.04,.46,.54,M(0x222222),3.55,1.2,18.5);PHOTO.push(fr);
- const ph=new THREE.Mesh(new THREE.PlaneGeometry(.46,.38),B(0x9a9486));ph.position.set(3.58,1.2,18.5);ph.rotation.y=Math.PI/2;scene.add(ph);PHOTO.push(ph);
+/* TV cupboard on the west wall (where the photo table used to be) */
+box(.5,.7,1.4,M(0x5a3a28),3.3,.35,18.5);box(.56,.05,1.5,M(0x6b4a30),3.3,.72,18.5);box(.04,.5,.04,M(0x3a2a18),3.3,.77,18.5);
+box(.1,.56,.98,M(0x111114),3.42,1.04,18.5);{const sc=new THREE.Mesh(new THREE.BoxGeometry(.02,.48,.88),new THREE.MeshBasicMaterial({color:0x232b2e}));sc.position.set(3.475,1.04,18.5);scene.add(sc)}
+AABB.push([3,3.7,17.7,19.3]);
+/* photo table beside the altar, on the south wall */
+box(1.3,.9,.5,M(0x5a3a28),4.55,.45,22.4);box(1.4,.05,.6,M(0x6b4a30),4.55,.92,22.4);const PHOTO=[];
+{const fr=box(.54,.46,.04,M(0x222222),4.55,1.2,22.45);PHOTO.push(fr);
+ const ph=new THREE.Mesh(new THREE.PlaneGeometry(.46,.38),B(0x9a9486));ph.position.set(4.55,1.2,22.42);ph.rotation.y=Math.PI;scene.add(ph);PHOTO.push(ph);
  /* the memory photo: you and Atuk in front of the shop */
  new THREE.TextureLoader().load('./photo.png',t=>{t.magFilter=THREE.NearestFilter;t.minFilter=THREE.NearestFilter;t.colorSpace=THREE.SRGBColorSpace;ph.material=new THREE.MeshBasicMaterial({map:t})})}
-for(const dz of[-.12,0,.12])box(.012,.2,.012,B(0xff5a3a),3.45,1.03,18.5+dz);
-AABB.push([3,3.7,17.8,19.2]);
+box(.12,.07,.12,M(0xd2a640),4.05,.985,22.4);for(const dx of[-.03,0,.03])box(.01,.2,.01,B(0xff5a3a),4.05+dx,1.12,22.4);
+AABB.push([3.9,5.2,22.1,22.7]);
 
 /* leaving the house at the start of every new day: open the door, step out, close it behind you */
 const doorSeen={};
@@ -512,11 +518,11 @@ it('shutter',[0,1.2,3.9],()=>state==='d1_open'?'Lift the shutter':'Lower the shu
 it('fuse',[-4.9,1.5,.5],'Check the fuse box',()=>state==='dark',fuseAct,[fuse]);
 it('hatch',[0,1.3,-3.9],'Check the kitchen hatch',()=>state==='lit2',hatchAct,[cup,slip,ledge]);
 async function photoAct(){if(busy||CINE.on)return;busy=true;const x0=P.x,z0=P.z,y0=P.yaw;await cineIn();A.click();
-  await camTo(4.9,18.5,Math.PI/2,-.02,700);
+  await camTo(4.55,21.3,Math.PI,-.02,700);
   await say(sp('YOU','Atuk and me, in front of the shop.'),2400);
   await say(sp('YOU','He told me to smile. Then he forgot to smile himself.'),3200);
   await camTo(x0,z0,y0,0,700);busy=false;await cineOut()}
-it('photo',[3.55,1.2,18.5],'Look at the photo',()=>!busy&&!CINE.on&&P.x>3&&P.x<15.5&&P.z>15,photoAct,PHOTO);
+it('photo',[4.55,1.2,22.45],'Look at the photo',()=>!busy&&!CINE.on&&P.x>3&&P.x<15.5&&P.z>15,photoAct,PHOTO);
 const hatchIt=ITS[3];
 it('housedoor',[6.1,1.2,15.1],'Go inside',()=>state==='leave',houseAct,[doorMesh]);
 async function radioAct(){busy=true;A.click();A.static(.12);await say('The radio hisses. Nobody tuned it.',2400);A.static(.2);await say('"...order forty-two..."',2300);A.static(.28);await say('"...still waiting..."',2300);A.static(0);A.sting();lightsOffNow();torch.intensity=26;state='dark';objT('Find the fuse box');busy=false;say('Something scrapes, far off in the dark.',2800);setTimeout(()=>A.scrape(),600)}
@@ -917,7 +923,7 @@ const G={ZONES,AABB,AMB,person,THREE,scene,camera,P,EYE,A,CINE,D,WPS,atuk,CROWD,
   AEV,AMBD,get ac(){return ac},get master(){return master},get ambG(){return ambG},
   get state(){return state},set state(v){state=v},get busy(){return busy},set busy(v){busy=v},
   setLights(v){lightsOn=v},setBlur(v){cv.style.transition='filter 1.4s';cv.style.filter=v?'blur(8px)':''}};
-const V=new URL(import.meta.url).search,BUILD='202611273008';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+const V=new URL(import.meta.url).search,BUILD='202611273009';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));
