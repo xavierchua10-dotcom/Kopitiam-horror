@@ -162,9 +162,9 @@ async function throwBag(){
   CINE.noclip=false;SBIN.visible=false;TB.visible=false;if(AABB.indexOf(doorBlock)<0)AABB.push(doorBlock)}
 /* ---------- Day 1 closing: something stands in the kitchen, watching. You turn, it stares, you say we are closing, it is gone. ---------- */
 let lkDone=false;const LKX=3.8,LKZ=-4.75;
-/* Day 2: free roam after the last bag. Turn from the bins and it is standing in front of the back door, the way back in. Walk toward it and the lamp flickers; it is gone. */
+/* Day 2: free roam after the last bag. Turn from the bins and it is standing in front of the back door, the way back in. Look at it and it is gone. */
 let lnS=0,lnLook=0,lnSide=0,lnPrev=null,lnT=0,dsShut=false;
-const lnGone=async()=>{lnS=2;G.busy=true;const F=G.FIG;lampFlick([.4,0,.8,.1,1]);await flicker([.45,0,.7,.2,1]);F.visible=false;G.busy=false};
+const lnGone=()=>{lnS=2;G.FIG.visible=false};   /* silent: no flicker, it is simply not there any more */
 G.tick.push(dt=>{
   if(G.state!=='d2_lock'||CINE.on||G.busy)return;
   const F=G.FIG;
@@ -178,7 +178,10 @@ G.tick.push(dt=>{
     try{G.AMB.duck(3000)}catch(_){}A.tone(48,40,2.2,.14,'sine');return}
   if(lnS===1){
     F.rotation.y=Math.atan2(P.x-F.position.x,P.z-F.position.z);lnT+=dt;
-    if(Math.hypot(P.x-F.position.x,P.z-F.position.z)<3.2||P.x<4.9||lnT>60)lnGone()}});
+    /* it only vanishes once you actually look at it (about half a second); standing still or walking around does nothing */
+    let b=Math.atan2(-(F.position.x-P.x),-(F.position.z-P.z))-P.yaw;b=Math.abs(Math.atan2(Math.sin(b),Math.cos(b)));
+    if(b<.5)lnLook+=dt;else lnLook=Math.max(0,lnLook-dt*.5);
+    if(lnLook>.5||P.x<4.9||lnT>90)lnGone()}});
 async function lockStare(cine){
   if(lkDone)return;lkDone=true;const F=G.FIG,was=G.busy;G.busy=true;
   F.position.set(LKX,0,LKZ);F.rotation.y=yawFrom(LKX,LKZ,P.x,P.z)+Math.PI;
