@@ -236,8 +236,8 @@ async function newsScene(){
   await newsLine('Breaking news. This evening, a lorry lost control and crashed into a kopitiam on Jalan Besar. This is CCTV from inside the shop.',4600);
   A.static(0);await footage();
   G.tvSet('static');A.static(.3);await csleep(900);G.tvSet('crash');A.static(.05);
-  await newsLine('The lorry burst into flames. The driver survived and is in police custody.',3600);
-  await newsLine('Six people died at the scene: the elderly owner and five customers.',3800);
+  await newsLine('The lorry burst into flames. The driver could not get out of the cabin.',3600);
+  await newsLine('Seven people died at the scene: the driver, the elderly owner and five customers.',3800);
   await csleep(600);
   await newsLine('One person survived. The owner\'s grandson was found unconscious and rushed to hospital. He has not woken up.',4600);
   G.tvSet('static');A.static(.3);await csleep(700);G.tvSet('off');A.static(0);
