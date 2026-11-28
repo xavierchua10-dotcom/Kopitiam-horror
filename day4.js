@@ -374,6 +374,25 @@ function mkSmoke(){if(SM)return;const c=document.createElement('canvas');c.width
   const tx=new THREE.CanvasTexture(c);SM=[];for(let i=0;i<14;i++){const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tx,transparent:true,depthWrite:false,fog:false}));sp.position.set(-4+Math.random()*8,2.1+Math.random()*.9,-3+Math.random()*6.5);sp.scale.set(3.6,3.2,1);sp.visible=false;scene.add(sp);SM.push(sp)}}
 const fadeP=(c,a)=>{if(!c.userData.fm){c.userData.fm=[];c.traverse(o=>{if(o.isMesh&&o.material){o.material=o.material.clone();o.material.transparent=true;c.userData.fm.push(o.material)}})}c.userData.fm.forEach(m=>m.opacity=a)};
 const SPOT=[[3.7,.9,-3.4],[-3.2,.8,-2.4],[-1.4,.7,3.4]];   /* only three flames: kitchen door, back corner, shutter edge. the rest is smoke and glow */
+
+/* ---- black burn marks: soot above and beside each of the three flames, scorched floor under them ---- */
+let SOOT=null;
+function mkSoot(){if(SOOT){SOOT.visible=true;return}const T=THREE;SOOT=new T.Group();scene.add(SOOT);
+  const rnd=(a,b)=>a+Math.random()*(b-a);
+  const cv=document.createElement('canvas');cv.width=128;cv.height=192;{const x=cv.getContext('2d'),W=128,H=192;const g=x.createRadialGradient(W/2,H*.88,4,W/2,H*.5,H*.62);g.addColorStop(0,'rgba(0,0,0,.95)');g.addColorStop(.5,'rgba(8,5,4,.78)');g.addColorStop(1,'rgba(8,5,4,0)');x.fillStyle=g;x.fillRect(0,0,W,H);
+    for(let i=0;i<40;i++){x.fillStyle=`rgba(0,0,0,${rnd(.2,.5)})`;x.fillRect(rnd(20,W-20),rnd(10,H*.8),rnd(2,5),rnd(18,70))}}
+  const st=new T.CanvasTexture(cv);st.colorSpace=T.SRGBColorSpace;
+  const fv=document.createElement('canvas');fv.width=fv.height=128;{const x=fv.getContext('2d'),g=x.createRadialGradient(64,64,4,64,64,60);g.addColorStop(0,'rgba(0,0,0,.92)');g.addColorStop(.6,'rgba(10,6,4,.6)');g.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=g;x.fillRect(0,0,128,128)}
+  const ft=new T.CanvasTexture(fv);
+  const mat=t=>new T.MeshBasicMaterial({map:t,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2});
+  const ms=[];scene.traverse(q=>{if(q.isMesh&&q.visible&&q.parent!==RED&&(q.geometry.type==='PlaneGeometry'||q.geometry.type==='BoxGeometry'))ms.push(q)});
+  const rc=new T.Raycaster();
+  const place=(p,n,w,h)=>{const m=new T.Mesh(new T.PlaneGeometry(w,h),mat(st));m.position.copy(p).addScaledVector(n,.03);m.lookAt(p.clone().add(n));SOOT.add(m)};
+  const cast=(o,d)=>{const dir=new T.Vector3(...d);rc.set(new T.Vector3(...o),dir);const h=rc.intersectObjects(ms,false).find(i=>i.distance>.05);if(!h)return null;const n=h.face.normal.clone().transformDirection(h.object.matrixWorld);if(n.dot(dir)>0)n.negate();return{p:h.point,n,d:h.distance}};
+  SPOT.forEach(f=>{
+    for(const d of[[0,0,-1],[0,0,1],[1,0,0],[-1,0,0]]){const h=cast([f[0],1,f[2]],d);if(h&&h.d<4.5)place(h.p,h.n,2.2,3.2)}
+    const up=cast([f[0],1.2,f[2]],[0,1,0]);if(up&&up.d<4){const m=new T.Mesh(new T.PlaneGeometry(3.2,3.2),mat(st));m.position.copy(up.p);m.position.y-=.03;m.rotation.x=Math.PI/2;SOOT.add(m)}
+    const fl=new T.Mesh(new T.PlaneGeometry(2.6,2.6),mat(ft));fl.rotation.x=-Math.PI/2;fl.position.set(f[0],.02,f[2]);SOOT.add(fl)})}
 let FL2=null,fogD0=null,fogC0=null;
 G.tick.push(()=>{if(!FL2)return;const on=G.state==='d4_find'||G.state==='d4_driver'||G.state==='d4_atuk',t=performance.now()/1000;
   FL2.forEach((l,i)=>{l.intensity=on?12+Math.sin(t*11+i*2)*3+Math.sin(t*27+i)*2:0})});
@@ -386,6 +405,7 @@ async function startFind(){G.busy=true;await cineIn();
   applyLights(.1);scene.fog.density=fogD0*1.1;scene.fog.color.set(0x140b08);   /* dark brown air, orange only near the flames */
   drvOn=false;drvAt=0;drvWait=0;drvRev=false;G.FIG.visible=false;
   FIND.forEach(k=>{const c=CROWD[k.c];c.visible=true;c.position.set(k.pos[0],0,k.pos[1]);c.rotation.y=k.pos[2];pose(c,0,k.pos[3]);fadeP(c,.7)});
+  mkSoot();
   tapOn();
   cueI=setInterval(cue,1300);
   atuk.visible=true;atuk.position.set(3.9,0,3.5);atuk.rotation.y=1.0;fadeP(atuk,.7);
@@ -407,7 +427,7 @@ const FIND=[
  {obj:'Someone is crying at the entrance',cue:'cry',m:[.4,2.45],c:4,pos:[.4,3.55,Math.PI,'stand'],pit:-.15,it:'card',name:'MEI LING',lines:['"I must go home. Tell my daughter... happy birthday."','"Next week. I know it was never next week."']},
  {obj:'Someone is calling from the kitchen',cue:'call',m:[3.4,-5.35],c:1,pos:[3.2,-6.2,0,'stand'],pit:-.3,it:'glass',name:'MAK CIK',lines:['"Panas... so hot. You came, cucu."','"It is not so hot now."']},
  {obj:'The tap is running in the toilet',cue:'tap',m:[-7.7,2.45],c:2,pos:[-8.7,3.2,Math.PI/2,'stand'],pit:-.25,it:'shoe',name:'RAJ',lines:['"I stopped looking for my shoe."','"Keep this one. I will not need it."']}];
-G.d4items=[];G.d4meshes=[];G.d4find=()=>{ci2=0;mkFire();return startFind()};G.d4driver=async()=>{ci2=0;mkFire();await startFind();ci2=FIND.length;G.state='d4_driver';objT('Someone is crying behind you');driverSpawn()};
+G.d4items=[];G.d4meshes=[];G.d4wreck=()=>{G.details();G.gore();buildRed();RED.visible=true;G.goreVis&&G.goreVis(true);setWreck(true)};G.d4find=()=>{ci2=0;mkFire();return startFind()};G.d4driver=async()=>{ci2=0;mkFire();await startFind();ci2=FIND.length;G.state='d4_driver';objT('Someone is crying behind you');driverSpawn()};
 WPS.d4_find={get x(){return FIND[Math.min(ci2,FIND.length-1)].m[0]},get z(){return FIND[Math.min(ci2,FIND.length-1)].m[1]},r:.65,go:1,get fn(){return findRun}};
 function itemMesh(k,p){const T=THREE;let m;
   if(k==='watch'){m=new T.Mesh(new T.CylinderGeometry(.05,.05,.015,12),new T.MeshBasicMaterial({color:0xd8d8d0}))}
@@ -515,7 +535,7 @@ async function atukEnd(){if(G.busy||CINE.on)return;G.busy=true;await cineIn();G.
   /* the fires sink, the shop goes quiet, just the beep */
   clearInterval(fx);clearInterval(cueI);tapOff();await tween(k=>{FIRE.forEach(f=>f.scale.set(1.9*(1-k*.5),3*(1-k*.5),1))},1400);
   $('fade').style.transition='opacity 2.4s';$('fade').style.opacity=1;await sleep(2800);
-  FIRE.forEach(f=>f.visible=false);SM&&SM.forEach(s=>s.visible=false);if(fogD0!==null){scene.fog.density=fogD0;scene.fog.color.setHex(fogC0)}
+  FIRE.forEach(f=>f.visible=false);SM&&SM.forEach(s=>s.visible=false);SOOT&&(SOOT.visible=false);if(fogD0!==null){scene.fog.density=fogD0;scene.fog.color.setHex(fogC0)}
   beepQuiet();await sleep(3200);beepSoft=false;
   CINE.noclip=false;EYE.y=1.6;await cineOut();
   if(G.day5){G.busy=false;G.state='d5_intro';G.day5();return}
