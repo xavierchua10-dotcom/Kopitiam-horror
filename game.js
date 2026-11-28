@@ -412,15 +412,16 @@ const BALC=[];
 const WPS={d1_go:{x:.9,z:5.5,r:.6,go:1,fn:d1Knock},d1_greet:{x:2.8,z:3.05,r:.6,go:1,fn:cineAtuk},d1_report:{x:2.8,z:3.05,r:.6,go:1,fn:cineAtuk},d1_back:{x:2.8,z:3.05,r:.6,go:1,fn:cineAtuk},d1_rule:{x:2.8,z:3.05,r:.6,go:1,fn:cineAtuk},d1_bath:{x:-8.2,z:2.5,r:.6,go:1,fn:cineBath},d1_fuse:{x:-4.0,z:.5,r:.7,go:1,fn:d1FuseAct},d1_lock:{x:.3,z:5.3,r:.6,go:1,fn:cineLock},d1_home:{x:6.1,z:14.0,r:.6,go:1,fn:cineHome}};
 const WP={x:0,z:0,r:.6};
 const WPG=new THREE.Group();WPG.position.set(WP.x,0,WP.z);scene.add(WPG);
-{const ring=new THREE.Mesh(new THREE.RingGeometry(WP.r-.05,WP.r,40),new THREE.MeshBasicMaterial({color:0xE0A526,transparent:true,opacity:.6,depthWrite:false,fog:false,side:THREE.DoubleSide}));ring.rotation.x=-Math.PI/2;ring.position.y=.04;WPG.add(ring);
+{const ring=new THREE.Mesh(new THREE.RingGeometry(WP.r-.05,WP.r,40),new THREE.MeshBasicMaterial({color:0xE0A526,transparent:true,opacity:.6,depthWrite:false,fog:false,side:THREE.DoubleSide}));ring.material.opacity=.32;ring.rotation.x=-Math.PI/2;ring.position.y=.04;WPG.add(ring);
  const disc=new THREE.Mesh(new THREE.CircleGeometry(WP.r-.05,40),new THREE.MeshBasicMaterial({color:0xE0A526,transparent:true,opacity:.1,depthWrite:false,fog:false}));disc.rotation.x=-Math.PI/2;disc.position.y=.035;WPG.add(disc);
  const bt=ctex(8,64,c=>{const g=c.createLinearGradient(0,0,0,64);g.addColorStop(0,'rgba(255,205,90,0)');g.addColorStop(1,'rgba(255,205,90,.9)');c.fillStyle=g;c.fillRect(0,0,8,64)});
- const beam=new THREE.Mesh(new THREE.CylinderGeometry(.09,.09,2.6,10,1,true),new THREE.MeshBasicMaterial({map:bt,transparent:true,opacity:.3,depthWrite:false,fog:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide}));beam.position.y=1.3;WPG.add(beam);
- const chev=new THREE.Mesh(new THREE.ConeGeometry(.13,.22,4),new THREE.MeshBasicMaterial({color:0xF2B531,transparent:true,opacity:.8,fog:false}));chev.rotation.x=Math.PI;chev.position.y=1.7;WPG.add(chev);
+ const beam=new THREE.Mesh(new THREE.CylinderGeometry(.09,.09,2.6,10,1,true),new THREE.MeshBasicMaterial({map:bt,transparent:true,opacity:.3,depthWrite:false,fog:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide}));beam.visible=false;WPG.add(beam);
+ const chev=new THREE.Mesh(new THREE.SphereGeometry(.04,10,8),new THREE.MeshBasicMaterial({color:0xF2B531,transparent:true,opacity:.9,fog:false,depthWrite:false}));chev.position.y=1.45;WPG.add(chev);
+ const halo=new THREE.Sprite(new THREE.SpriteMaterial({map:GLOW.material.map,color:0xffc850,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,fog:false,opacity:.5}));halo.scale.set(.42,.42,1);chev.add(halo);chev.userData.halo=halo;
  WPG.userData={ring,disc,beam,chev}}
 function wpTick(){const w=WPS[state];if(CINE.on){WPG.visible=false;return}if(!w||busy){WPG.visible=false;if(!w&&$('obj').textContent!==OBJB)$('obj').textContent=OBJB;return}
   const d=Math.hypot(P.x-w.x,P.z-w.z);WP.x=w.x;WP.z=w.z;WP.r=w.r;WPG.position.set(w.x,0,w.z);WPG.visible=w.go||d>w.r;
-  const t=performance.now()/1000,k=1+Math.sin(t*3)*.04;WPG.userData.ring.scale.set(k,k,1);WPG.userData.beam.material.opacity=.26+Math.sin(t*2)*.06;WPG.userData.chev.position.y=1.7+Math.sin(t*3)*.08;WPG.userData.chev.rotation.y=t*1.5;
+  const t=performance.now()/1000,k=1+Math.sin(t*3)*.04;WPG.userData.ring.scale.set(k,k,1);{const fd=Math.max(.2,Math.min(1,(d-.7)/1.6)),pl=.75+Math.sin(t*3)*.25,c=WPG.userData.chev;c.position.y=1.45+Math.sin(t*2)*.03;c.material.opacity=.9*fd*pl;c.userData.halo.material.opacity=.5*fd*pl;WPG.userData.ring.material.opacity=.14+.2*fd;WPG.userData.disc.material.opacity=.04+.04*fd}
   const txt=OBJB&&WPG.visible?OBJB+'  ·  '+Math.max(0,Math.round(d-w.r))+' m':OBJB;if($('obj').textContent!==txt)$('obj').textContent=txt}
 /* ---------- audio ---------- */
 let ac=null,master,hum,humG,statG,droneG;
@@ -1034,7 +1035,7 @@ const G={tm:nightClock,yawFrom,ZONES,AABB,AMB,person,THREE,scene,camera,P,EYE,A,
   AEV,AMBD,get ac(){return ac},get master(){return master},get ambG(){return ambG},
   get state(){return state},set state(v){state=v},get busy(){return busy},set busy(v){busy=v},
   setLights(v){lightsOn=v},setBlur(v){cv.style.transition='filter 1.4s';cv.style.filter=v?'blur(8px)':''}};
-const V=new URL(import.meta.url).search,BUILD='202611273015';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+const V=new URL(import.meta.url).search,BUILD='202611273016';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));

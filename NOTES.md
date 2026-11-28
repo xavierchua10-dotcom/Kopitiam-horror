@@ -189,3 +189,4 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 - 202611273013: Label style C: 'NAME to target' (you/everyone/Atuk), self-talk = (blue italic, no name), narration = dim italic with no box. Explicit target via sp('YOU>ATUK',..).
 - 202611273014: Blackout no longer jumps to night sky (stays dusk); lights cut instantly, player turns to face the crowd, thought '(Damn... what happened?)'.
 - 202611273015: Midnight: 3 knocks, you get out of bed, walk to the door marker, tap 'Open the door'; Atuk talks then walks back to his own room (no vanish).
+- 202611273016: Waypoint marker = small glowing floating dot + faint floor ring (no beam/big arrow); fades when you are close.
