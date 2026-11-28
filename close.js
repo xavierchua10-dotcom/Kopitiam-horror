@@ -76,10 +76,10 @@ let ci=0,CLD=1;
 WPS.d1_close={get x(){return CL[ci].x},get z(){return CL[ci].z},get tx(){return CL[ci].tx},get tz(){return CL[ci].tz},get lab(){return CL[ci].obj},manual:true,r:.6,go:1,get fn(){return CL[ci].fn}};
 WPS.d2_close=WPS.d1_close;WPS.d3_close=WPS.d1_close;
 G.closeJump=n=>{ci=n;objT(CL[n].obj)};
-G.closeInit=(dn=1)=>{CLD=dn;cyS=0;lkDone=false;lnS=0;lnLook=0;lnSide=0;lnPrev=null;dsShut=false;ci=0;CFALL.position.set(3.3,.97,-6.45);CFALL.rotation.set(0,0,0);CFALL.scale.setScalar(1.7);CFALL.visible=true;dAt(0);if(AABB.indexOf(doorBlock)<0)AABB.push(doorBlock);SBIN.visible=true;CUPS2.forEach(m=>m.visible=true);BAGW.visible=false;setClock('6:05 PM');objT(CL[0].obj)};
+G.closeInit=(dn=1)=>{CLD=dn;wcOff();wcTurn=0;wcHeard=false;cyS=0;lkDone=false;lnS=0;lnLook=0;lnSide=0;lnPrev=null;dsShut=false;ci=0;CFALL.position.set(3.3,.97,-6.45);CFALL.rotation.set(0,0,0);CFALL.scale.setScalar(1.7);CFALL.visible=true;dAt(0);if(AABB.indexOf(doorBlock)<0)AABB.push(doorBlock);SBIN.visible=true;CUPS2.forEach(m=>m.visible=true);BAGW.visible=false;setClock('6:05 PM');objT(CL[0].obj)};
 async function run(i){if(G.busy||CINE.on||i!==ci)return;G.busy=true;A.click();await cineIn();
   await [mop,cups,bagUp,backDoor,throwBag][i]();
-  setClock(['6:12 PM','6:20 PM','6:24 PM','6:27 PM','6:36 PM'][i]);ci++;if(ci>=CL.length){G.state='d'+CLD+'_lock';objT('Lock up')}else objT(CL[ci].obj);
+  setClock(['6:12 PM','6:20 PM','6:24 PM','6:27 PM','6:36 PM'][i]);ci++;if(ci>=CL.length){G.state='d'+CLD+'_lock';objT('Lock up')}else if(CLD===3&&i===0){wcCue()}else objT(CL[ci].obj);
   await camTo(P.x,P.z,P.yaw,0,500);G.busy=false;await cineOut()}
 
 /* 1. mop — something stands at the back of the dark shop */
@@ -175,6 +175,70 @@ G.tick.push(dt=>{
     if(b<.5)cyLook+=dt;else cyLook=Math.max(0,cyLook-dt*.5);
     if(cyLook>.9||P.z>3.2||cyT>120){cyS=2;F.visible=false;F.userData.sit=false;F.userData.hunch=false;
       if(cyLook>.9){G.busy=true;(async()=>{await csleep(500);await say('"...maaf..."',2400);G.busy=false})()}}}});
+
+/* Day 3: right after the mop, someone is crying in the toilet and glitter spills out of the stall. Go in: slow lean over the bowl, a standing figure with its back to you, it turns, looks up, lunges and is gone. Back at the door it is standing in the hall. */
+let wcTurn=0,wcHeard=false,wcCry=0,wcLook=0,wcT=0,wcGlow=0;
+const GLT=(()=>{const cv=document.createElement('canvas');cv.width=cv.height=64;const x=cv.getContext('2d');
+  let g=x.createRadialGradient(32,32,1,32,32,30);g.addColorStop(0,'rgba(255,255,255,1)');g.addColorStop(.15,'rgba(190,235,255,.8)');g.addColorStop(1,'rgba(150,220,255,0)');x.fillStyle=g;x.fillRect(0,0,64,64);
+  x.strokeStyle='rgba(255,255,255,.9)';x.lineWidth=1.5;x.beginPath();x.moveTo(32,2);x.lineTo(32,62);x.moveTo(2,32);x.lineTo(62,32);x.stroke();
+  const tx=new T.CanvasTexture(cv);tx.colorSpace=T.SRGBColorSpace;const grp=new T.Group();grp.visible=false;scene.add(grp);grp.userData.s=[];
+  for(let i=0;i<30;i++){const s=new T.Sprite(new T.SpriteMaterial({map:tx,transparent:true,depthWrite:false,blending:T.AdditiveBlending,opacity:.5,fog:false}));
+    const a=Math.random()*6.28,r=Math.random()*.85;s.position.set(-9.0+Math.cos(a)*r*.8,.15+Math.random()*1.6,1.7+Math.sin(a)*r);const w=.07+Math.random()*.13;s.scale.set(w,w,1);s.userData={w,p:Math.random()*6.28,k:1.5+Math.random()*2.5};grp.add(s);grp.userData.s.push(s)}
+  const gl=new T.Sprite(new T.SpriteMaterial({map:tx,transparent:true,depthWrite:false,blending:T.AdditiveBlending,opacity:.28,color:0x77ccff,fog:false}));gl.scale.set(2.6,2.6,1);gl.position.set(-9.0,.7,1.7);grp.add(gl);grp.userData.gl=gl;
+  return grp})();
+const WCL=new T.PointLight(0x8fd8ff,0,3.6);WCL.position.set(-8.9,.9,1.8);scene.add(WCL);
+const wcOn=()=>{GLT.visible=true;wcGlow=1;WCL.intensity=1.6};
+function wcOff(){GLT.visible=false;WCL.intensity=0;wcGlow=0}
+function wcCue(){G.state='d3_wc';objT('Check the toilet');wcOn();wcHeard=false;wcCry=1.5}
+WPS.d3_wc={x:-7.7,z:2.55,r:.6,go:1,fn:()=>wcScene()};
+G.wcTest=()=>{ci=1;wcCue()};
+G.tick.push(dt=>{
+  if(!GLT.visible)return;
+  const t=performance.now()/1000;GLT.userData.s.forEach(s=>{const o=.35+.65*Math.abs(Math.sin(t*s.userData.k+s.userData.p));s.material.opacity=Math.min(1,o*wcGlow);s.position.y+=Math.sin(t+s.userData.p)*.0008});
+  GLT.userData.gl.material.opacity=.2*wcGlow*(.8+.2*Math.sin(t*2));
+  if(G.state!=='d3_wc'||CINE.on)return;
+  if(!wcHeard&&!G.busy){wcHeard=true;try{G.AMB.duck(2500)}catch(_){}say('...Someone is crying in the toilet.',2600)}
+  wcCry-=dt;if(wcCry<0){wcCry=2.4+Math.random()*1.6;A.tone(200+Math.random()*60,150,1,.05*Math.max(.35,1-Math.hypot(P.x+9,P.z-1.7)/14),'sine')}});
+async function wcScene(){
+  if(G.busy||CINE.on||G.state!=='d3_wc')return;G.busy=true;A.click();await cineIn();
+  const F=G.FIG;F.userData.sit=false;F.userData.hunch=false;F.userData.up=false;F.visible=false;F.position.set(-9.1,0,1.95);F.rotation.y=Math.PI;
+  const ty=(x,z)=>yawFrom(x,z,-9.1,1.35);
+  /* walk in to the stall opening, slowly lean down over the bowl */
+  await camTo(-8.85,3.3,ty(-8.85,3.3),-.05,1700);
+  await Promise.all([camTo(-8.95,3.05,ty(-8.95,3.05),-.5,2600),tween(k=>{EYE.y=1.6-.25*k},2600)]);
+  await csleep(600);
+  /* it is standing right there, back to you; the glitter surges as it appears */
+  F.visible=true;wcGlow=2.2;A.tone(46,38,2.4,.16,'sine');
+  await Promise.all([camTo(-8.95,3.05,ty(-8.95,3.05),-.1,1800),tween(k=>{EYE.y=1.35+.25*k},1800)]);
+  wcGlow=1.2;await csleep(1300);
+  await say(sp('YOU','Who are you.... what do you want from me.'),3400);
+  await csleep(900);
+  /* it turns round and looks up */
+  F.userData.up=true;
+  await tween(k=>{F.rotation.y=Math.PI*(1-k*k*(3-2*k))},1100);
+  await csleep(900);
+  /* lunge, then nothing */
+  const px=P.x,pz=P.z-.4;const fx=F.position.x,fz=F.position.z;
+  A.tone(70,30,.5,.3,'sine');A.nz(.35,900,200,.35,'lowpass',.8);
+  await tween(k=>{const e=k*k;F.position.set(fx+(px-fx)*e,0,fz+(pz-fz)*e);P.pitch=-.1+Math.sin(k*9)*.01*k},260);
+  F.visible=false;F.userData.up=false;wcOff();A.knock();
+  await csleep(1700);
+  await tween(k=>{EYE.y=1.6},1);
+  G.state='d3_close';setClock('6:14 PM');objT(CL[ci].obj);wcTurn=1;wcLook=0;wcT=0;
+  await camTo(P.x,P.z,P.yaw,0,600);G.busy=false;await cineOut()}
+/* free roam afterwards: turn round at the bathroom door and it is standing in the hall. Look at it and it is gone. */
+G.tick.push(dt=>{
+  if(!wcTurn||G.state!=='d3_close'||CINE.on||G.busy)return;
+  const F=G.FIG;
+  if(wcTurn===1){
+    if(P.x>-5.7){wcTurn=0;return}
+    if(P.x>-7.7&&-Math.sin(P.yaw)>.3){F.position.set(-5.3,0,2.5);F.userData.sit=false;F.userData.hunch=false;F.userData.up=false;F.visible=true;wcTurn=2;wcT=0;wcLook=0;try{G.AMB.duck(3000)}catch(_){}A.tone(48,40,2.2,.14,'sine')}
+    return}
+  if(wcTurn===2){
+    F.rotation.y=Math.atan2(P.x-F.position.x,P.z-F.position.z);wcT+=dt;
+    let b=Math.atan2(-(F.position.x-P.x),-(F.position.z-P.z))-P.yaw;b=Math.abs(Math.atan2(Math.sin(b),Math.cos(b)));
+    if(b<.5)wcLook+=dt;else wcLook=Math.max(0,wcLook-dt*.5);
+    if(wcLook>.5||wcT>90){wcTurn=3;F.visible=false}}});
 
 /* Day 2: free roam after the last bag. Turn from the bins and it is standing in front of the back door, the way back in. Look at it and it is gone. */
 let lnS=0,lnLook=0,lnSide=0,lnPrev=null,lnT=0,dsShut=false;

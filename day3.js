@@ -48,7 +48,7 @@ const FIG=new THREE.Group();FIG.position.set(-6,0,10.3);FIG.visible=false;scene.
    if(lx!==null){const d=Math.hypot(FIG.position.x-lx,FIG.position.z-lz);
      if(d/Math.max(dt,.001)>.4&&d<3){ph+=d*3.3;G.pose(pm,ph,'walk')}else G.pose(pm,0,FIG.userData.sit?'sit':'stand')}
    lx=FIG.position.x;lz=FIG.position.z;pm.userData.head.rotation.x=.2;
-   if(FIG.userData.hunch){pm.userData.body.rotation.x=.4;pm.userData.head.rotation.x=.75}})}
+   if(FIG.userData.hunch){pm.userData.body.rotation.x=.4;pm.userData.head.rotation.x=.75}else if(FIG.userData.up){pm.userData.head.rotation.x=-.45}})}
 
 
 /* the little things that are wrong with each customer (they show up from Day 3) */
