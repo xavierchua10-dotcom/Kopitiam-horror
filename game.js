@@ -2,9 +2,9 @@ import * as THREE from './three.module.min.js';
 const $=id=>document.getElementById(id),sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const cv=$('c');
 let renderer;
-try{renderer=new THREE.WebGLRenderer({canvas:cv,antialias:false,powerPreference:'low-power'})}catch(e){document.body.insertAdjacentHTML('beforeend','<div class="card"><p>This game needs WebGL, which your browser did not start.</p></div>');throw e}
-let RES=1;try{const v=parseFloat(localStorage.lo_res);if(v>=.4&&v<=1)RES=v}catch(_){}
-function resize(){renderer.setPixelRatio(1);renderer.setSize(Math.max(120,Math.round(innerWidth*RES)),Math.max(200,Math.round(innerHeight*RES)),false);camera.aspect=innerWidth/innerHeight;camera.fov=camera.aspect>1?68:88;camera.updateProjectionMatrix()}
+try{renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true,powerPreference:'low-power'})}catch(e){document.body.insertAdjacentHTML('beforeend','<div class="card"><p>This game needs WebGL, which your browser did not start.</p></div>');throw e}
+let RES=1;try{if(localStorage.lo_res_v!=='2'){localStorage.removeItem('lo_res');localStorage.lo_res_v='2'}const v=parseFloat(localStorage.lo_res);if(v>=.4&&v<=1)RES=v}catch(_){}
+function resize(){renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.5));renderer.setSize(Math.max(120,Math.round(innerWidth*RES)),Math.max(200,Math.round(innerHeight*RES)),false);camera.aspect=innerWidth/innerHeight;camera.fov=camera.aspect>1?68:88;camera.updateProjectionMatrix()}
 const isLand=()=>innerWidth>innerHeight*1.1;
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x05070a);scene.fog=new THREE.FogExp2(0x05070a,.075);
 const camera=new THREE.PerspectiveCamera(88,1,.12,160);camera.rotation.order='YXZ';scene.add(camera);
@@ -1082,7 +1082,7 @@ function update(dt){
 }
 let ema=33,adT=0;
 function frame(t){requestAnimationFrame(frame);const raw=t-last;if(raw<30)return;const dt=Math.min(.07,raw/1000);last=t;ema=ema*.93+Math.min(raw,200)*.07;adT+=raw;
-  if(adT>1800){adT=0;if(ema>44&&RES>.4){RES=Math.max(.4,RES-.1);try{localStorage.lo_res=RES}catch(_){}resize()}}
+  if(adT>1800){adT=0;if(ema>44&&RES>.6){RES=Math.max(.6,RES-.1);try{localStorage.lo_res=RES}catch(_){}resize()}}
   update(dt);renderer.render(scene,camera)}
 
 /* ---------- hook for the later days (day2.js ...) ---------- */
@@ -1100,7 +1100,7 @@ const G={KC,flo,wall,doorLeaf,regDoor,tm:nightClock,yawFrom,ZONES,AABB,AMB,perso
   AEV,AMBD,get ac(){return ac},get master(){return master},get ambG(){return ambG},
   get state(){return state},set state(v){state=v},get busy(){return busy},set busy(v){busy=v},
   setLights(v){lightsOn=v},setBlur(v){cv.style.transition='filter 1.4s';cv.style.filter=v?'blur(8px)':''}};
-const V=new URL(import.meta.url).search,BUILD='202611290208';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+const V=new URL(import.meta.url).search,BUILD='202611290222';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));
