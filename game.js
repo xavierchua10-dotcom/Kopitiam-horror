@@ -130,6 +130,31 @@ function faceTex(o){const ct=document.createElement('canvas');ct.width=64;ct.hei
 const nsph=(r,m,x,y,z,p,sx=1,sy=1,sz=1,ws=9,hs=7)=>{const s=new THREE.Mesh(new THREE.SphereGeometry(r,ws,hs),m);s.position.set(x,y,z);s.scale.set(sx,sy,sz);p.add(s);return s};
 const ncyl=(rt,rb,h,m,x,y,z,p,seg=8)=>{const s=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,seg),m);s.position.set(x,y,z);p.add(s);return s};
 const NM=(c,o={})=>new THREE.MeshLambertMaterial(Object.assign({color:c},o));
+/* ---- character polish: cloth folds, collar/buttons/cuffs/belt, eye shine, hair sheen, soft foot shadow (skipped for the black figure and the driver) ---- */
+let FABT=null,SKNT=null,FSHT=null;const PSH={};
+function polishPerson(P_,shirt,skin,hair,o){try{const T=THREE;
+  if(!FABT){const rnd=(a,b)=>a+Math.random()*(b-a);
+    let c=document.createElement('canvas');c.width=c.height=128;let x=c.getContext('2d');const gr=x.createLinearGradient(0,0,0,128);gr.addColorStop(0,'#ffffff');gr.addColorStop(1,'#bdbdbd');x.fillStyle=gr;x.fillRect(0,0,128,128);
+    for(let i=0;i<14;i++){x.strokeStyle='rgba(0,0,0,'+rnd(.03,.08)+')';x.lineWidth=rnd(1,3);x.beginPath();const px=rnd(0,128),py=rnd(0,128);x.moveTo(px,py);x.quadraticCurveTo(px+rnd(-18,18),py+rnd(10,30),px+rnd(-14,14),py+rnd(30,60));x.stroke()}
+    for(let i=0;i<400;i++){x.fillStyle='rgba('+(Math.random()<.5?0:255)+','+(Math.random()<.5?0:255)+','+(Math.random()<.5?0:255)+',.035)';x.fillRect(rnd(0,128),rnd(0,128),1,1)}
+    FABT=new T.CanvasTexture(c);FABT.colorSpace=T.SRGBColorSpace;FABT.wrapS=FABT.wrapT=T.RepeatWrapping;FABT.userData.cloth=1;
+    c=document.createElement('canvas');c.width=c.height=64;x=c.getContext('2d');const g2=x.createLinearGradient(0,0,0,64);g2.addColorStop(0,'#ffffff');g2.addColorStop(1,'#cfcfcf');x.fillStyle=g2;x.fillRect(0,0,64,64);SKNT=new T.CanvasTexture(c);SKNT.colorSpace=T.SRGBColorSpace;SKNT.userData.cloth=1;
+    c=document.createElement('canvas');c.width=c.height=64;x=c.getContext('2d');const g3=x.createRadialGradient(32,32,2,32,32,32);g3.addColorStop(0,'rgba(0,0,0,.5)');g3.addColorStop(.6,'rgba(0,0,0,.22)');g3.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=g3;x.fillRect(0,0,64,64);FSHT=new T.CanvasTexture(c);
+    PSH.collarG=new T.TorusGeometry(.095,.02,6,12);PSH.btnG=new T.SphereGeometry(.014,5,4);PSH.cuffG=new T.CylinderGeometry(.068,.068,.035,8);PSH.buckG=new T.BoxGeometry(.06,.045,.02);PSH.soleG=new T.BoxGeometry(.11,.025,.25);PSH.eyeG=new T.SphereGeometry(.0075,5,4);
+    PSH.btnM=new T.MeshLambertMaterial({color:0xe8e2d0});PSH.buckM=new T.MeshLambertMaterial({color:0xcaa84a});PSH.soleM=new T.MeshLambertMaterial({color:0x3a352f});PSH.eyeM=new T.MeshBasicMaterial({color:0xffffff});
+    PSH.shG=new T.PlaneGeometry(.95,.7);PSH.shM=new T.MeshBasicMaterial({map:FSHT,transparent:true,depthWrite:false})}
+  const {body,head,L,R,aL,aR,top,bot,sk,hm}=P_;
+  top.map=FABT;bot.map=FABT;sk.map=SKNT;
+  const dark=new T.MeshLambertMaterial({color:new T.Color(shirt).multiplyScalar(.7)});
+  const add=(geo,m,p,par,rot)=>{const q=new T.Mesh(geo,m);q.position.set(p[0],p[1],p[2]);if(rot)q.rotation.set(rot[0],rot[1],rot[2]);par.add(q);return q};
+  if(!o.vest&&!o.sarong){const cl=add(PSH.collarG,dark,[0,1.53,0],body,[Math.PI/2.2,0,0]);cl.scale.set(1,.8,1);for(let i=0;i<3;i++)add(PSH.btnG,PSH.btnM,[0,1.32-i*.13,.166],body)}
+  add(PSH.buckG,PSH.buckM,[0,.89,.162],body);
+  if(o.sleeve!==0){add(PSH.cuffG,dark,[0,-.2,0],aL.fo);add(PSH.cuffG,dark,[0,-.2,0],aR.fo)}
+  add(PSH.soleG,PSH.soleM,[0,-.43,.07],L.sh);add(PSH.soleG,PSH.soleM,[0,-.43,.07],R.sh);
+  for(const q of[-1,1])add(PSH.eyeG,PSH.eyeM,[q*.05,.036,.1695],head);
+  if(!o.tudung&&!o.long){const hs=new T.Mesh(new T.SphereGeometry(.178,10,5,0,6.283,0,.9),new T.MeshLambertMaterial({color:new T.Color(hair).multiplyScalar(1.5)}));hs.position.set(0,.05,-.03);hs.scale.set(1,.86,1.03);hs.material.transparent=true;hs.material.opacity=.35;head.add(hs)}
+  const sh=new T.Mesh(PSH.shG,PSH.shM);sh.rotation.x=-Math.PI/2;sh.position.y=.055;sh.userData.footShadow=1;body.parent.add(sh)
+}catch(e){console.warn('polish',e)}}
 function person(x,z,rot,shirt,hair=0x222222,skin=0xc9a27e,o={}){const g=new THREE.Group();g.position.set(x,0,z);g.rotation.y=rot;scene.add(g);
   const inner=new THREE.Group();inner.rotation.y=Math.PI;g.add(inner);const body=new THREE.Group();inner.add(body);
   const sk=NM(skin),top=NM(shirt),bot=NM(o.bot||0x2a2a30),shoe=NM(o.shoe||0x222222),hm=NM(hair);
@@ -153,6 +178,7 @@ function person(x,z,rot,shirt,hair=0x222222,skin=0xc9a27e,o={}){const g=new THRE
   if(o.long)nsph(.19,hm,0,-.17,-.09,head,1,1.55,.8,10,8);
   if(o.tudung){nsph(.2,hm,0,.03,-.05,head,1,.95,1.02,12,8);nsph(.2,hm,0,-.17,-.05,head,1,.62,.95,10,7)}
   const mouth=nsph(.04,NM(0x3a0f0c),0,-.075,.158,head,1.5,.08,.5,6,4);mouth.visible=false;
+  if(shirt!==0x050506)polishPerson({body,head,L,R,aL,aR,top,bot,sk,hm},shirt,skin,hair,o);
   g.userData={L,R,aL,aR,body,head,mouth,f0:120,talk:null,sit:!!o.sit};pose(g,0,o.sit?'sit':'stand');g.visible=false;return g}
 function pose(g,t,mode){const u=g.userData,s=mode==='walk'?Math.sin(t):0;
   if(mode==='sit'){u.L.th.rotation.x=u.R.th.rotation.x=-1.5;u.L.sh.rotation.x=u.R.sh.rotation.x=1.5;u.aL.up.rotation.x=u.aR.up.rotation.x=-.5;u.aL.fo.rotation.x=u.aR.fo.rotation.x=-1.0;u.body.position.y=-.34;u.body.rotation.set(0,0,0);return}
@@ -1144,7 +1170,28 @@ const G={KC,flo,wall,doorLeaf,regDoor,tm:nightClock,yawFrom,ZONES,AABB,AMB,perso
     G.tick.push(dt=>{dust.visible=P.x>-10&&P.x<7&&P.z>-5&&P.z<4.6;if(!dust.visible)return;const a=pg.attributes.position.array;for(let i=0;i<n;i++){a[i*3+1]+=dt*.012;a[i*3]+=Math.sin(performance.now()/4000+i)*dt*.01;if(a[i*3+1]>2.8)a[i*3+1]=.3}pg.attributes.position.needsUpdate=true})
   }catch(e){}
 }
-const V=new URL(import.meta.url).search,BUILD='202611290310';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+/* ---- street pass: puddles that catch the lamps at dusk/night, bin bags, crates, cardboard, bottles along the five-foot way ---- */
+{
+  const T=THREE,rnd=(a,b)=>a+Math.random()*(b-a);
+  try{
+    const c=document.createElement('canvas');c.width=128;c.height=64;const x=c.getContext('2d');
+    let g=x.createRadialGradient(64,32,2,64,32,60);g.addColorStop(0,'rgba(8,12,22,.85)');g.addColorStop(.7,'rgba(8,12,22,.6)');g.addColorStop(1,'rgba(8,12,22,0)');x.save();x.scale(1,.5);x.translate(0,32);x.fillStyle=g;x.fillRect(0,0,128,128);x.restore();
+    g=x.createLinearGradient(30,0,100,0);g.addColorStop(0,'rgba(255,220,160,0)');g.addColorStop(.5,'rgba(255,225,170,.55)');g.addColorStop(1,'rgba(255,220,160,0)');x.fillStyle=g;x.fillRect(28,28,74,5);
+    const pt=new T.CanvasTexture(c);pt.colorSpace=T.SRGBColorSpace;const pm=new T.MeshBasicMaterial({map:pt,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2,fog:true});
+    const PUD=new T.Group();scene.add(PUD);
+    for(let i=0;i<16;i++){const p=new T.Mesh(new T.PlaneGeometry(rnd(1.4,2.8),rnd(.8,1.4)),pm);p.rotation.x=-Math.PI/2;p.rotation.z=rnd(-.4,.4);p.position.set(-26+i*3.4+rnd(-.8,.8),.016,rnd(7.6,12));PUD.add(p)}
+    const bagM=new T.MeshLambertMaterial({color:0x0d0d10}),bagM2=new T.MeshLambertMaterial({color:0x2a3a2e}),crM=new T.MeshLambertMaterial({color:0x6a4a28}),cbM=new T.MeshLambertMaterial({color:0x8a6a44}),btM=new T.MeshLambertMaterial({color:0x3a7a5a});
+    const put=(m,px,py,pz,ry)=>{m.position.set(px,py,pz);if(ry)m.rotation.y=ry;scene.add(m);return m};
+    const bag=(px,pz,m)=>{const b=put(new T.Mesh(new T.SphereGeometry(.28,8,6),m),px,.2,pz);b.scale.set(1,.85,.9);put(new T.Mesh(new T.ConeGeometry(.06,.12,5),m),px,.46,pz)};
+    const spots=[-23,-19,-15.5,-12,-9.2,6.5,9.5,13,16.5,20,23.5];
+    spots.forEach((px,i)=>{const z=4.82+rnd(0,.25);
+      if(i%3===0){bag(px,z,bagM);bag(px+.45,z+.1,bagM2)}
+      else if(i%3===1){const k=put(new T.Mesh(new T.BoxGeometry(.5,.32,.38),crM),px,.16,z,rnd(-.3,.3));put(new T.Mesh(new T.BoxGeometry(.48,.3,.36),crM),px+.05,.48,z+.02,rnd(-.3,.3));put(new T.Mesh(new T.CylinderGeometry(.03,.03,.22,6),btM),px+.5,.11,z+.15)}
+      else{put(new T.Mesh(new T.BoxGeometry(.6,.4,.45),cbM),px,.2,z,rnd(-.4,.4));put(new T.Mesh(new T.BoxGeometry(.5,.05,.4),cbM),px+.1,.43,z+.03,rnd(-.4,.4))}});
+    G.tick.push(()=>{PUD.visible=TIME!=='day'})
+  }catch(e){console.warn('street',e)}
+}
+const V=new URL(import.meta.url).search,BUILD='202611290325';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));
