@@ -250,3 +250,4 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 - Build 076 (202611290238): realism pass: soft real shadows inside the shop (one shadow spotlight, small 512 map, only furniture/people cast, only active while you are inside the shop), a cool-shadow/warm-light colour grade overlay (#grade) and light film grain (#grain). No bloom (too costly). If the phone lags: delete the shadow block or set SH.castShadow=false; grain/grade are plain CSS.
 - Build 077 (202611290246): film grain no longer moves (static overlay).
 - Build 078 (202611290302): lived-in pass: glossy floor tile, table props (sugar jars, napkins, soy sauce, newspaper), damp streaks + calendar on the north wall, slow dust in the shop. Kept props non-removable so cup chores still work. Floor is MeshStandardMaterial (slightly heavier than Lambert): revert in the 'lived-in pass' block if the phone lags.
+- Build 079 (202611290310): film grain much fainter (opacity .06 -> .025).

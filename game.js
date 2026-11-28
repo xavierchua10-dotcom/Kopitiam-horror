@@ -1116,7 +1116,7 @@ const G={KC,flo,wall,doorLeaf,regDoor,tm:nightClock,yawFrom,ZONES,AABB,AMB,perso
     o.receiveShadow=true;if(sy<2.1&&sx<2.8&&sz<2.8&&sy>.05)o.castShadow=true;m.needsUpdate=true})};
   G.tick.push(dt=>{if(!SH)return;shT-=dt;if(shT<=0){shT=3.5;flag()}
     const inShop=P.x>-10&&P.x<7&&P.z>-5&&P.z<4.6;SH.intensity=inShop?Math.min(1,lightF)*({day:16,dusk:28,night:52})[TIME||'night']:0});
-  document.head.insertAdjacentHTML('beforeend','<style>#grade{position:fixed;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(20,50,80,.10),rgba(70,35,5,.08))}#grain{position:fixed;inset:0;pointer-events:none;opacity:.06;background-size:96px 96px}</style>');
+  document.head.insertAdjacentHTML('beforeend','<style>#grade{position:fixed;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(20,50,80,.10),rgba(70,35,5,.08))}#grain{position:fixed;inset:0;pointer-events:none;opacity:.025;background-size:96px 96px}</style>');
   try{const c=document.createElement('canvas');c.width=c.height=96;const x=c.getContext('2d'),d=x.createImageData(96,96);for(let i=0;i<d.data.length;i+=4){const v=Math.random()*255|0;d.data[i]=d.data[i+1]=d.data[i+2]=v;d.data[i+3]=255}x.putImageData(d,0,0);
     cv.insertAdjacentHTML('afterend','<div id="grade"></div><div id="grain"></div>');document.getElementById('grain').style.backgroundImage='url('+c.toDataURL()+')'}catch(e){}
 }
@@ -1144,7 +1144,7 @@ const G={KC,flo,wall,doorLeaf,regDoor,tm:nightClock,yawFrom,ZONES,AABB,AMB,perso
     G.tick.push(dt=>{dust.visible=P.x>-10&&P.x<7&&P.z>-5&&P.z<4.6;if(!dust.visible)return;const a=pg.attributes.position.array;for(let i=0;i<n;i++){a[i*3+1]+=dt*.012;a[i*3]+=Math.sin(performance.now()/4000+i)*dt*.01;if(a[i*3+1]>2.8)a[i*3+1]=.3}pg.attributes.position.needsUpdate=true})
   }catch(e){}
 }
-const V=new URL(import.meta.url).search,BUILD='202611290302';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+const V=new URL(import.meta.url).search,BUILD='202611290310';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));
