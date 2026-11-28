@@ -1282,10 +1282,12 @@ let FXM='auto';try{const v=localStorage.lo_fx;if(v==='full'||v==='off')FXM=v}cat
    tb('win',2.25,.13,.1,wx,5.84,6.61);
    tb('win',2.45,.09,.2,wx,3.88,6.66)}}
  /* interior doorways: a lining inside the opening (gives the wall depth) + a flat architrave on both faces */
- const lin=(ax,c,a0,a1,h,T)=>{const w=a1-a0,m=(a0+a1)/2,P=(along,y,nor,sa,sy,sn)=>ax==='x'?tb('int',sn,sy,sa,c+nor,y,along):tb('int',sa,sy,sn,along,y,c+nor);
-   P(a0+.03,h/2,0,.06,h,T);P(a1-.03,h/2,0,.06,h,T);P(m,h-.03,0,w,.06,T);                  /* lining */
+ const lin=(ax,c,a0,a1,h,T,nl)=>{const w=a1-a0,m=(a0+a1)/2,P=(along,y,nor,sa,sy,sn)=>ax==='x'?tb('int',sn,sy,sa,c+nor,y,along):tb('int',sa,sy,sn,along,y,c+nor);
+   if(!nl){P(a0+.03,h/2,0,.06,h,T);P(a1-.03,h/2,0,.06,h,T);P(m,h-.03,0,w,.06,T)}                  /* lining */
    for(const f of[-1,1]){const o=f*(T/2+.0);P(a0-.05,h/2+.05,o,.1,h+.1,.04);P(a1+.05,h/2+.05,o,.1,h+.1,.04);P(m,h+.05,o,w+.2,.1,.04)}}; /* architrave */
  lin('x',-5,2,3,2.4,.2);lin('x',-7,2,3,2.4,.2);lin('z',-4,3.3,4.3,2.4,.2);
+ /* your house: doorways + hatches (doors keep their own jambs, so architrave only) */
+ lin('x',7.2,19.9,21.1,2.2,.2);lin('z',19.4,8.6,9.6,2.2,.16,1);lin('z',19.4,12.6,13.6,2.2,.16,1);lin('z',15,5.5,6.7,2.2,.2,1);
  /* serving hatch frame */
  {const a=-1.2,b=1.2;tb('int',.07,1.0,.2,a+.035,1.5,-4);tb('int',.07,1.0,.2,b-.035,1.5,-4);tb('int',2.6,.07,.2,0,1.035,-4);tb('int',2.6,.06,.2,0,1.965,-4)}
  /* inside face of the shop entrance (outside walkable range) */
@@ -1294,7 +1296,7 @@ let FXM='auto';try{const v=localStorage.lo_fx;if(v==='full'||v==='off')FXM=v}cat
    const r=new THREE.BufferGeometry();r.setAttribute('position',new THREE.Float32BufferAttribute(p,3));r.setAttribute('normal',new THREE.Float32BufferAttribute(n,3));r.setAttribute('uv',new THREE.Float32BufferAttribute(u,2));r.setIndex(ix);return r};
  const MATS={trim:TRIM,dark:DARK,win:WIN,int:INT};
  for(const k in L){if(!L[k].length)continue;const m=new THREE.Mesh(merge(L[k]),MATS[k]);m.userData.noSoot=true;m.name='thick_'+k;scene.add(m)}}
-const V=new URL(import.meta.url).search,BUILD='202611290512';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+const V=new URL(import.meta.url).search,BUILD='202611290530';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));
