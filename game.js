@@ -101,7 +101,6 @@ const L1=new THREE.PointLight(0xcfe8ff,0,16,2);L1.position.set(0,2.6,1.4);scene.
 const L2=new THREE.PointLight(0xcfe8ff,0,16,2);L2.position.set(0,2.6,-1.7);scene.add(L2);
 box(1.4,.05,.14,(tubeMat[2]=B(0xdff3ff)),1.25,2.94,-5.5);box(.7,.05,.12,(tubeMat[3]=B(0xdff3ff)),-8.25,2.94,2.5);
 const LZ=new THREE.PointLight(0xdfeee0,0,18,2);LZ.position.set(1.25,2.5,-5.5);scene.add(LZ);
-const LH=new THREE.PointLight(0xffdca8,0,16,2);LH.position.set(8,2.4,19.2);scene.add(LH);
 let ZK=0,ZKc=0;var POOLS=[],LAMPK=0;
 const amb=new THREE.AmbientLight(0x6070a0,.02);scene.add(amb);
 const torch=new THREE.SpotLight(0xfff4d6,0,14,.45,.55,1.4);torch.position.set(.15,-.1,0);camera.add(torch);torch.target.position.set(0,0,-5);camera.add(torch.target);
@@ -494,7 +493,7 @@ const SKY={day:{bg:0xb4d2e6,fd:.012,amb:0xf2f5fa,ab:1.5,ak:.15,sk:0,hk:2,lk:2,la
  night:{bg:0x05070a,fd:.075,amb:0x6070a0,ab:.02,ak:.4,sk:26,hk:16,lk:8,lamp:1,star:1,drone:.05}};
 function setTime(t,raw){{const d=(/^d([1-5])_/.exec(state)||[])[1]|0;if(!raw&&d>=2&&d<=4&&(t==='day'||t==='dusk'))t='night'}TIME=t;const k=SKY[t];LAMPK=k.lamp;scene.background.setHex(k.bg);scene.fog.density=k.fd;if(t!=='night')scene.fog.color.setHex(k.bg);amb.color.setHex(k.amb);AB=k.ab;AK=k.ak;SK=k.sk;HK=k.hk;LK=k.lk;
  GLOWS.forEach(g=>{g.visible=k.lamp>0;g.material.opacity=k.lamp});if(DOME){DOME.visible=t!=='night';if(SKYT[t]){DOME.material.map=SKYT[t];DOME.material.needsUpdate=true}}STARS.visible=MOON.visible=k.star>0;if(droneG)droneG.gain.value=k.drone;applyLights(lightF)}
-function applyLights(f){lightF=f;POOLS.forEach(p=>{p.m.material.opacity=p.b*(p.st?LAMPK:Math.min(1,f)*({day:.22,dusk:.7,night:1})[TIME])});{const k=(.16+.3*Math.min(1,f))*({day:1,dusk:.6,night:.2})[TIME];HCEIL.color.setRGB(.81*k,.78*k,.72*k)}LH.intensity=f*({day:8,dusk:10,night:9})[TIME];L1.intensity=f*LK;L2.intensity=f*LK;LZ.intensity=f*ZK;amb.intensity=AB+f*AK+(f>0&&TIME==='day'?.12:0);tubeMat.forEach(m=>m.color.setRGB(.2+.8*f,.22+.8*f,.25+.8*f));if(TIME==='night')scene.fog.color.setRGB(.02+.01*f,.027+.01*f,.04+.01*f);A.humv&&ac&&A.humv(f*.014)}
+function applyLights(f){lightF=f;POOLS.forEach(p=>{p.m.material.opacity=p.b*(p.st?LAMPK:Math.min(1,f)*({day:.22,dusk:.7,night:1})[TIME])});{const k=(.16+.3*Math.min(1,f))*({day:1,dusk:.6,night:.2})[TIME];HCEIL.color.setRGB(.81*k,.78*k,.72*k)}L1.intensity=f*LK;L2.intensity=f*LK;LZ.intensity=f*ZK;amb.intensity=AB+f*AK+(f>0&&TIME==='day'?.12:0);tubeMat.forEach(m=>m.color.setRGB(.2+.8*f,.22+.8*f,.25+.8*f));if(TIME==='night')scene.fog.color.setRGB(.02+.01*f,.027+.01*f,.04+.01*f);A.humv&&ac&&A.humv(f*.014)}
 async function flicker(pat,gap=70){for(const v of pat){applyLights(v);await sleep(gap+Math.random()*50)}}
 async function lightsOnNow(){await flicker([.3,0,.8,0,0,.6,1,.2,1]);lightsOn=true}
 function lightsOffNow(){lightsOn=false;applyLights(0)}
@@ -1017,7 +1016,7 @@ function update(dt){
   camera.position.set(P.x,EYE.y+(moving?Math.sin(P.bob)*.035:0),P.z);camera.rotation.y=P.yaw;camera.rotation.x=P.pitch;
   {let zx=0,zy=2.5,zz=0,zk=0;
    if(P.z>4.2&&P.z<14.8&&(P.z>14.2?!(P.x>3&&P.x<15.2):true)){let lx=LAMPS[0];for(const l of LAMPS)if(Math.abs(l-P.x)<Math.abs(lx-P.x))lx=l;zx=lx;zy=3.5;zz=10.5;zk=SK}
-   else if(P.z>=14.8&&P.x>3&&P.x<15.2){zk=0;zy=2.3;if(P.x<7.2){zx=5.2;zz=19}else if(P.z<19.4){zx=P.x<11.2?9.1:13.1;zz=17.2}else{zx=11;zz=21.2}}
+   else if(P.z>=14.8&&P.x>3&&P.x<15.2){zk=({day:3.8,dusk:5.5,night:4.2})[TIME];zy=2.3;if(P.x<7.2){zx=5.2;zz=19}else if(P.z<19.4){zx=P.x<11.2?9.1:13.1;zz=17.2}else{zx=11;zz=21.2}}
    else if(P.z<-4.2&&P.x>-2.7){zx=1.25;zz=-5.5;zk=7}
    else if(P.x<-6.8){zx=-8.25;zz=2.5;zk=6}
    {const cp=LZ.position,dd=Math.hypot(zx-cp.x,zz-cp.z)+Math.abs(zy-cp.y);
@@ -1059,7 +1058,7 @@ const G={KC,flo,wall,doorLeaf,regDoor,tm:nightClock,yawFrom,ZONES,AABB,AMB,perso
   AEV,AMBD,get ac(){return ac},get master(){return master},get ambG(){return ambG},
   get state(){return state},set state(v){state=v},get busy(){return busy},set busy(v){busy=v},
   setLights(v){lightsOn=v},setBlur(v){cv.style.transition='filter 1.4s';cv.style.filter=v?'blur(8px)':''}};
-const V=new URL(import.meta.url).search,BUILD='202611281715';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+const V=new URL(import.meta.url).search,BUILD='202611281735';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));
