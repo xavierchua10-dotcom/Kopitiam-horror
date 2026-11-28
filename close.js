@@ -176,26 +176,14 @@ G.tick.push(dt=>{
     if(cyLook>.9||P.z>3.2||cyT>120){cyS=2;F.visible=false;F.userData.sit=false;F.userData.hunch=false;
       if(cyLook>.9){G.busy=true;(async()=>{await csleep(500);await say('"...maaf..."',2400);G.busy=false})()}}}});
 
-/* Day 3: right after the mop, someone is crying in the toilet and glitter spills out of the stall. Go in: slow lean over the bowl, nothing there. Walk out and the figure is suddenly standing in the hall. */
+/* Day 3: right after the mop, someone is crying in the toilet. Go in: slow lean over the bowl, nothing there. Walk out and the figure is suddenly standing in the hall. */
 let wcTurn=0,wcHeard=false,wcCry=0,wcLook=0,wcT=0,wcGlow=0;
-const GLT=(()=>{const cv=document.createElement('canvas');cv.width=cv.height=64;const x=cv.getContext('2d');
-  let g=x.createRadialGradient(32,32,1,32,32,30);g.addColorStop(0,'rgba(255,255,255,1)');g.addColorStop(.15,'rgba(190,235,255,.8)');g.addColorStop(1,'rgba(150,220,255,0)');x.fillStyle=g;x.fillRect(0,0,64,64);
-  x.strokeStyle='rgba(255,255,255,.9)';x.lineWidth=1.5;x.beginPath();x.moveTo(32,2);x.lineTo(32,62);x.moveTo(2,32);x.lineTo(62,32);x.stroke();
-  const tx=new T.CanvasTexture(cv);tx.colorSpace=T.SRGBColorSpace;const grp=new T.Group();grp.visible=false;scene.add(grp);grp.userData.s=[];
-  for(let i=0;i<30;i++){const s=new T.Sprite(new T.SpriteMaterial({map:tx,transparent:true,depthWrite:false,blending:T.AdditiveBlending,opacity:.5,fog:false}));
-    const a=Math.random()*6.28,r=Math.random()*.85;s.position.set(-9.0+Math.cos(a)*r*.8,.15+Math.random()*1.6,1.7+Math.sin(a)*r);const w=.07+Math.random()*.13;s.scale.set(w,w,1);s.userData={w,p:Math.random()*6.28,k:1.5+Math.random()*2.5};grp.add(s);grp.userData.s.push(s)}
-  const gl=new T.Sprite(new T.SpriteMaterial({map:tx,transparent:true,depthWrite:false,blending:T.AdditiveBlending,opacity:.28,color:0x77ccff,fog:false}));gl.scale.set(2.6,2.6,1);gl.position.set(-9.0,.7,1.7);grp.add(gl);grp.userData.gl=gl;
-  return grp})();
-const WCL=new T.PointLight(0x8fd8ff,0,3.6);WCL.position.set(-8.9,.9,1.8);scene.add(WCL);
-const wcOn=()=>{GLT.visible=true;wcGlow=1;WCL.intensity=1.6};
-function wcOff(){GLT.visible=false;WCL.intensity=0;wcGlow=0}
+const wcOn=()=>{wcGlow=1};
+function wcOff(){wcGlow=0}
 function wcCue(){G.state='d3_wc';objT('Check the toilet');wcOn();wcHeard=false;wcCry=1.5}
 WPS.d3_wc={x:-7.7,z:2.55,r:.6,go:1,fn:()=>wcScene()};
 G.wcTest=()=>{ci=1;wcCue()};
 G.tick.push(dt=>{
-  if(!GLT.visible)return;
-  const t=performance.now()/1000;GLT.userData.s.forEach(s=>{const o=.35+.65*Math.abs(Math.sin(t*s.userData.k+s.userData.p));s.material.opacity=Math.min(1,o*wcGlow);s.position.y+=Math.sin(t+s.userData.p)*.0008});
-  GLT.userData.gl.material.opacity=.2*wcGlow*(.8+.2*Math.sin(t*2));
   if(G.state!=='d3_wc'||CINE.on)return;
   if(!wcHeard&&!G.busy){wcHeard=true;try{G.AMB.duck(2500)}catch(_){}say('...Someone is crying in the toilet.',2600)}
   wcCry-=dt;if(wcCry<0){wcCry=2.4+Math.random()*1.6;A.tone(200+Math.random()*60,150,1,.05*Math.max(.35,1-Math.hypot(P.x+9,P.z-1.7)/14),'sine')}});
@@ -206,8 +194,8 @@ async function wcScene(){
   await camTo(-8.85,3.3,ty(-8.85,3.3),-.05,1700);
   await Promise.all([camTo(-8.95,3.05,ty(-8.95,3.05),-.5,2600),tween(k=>{EYE.y=1.6-.25*k},2600)]);
   await csleep(600);
-  /* nothing there: the crying stops, the glitter fades out */
-  await Promise.all([camTo(-8.95,3.05,ty(-8.95,3.05),-.4,1800),tween(k=>{wcGlow=1-k},1800)]);
+  /* nothing there */
+  await camTo(-8.95,3.05,ty(-8.95,3.05),-.4,1800);
   wcOff();await csleep(1600);
   await say(sp('YOU','...I must have imagined it.'),3000);
   await csleep(500);
