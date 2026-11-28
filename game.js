@@ -784,10 +784,13 @@ async function d1Evening(){
   A.tone(190,184,1.1,.04,'sawtooth');await sleep(900);A.tone(190,184,1.6,.05,'sawtooth');await sleep(1000);
   await d1Blackout()}
 async function d1Blackout(){
-  setTime('night');lightsOffNow();torch.intensity=12;
+  lightsOffNow();torch.intensity=12;
   A.rumble();A.tone(46,36,1.8,.32,'sine');try{G.SFX&&G.SFX.play&&G.SFX.play('drone_doom',{g:.5})}catch(_){}
   CROWD.forEach((c,i)=>{const n=CROWD[(i+1)%CROWD.length];c.rotation.y=Math.atan2(-(n.position.x-c.position.x),-(n.position.z-c.position.z))});
-  await sleep(2800);
+  await sleep(900);
+  {const y0=P.yaw,ty=yawFrom(P.x,P.z,-2.4,-.5),dy=((ty-y0+Math.PI*3)%(Math.PI*2))-Math.PI;await tween(k=>{P.yaw=y0+dy*(k*k*(3-2*k))},1100)}
+  await say(sp('YOU','Damn... what happened?'),2000);
+  await sleep(600);
   await say('The whole shop is dark. Nobody screams.',2600);
   await say('They are all staring at each other.',2600);
   await say(sp('YOU','Atuk...?'),1500);
@@ -1017,7 +1020,7 @@ const G={tm:nightClock,yawFrom,ZONES,AABB,AMB,person,THREE,scene,camera,P,EYE,A,
   AEV,AMBD,get ac(){return ac},get master(){return master},get ambG(){return ambG},
   get state(){return state},set state(v){state=v},get busy(){return busy},set busy(v){busy=v},
   setLights(v){lightsOn=v},setBlur(v){cv.style.transition='filter 1.4s';cv.style.filter=v?'blur(8px)':''}};
-const V=new URL(import.meta.url).search,BUILD='202611273013';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
+const V=new URL(import.meta.url).search,BUILD='202611273014';{const b=document.getElementById('bld');if(b)b.textContent='build '+BUILD}
 import('./day2.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day2 not loaded',e));
 import('./day3.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day3 not loaded',e));
 import('./day4.js'+V).then(m=>m.default(G)).catch(e=>console.warn('day4 not loaded',e));
