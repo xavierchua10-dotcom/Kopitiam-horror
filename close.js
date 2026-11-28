@@ -58,6 +58,7 @@ const MOP=new T.Group();camera.add(MOP);MOP.visible=false;
  const hd=new T.Mesh(new T.BoxGeometry(.3,.04,.18),nm(0x777777));hd.position.set(0,-.02,0);hd.renderOrder=45;MOP.add(hd);
  for(let i=0;i<9;i++){const s=new T.Mesh(new T.BoxGeometry(.028,.16,.05),nm(i%2?0xd8d6cc:0xc4c2b6));s.position.set(-.12+i*.03,-.1,0);s.rotation.z=(i-4)*.05;s.renderOrder=46;MOP.add(s)}}
 const TB=new T.Mesh(new T.SphereGeometry(.17,7,6),new T.MeshBasicMaterial({color:0x111114,depthTest:false}));TB.scale.y=1.1;TB.renderOrder=44;TB.visible=false;camera.add(TB);
+const CFALL=new T.Mesh(new T.CylinderGeometry(.06,.05,.09,6),M(0xe4e0d2));CFALL.visible=false;scene.add(CFALL);
 
 const pace=(x,z,ms,bag)=>{const x0=P.x,z0=P.z;let st=0;return tween(k=>{const e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;P.x=x0+(x-x0)*e;P.z=z0+(z-z0)*e;st++;EYE.y=1.6+Math.sin(performance.now()/110)*.03;if(st%16===0)A.step()},ms).then(()=>{EYE.y=1.6})};
 const FIG=()=>G.FIG;
@@ -74,7 +75,7 @@ const CL=[
 let ci=0;
 WPS.d1_close={get x(){return CL[ci].x},get z(){return CL[ci].z},get tx(){return CL[ci].tx},get tz(){return CL[ci].tz},get lab(){return CL[ci].obj},manual:true,r:.6,go:1,get fn(){return CL[ci].fn}};
 G.closeJump=n=>{ci=n;objT(CL[n].obj)};
-G.closeInit=()=>{ci=0;dAt(0);if(AABB.indexOf(doorBlock)<0)AABB.push(doorBlock);SBIN.visible=true;CUPS2.forEach(m=>m.visible=true);BAGW.visible=false;setClock('6:05 PM');objT(CL[0].obj)};
+G.closeInit=()=>{ci=0;CFALL.position.set(3.3,.97,-6.45);CFALL.rotation.set(0,0,0);CFALL.scale.setScalar(1.7);CFALL.visible=true;dAt(0);if(AABB.indexOf(doorBlock)<0)AABB.push(doorBlock);SBIN.visible=true;CUPS2.forEach(m=>m.visible=true);BAGW.visible=false;setClock('6:05 PM');objT(CL[0].obj)};
 async function run(i){if(G.busy||CINE.on||i!==ci)return;G.busy=true;A.click();await cineIn();
   await [mop,cups,bagUp,backDoor,throwBag][i]();
   setClock(['6:12 PM','6:20 PM','6:24 PM','6:27 PM','6:36 PM'][i]);ci++;if(ci>=CL.length){G.state='d1_lock';objT('Lock up')}else objT(CL[ci].obj);
@@ -91,18 +92,9 @@ async function mop(){
     MOP.position.set(.24+sw*.08,-.22,-.8);MOP.rotation.set(-.3,0,-.12+sw*.1);
     WET.material.opacity=Math.min(.3,k*.9);
     if((performance.now()-t0)/420>nx){nx++;A.nz(.35,700,400,.08);if(nx%2)A.step();else G.SFX&&G.SFX.play('slosh',{g:.5,wet:.2,rate:.9+Math.random()*.2})}},3600);
-  /* lights stutter. someone is standing between the tables. */
   MOP.visible=false;
-  A.tone(60,40,1.6,.2,'sine');
-  await flicker([.4,0,.5,0,.15],90);applyLights(.25);
-  faceFig(-1.1,-2.7);
-  await Promise.all([camTo(P.x,P.z,yawTo(-1.1,-2.7),0,700),tween(k=>{EYE.y=1.25+.35*k},700)]);EYE.y=1.6;
-  A.nz(.5,200,120,.1,'lowpass');
-  await csleep(1500);
-  await flicker([0,.6,0,.2],70);G.FIG.visible=false;applyLights(1);A.scrape&&A.scrape();
-  WET.material.opacity=0;
-  await csleep(500);
-  await say('...Nobody there. Just the mop.',2200)}
+  await tween(k=>{WET.material.opacity=.3*(1-k)},900);WET.material.opacity=0;
+  await say('Wet floor. It will be dry by morning.',2200)}
 
 /* 2. cups — something stands out in the street, watching */
 async function cups(){
@@ -112,14 +104,7 @@ async function cups(){
     for(const j of idx){const m=CUPS2[j],p0=m.position.clone();handAct('reach',800);
       await tween(k=>{m.position.set(p0.x+(px-p0.x)*k,p0.y+.4*k,p0.z+(pz-p0.z)*k);m.scale.setScalar(1+.6*k)},520);
       A.clink();m.visible=false;await csleep(220)}
-    if(s===2){
-      /* a long quiet, then you feel it */
-      await csleep(700);G.AMB.duck(2600);
-      faceFig(.4,6.9);
-      await look(.4,6.9,.02,900);
-      await csleep(1700);
-      await flicker([.3,0,.7,0,1],80);G.FIG.visible=false;
-      await look(2.8,-1.8,-.3,600);await say('...Just a shadow from the street.',2200)}}
+  }
   /* to the bin */
   await Promise.all([pace(3.0,-2.3,1300),camTo(3.0,-2.3,yawFrom(3.0,-2.3,4.5,-2.2),-.6,1300)]);
   for(let i=0;i<5;i++){A.tone(2400-i*120,1800,.08,.05);A.nz(.08,3000,1800,.05,'highpass');await csleep(260)}
@@ -141,7 +126,8 @@ async function backDoor(){
   await tween(k=>dAt(Math.min(1,k*1.1)),900);
   const di=AABB.indexOf(doorBlock);if(di>=0)AABB.splice(di,1);
   CINE.noclip=false;
-  await say('Cold air from the lane.',1700)}
+  A.tone(70,50,.5,.08,'sine');lampFlick([.4,1,.15,.9]);await flicker([.5,0,.7,.2,1],85);
+  await say('Cold air from the lane. The lights flicker once.',2200)}
 async function throwBag(){
   CINE.noclip=true;
   await camTo(P.x,P.z,yawFrom(P.x,P.z,8.9,-8.7),-.3,800);
@@ -153,24 +139,20 @@ async function throwBag(){
   TB.visible=false;A.nz(.25,200,90,.3,'lowpass');A.tone(90,60,.3,.2);
   await csleep(700);
   await say('Done. Shutter, then home.',1700);
-  /* turn around: a black shape fills the lit doorway */
-  A.tone(55,38,1.8,.25);
-  const dl=await lampFlick([.2,0,.4,0]);
-  faceFig(5.2,-5.1);
-  const cam=camTo(P.x,P.z,yawTo(5.6,-5.1),.02,1000);
-  await tween(k=>{const f=G.FIG;f.position.x=5.2+1.5*k*k;f.rotation.y=Math.atan2(P.x-f.position.x,P.z-f.position.z)+Math.PI},1900);await cam;
-  await csleep(300);
-  laneLamp(0);await csleep(250);
-  G.FIG.visible=false;laneLamp(1);
-  await tween(k=>dAt(1-Math.min(1,k*3)),320);A.knock();A.nz(.3,160,60,.5,'lowpass');
+  /* back inside: the door stays open, a cup rolls off the counter by itself */
+  await pace(6.4,-5.1,1500);await camTo(P.x,P.z,yawFrom(P.x,P.z,5.1,-5.1),0,500);
+  await pace(4.1,-5.1,1800);
+  await camTo(P.x,P.z,yawFrom(P.x,P.z,3.2,-6.2),-.3,800);
   await csleep(900);
-  await say('The wind. It is just the wind.',2200);
-  await pace(6.4,-5.1,1500);await camTo(P.x,P.z,yawTo(5.1,-5.1),0,500);
-  handAct('reach',1200);await csleep(500);A.click();
-  await tween(k=>dAt(Math.min(1,k*1.2)),700);
-  await pace(4.1,-5.1,1800);await camTo(P.x,P.z,yawTo(5.1,-5.1),0,600);
+  {await tween(k=>{CFALL.position.set(3.3,.97,-6.45+.1*k);CFALL.rotation.x=k*.45},500);
+   A.tone(900,700,.03,.03);
+   camTo(P.x,P.z,yawFrom(P.x,P.z,3.2,-6.0),-.55,900);await tween(k=>{CFALL.position.set(3.3-.05*k,.97-.9*k*k,-6.35+.25*k);CFALL.rotation.x=.45+k*2.4},420);
+   A.clink();await tween(k=>{CFALL.position.set(3.25-.35*k,.08+Math.sin(k*Math.PI)*.06,-6.1+.2*k);CFALL.rotation.x=Math.PI/2;CFALL.rotation.z=k*2.4},560);A.clink()}
+  await csleep(1200);
+  await say('A cup rolls off the counter. Nobody touched it.',2400);
+  await camTo(P.x,P.z,yawFrom(P.x,P.z,5.1,-5.1),0,700);
   handAct('reach',1200);await csleep(400);
-  await tween(k=>dAt(1-k),700);A.knock();
+  await tween(k=>dAt(1-k),700);A.click();
   await csleep(400);
   CINE.noclip=false;SBIN.visible=false;TB.visible=false;if(AABB.indexOf(doorBlock)<0)AABB.push(doorBlock)}
 }

@@ -191,3 +191,4 @@ A short, story-based 3D horror game set in a Malaysian kopitiam. The player live
 - 202611273015: Midnight: 3 knocks, you get out of bed, walk to the door marker, tap 'Open the door'; Atuk talks then walks back to his own room (no vanish).
 - 202611273016: Waypoint marker = small glowing floating dot + faint floor ring (no beam/big arrow); fades when you are close.
 - 202611273018: Home: dining table moved away from bedroom door, table clock removed. Day 1: no long idle wait after customers leave. Closing chores now 5 taps: mop, cups, take bag (at bin), open back door (marker), throw bag (lane marker); cameras aimed from destination so cups/bag/door/mop are on screen; closing clock no longer goes backwards.
+- 202611273019: Day 1 scares removed (no mop figure, no street figure, no lane black shape). Hints only: lights flicker when you open the back door; after throwing the trash a cup rolls off the stove by itself as you walk back in.
